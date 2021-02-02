@@ -2,12 +2,19 @@
 
 namespace Invoke;
 
+use Closure;
 use Invoke\Typesystem\Typesystem;
 use Invoke\Typesystem\Undef;
-use RuntimeException;
 
 abstract class InvokeFunction
 {
+    /**
+     * Extension traits
+     *
+     * @var array $registeredTraits
+     */
+    private array $registeredTraits = [];
+
     /**
      * Used for documentation.
      *
@@ -38,6 +45,16 @@ abstract class InvokeFunction
     protected abstract function handle(array $params);
 
     /**
+     * Prepare function to invocation.
+     *
+     * @param array $params
+     */
+    protected function prepare(array $params)
+    {
+        //
+    }
+
+    /**
      * Add access verification.
      *
      * @param array $params
@@ -56,9 +73,13 @@ abstract class InvokeFunction
      */
     public function invoke(array $inputParams)
     {
+        $this->registerTraits();
+
+        $this->executeRegisteredTraits("initialize");
+
         if (static::$secured) {
             if (!InvokeMachine::isAuthorized()) {
-                throw new RuntimeException("Unauthorized", 401);
+                throw new InvokeError("UNAUTHORIZED", 401);
             }
         }
 
@@ -82,13 +103,18 @@ abstract class InvokeFunction
             $validatedParams[$paramName] = $value;
         }
 
-        if (method_exists($this, "beforeInvoke")) {
-            $this->beforeInvoke($validatedParams);
-        }
+        $this->prepare($validatedParams);
+        $this->executeRegisteredTraits("prepare", [$validatedParams]);
 
         if (!$this->guard($validatedParams)) {
-            throw new RuntimeException("Forbidden", 403);
+            throw new InvokeError("FORBIDDEN", 403);
         }
+
+        $this->executeRegisteredTraits("guard", [$validatedParams], function ($allowed) {
+            if (!$allowed) {
+                throw new InvokeError("FORBIDDEN", 403);
+            }
+        });
 
         $result = $this->handle($validatedParams);
 
@@ -96,6 +122,28 @@ abstract class InvokeFunction
             return Typesystem::validateParam("{$className}::{$this::$resultType}", $this::$resultType, $result);
         } else {
             return $result;
+        }
+    }
+
+    private function registerTraits()
+    {
+        foreach (class_uses($this) as $trait) {
+            $this->registeredTraits[] = $trait;
+        }
+    }
+
+    private function executeRegisteredTraits(string $name, array $functionParams = [], Closure $handler = null)
+    {
+        foreach ($this->registeredTraits as $trait) {
+            $methodName = $name . invoke_get_class_name($trait);
+
+            if (method_exists($this, $methodName)) {
+                $result = $this->{$methodName}(...$functionParams);;
+
+                if ($handler) {
+                    $handler($result);
+                }
+            }
         }
     }
 }

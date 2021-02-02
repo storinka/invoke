@@ -3,30 +3,9 @@
 namespace Invoke\Typesystem;
 
 use Invoke\InvokeMachine;
-use Invoke\Typesystem\Extensions\TypesystemExtension;
-use Invoke\Typesystem\Extensions\TypesystemExtensionSkipException;
-
-function is_assoc_array(array $array): bool
-{
-    $keys = array_keys($array);
-    return array_keys($keys) !== $keys;
-}
 
 class Typesystem
 {
-    /**
-     * @var array<TypesystemExtension> $extensions
-     */
-    protected static array $extensions = [];
-
-    /**
-     * @param $extension
-     */
-    public static function extend($extension)
-    {
-        array_push(static::$extensions, $extension);
-    }
-
     /**
      * @param string $paramName
      * @param mixed $paramType
@@ -76,14 +55,6 @@ class Typesystem
             }
 
             throw new TypesystemValidationException($paramName, $paramType, $valueType);
-        }
-
-        foreach (static::$extensions as $extension) {
-            try {
-                $value = $extension->apply($paramName, $paramType, $value, $valueType);
-            } catch (TypesystemExtensionSkipException $exception) {
-                // skip operation
-            }
         }
 
         if (!InvokeMachine::configuration("strict")) {
@@ -145,7 +116,7 @@ class Typesystem
         }
 
         if ($paramType === Type::Map) {
-            if (is_array($value) && (is_assoc_array($value) || empty($value))) {
+            if (is_array($value) && (invoke_is_assoc($value) || empty($value))) {
                 return $value;
             }
 
@@ -185,6 +156,10 @@ class Typesystem
 
     public static function getTypeName($type): string
     {
+        if ($type instanceof CustomType) {
+            return static::getTypeName($type->type);
+        }
+
         if (is_array($type)) {
             $type = implode(" | ", array_map(fn($t) => Typesystem::getTypeName($t), $type));
         }

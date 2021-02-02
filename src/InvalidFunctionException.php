@@ -2,12 +2,10 @@
 
 namespace Invoke;
 
-use RuntimeException;
-
-class InvalidFunctionException extends RuntimeException
+class InvalidFunctionException extends InvokeError
 {
     public function __construct($functionName)
     {
-        parent::__construct("Invalid function \"{$functionName}\"", 400);
+        parent::__construct("INVALID_FUNCTION", 400);
     }
 }

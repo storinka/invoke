@@ -18,7 +18,11 @@
   "autoload": {
     "psr-4": {
       "Invoke\\": "src"
-    }
+    },
+    "files": [
+      "src/maintenance.php",
+      "src/utils.php"
+    ]
   },
   "autoload-dev": {
     "psr-4": {

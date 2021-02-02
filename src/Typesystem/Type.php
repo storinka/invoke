@@ -47,8 +47,8 @@ class Type
                 throw new RuntimeException("INVALID_PARAM_ARRAY_SIZE_VALUE");
             }
 
-            for ($i = 0; $i < $size; $i++) {
-                $value[$i] = Typesystem::validateParam("{$paramName}[{$i}]", $type, $value[$i]);
+            foreach ($value as $i => $v) {
+                $value[$i] = Typesystem::validateParam("{$paramName}[{$i}]", $type, $v);
             }
 
             return $value;
@@ -113,5 +113,58 @@ class Type
 
             return $value;
         }, fn() => "Regex($pattern)");
+    }
+
+    public static function getStringTypeRepresentation($type)
+    {
+        if ($type instanceof CustomType) {
+            return $type->type;
+        }
+
+        if (is_array($type)) {
+            if (invoke_is_assoc($type)) {
+                return $type;
+            } else {
+                return implode(" | ", array_map(fn($type) => Type::getStringTypeRepresentation($type), $type));
+            }
+        }
+
+        return Type::getProperTypeName($type);
+    }
+
+    public static function getProperTypeName($type)
+    {
+        if ($type instanceof CustomType) {
+            return Type::getProperTypeName($type->type);
+        }
+
+        if (is_array($type)) {
+            $type = array_map(fn($t) => Type::getProperTypeName($t), $type);
+        }
+
+        switch ($type) {
+            case Type::Int:
+                return "Int";
+            case Type::String:
+                return "String";
+            case Type::Float:
+                return "Float";
+            case Type::Array:
+                return "Array";
+            case Type::Bool:
+                return "Bool";
+            case Type::Undef:
+                return "Undef";
+
+            case Null:
+            case "NULL":
+                return "Null";
+        }
+
+        if (is_string($type) && class_exists($type)) {
+            return invoke_get_class_name($type);
+        }
+
+        return $type;
     }
 }
