@@ -22,16 +22,10 @@ class InvokeMachine
     ];
 
     /**
-     * @var InvokeUserAuthorization|mixed $authorization
-     */
-    protected static $authorization;
-
-    /**
      * @param array $functionsTree
      * @param array $configuration
-     * @param InvokeUserAuthorization|mixed $authorization
      */
-    public static function setup(array $functionsTree, array $configuration = [], $authorization = null)
+    public static function setup(array $functionsTree, array $configuration = [])
     {
         ksort($functionsTree);
 
@@ -53,7 +47,6 @@ class InvokeMachine
         }
 
         static::$configuration = array_merge(static::$configuration, $configuration);
-        static::$authorization = $authorization;
     }
 
     public static function functionsTree(): array
@@ -80,18 +73,12 @@ class InvokeMachine
         return static::$configuration;
     }
 
-    public static function isAuthorized(): bool
+    public static function invoke(string $functionName, array $inputParams, int $version = null)
     {
-        return isset(static::$authorization);
-    }
+        if (!$version) {
+            $version = static::version();
+        }
 
-    public static function authorization()
-    {
-        return static::$authorization;
-    }
-
-    public static function invoke(string $functionName, array $inputParams, int $version)
-    {
         if (!isset(static::$functionsFullTree[$version])) {
             throw new InvokeError("INVALID_VERSION", 400);
         }

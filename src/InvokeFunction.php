@@ -23,13 +23,6 @@ abstract class InvokeFunction
     public static string $resultType;
 
     /**
-     * Says that a user must be authenticated before using this function.
-     *
-     * @var bool $secured
-     */
-    public static bool $secured = true;
-
-    /**
      * Returns array of params.
      *
      * @return array
@@ -76,12 +69,6 @@ abstract class InvokeFunction
         $this->registerTraits();
 
         $this->executeRegisteredTraits("initialize");
-
-        if (static::$secured) {
-            if (!InvokeMachine::isAuthorized()) {
-                throw new InvokeError("UNAUTHORIZED", 401);
-            }
-        }
 
         $className = static::class;
 

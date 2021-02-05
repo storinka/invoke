@@ -101,7 +101,7 @@ class Type
             }
 
             return $value;
-        }, fn() => "In(" . implode(", ", $values) . ")");
+        }, "In(" . implode(", ", $values) . ")");
     }
 
     public static function Regex(string $pattern): CustomType
@@ -112,59 +112,6 @@ class Type
             }
 
             return $value;
-        }, fn() => "Regex($pattern)");
-    }
-
-    public static function getStringTypeRepresentation($type)
-    {
-        if ($type instanceof CustomType) {
-            return $type->type;
-        }
-
-        if (is_array($type)) {
-            if (invoke_is_assoc($type)) {
-                return $type;
-            } else {
-                return implode(" | ", array_map(fn($type) => Type::getStringTypeRepresentation($type), $type));
-            }
-        }
-
-        return Type::getProperTypeName($type);
-    }
-
-    public static function getProperTypeName($type)
-    {
-        if ($type instanceof CustomType) {
-            return Type::getProperTypeName($type->type);
-        }
-
-        if (is_array($type)) {
-            $type = array_map(fn($t) => Type::getProperTypeName($t), $type);
-        }
-
-        switch ($type) {
-            case Type::Int:
-                return "Int";
-            case Type::String:
-                return "String";
-            case Type::Float:
-                return "Float";
-            case Type::Array:
-                return "Array";
-            case Type::Bool:
-                return "Bool";
-            case Type::Undef:
-                return "Undef";
-
-            case Null:
-            case "NULL":
-                return "Null";
-        }
-
-        if (is_string($type) && class_exists($type)) {
-            return invoke_get_class_name($type);
-        }
-
-        return $type;
+        }, "Regex($pattern)");
     }
 }

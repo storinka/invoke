@@ -2,7 +2,7 @@
 
 namespace Invoke\Typesystem\Docs;
 
-use Invoke\Typesystem\Type;
+use Invoke\Typesystem\Typesystem;
 use phpDocumentor\Reflection\DocBlockFactory;
 use ReflectionClass;
 
@@ -23,7 +23,7 @@ class ClassTypeDocumentResult extends TypeDocumentResult
         $summary = isset($docblock) ? $docblock->getSummary() : null;
         $description = isset($docblock) ? $docblock->getDescription() : null;
 
-        $params = array_map(fn($type) => Type::getProperTypeName($type), $class::params());
+        $params = array_map(fn($type) => Typesystem::getTypeName($type), $class::params());
 
         return [
             "name" => $name,

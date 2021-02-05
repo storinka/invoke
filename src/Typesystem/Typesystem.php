@@ -29,7 +29,7 @@ class Typesystem
             foreach ($paramType as $orParamType) {
                 try {
                     return Typesystem::validateParam($paramName, $orParamType, $value);
-                } catch (TypesystemValidationException $exception) {
+                } catch (TypesystemValidationException $e) {
                     // ignore
                 }
             }
@@ -161,6 +161,10 @@ class Typesystem
         }
 
         if (is_array($type)) {
+            if (invoke_is_assoc($type)) {
+                return "ASSOC";
+            }
+
             $type = implode(" | ", array_map(fn($t) => Typesystem::getTypeName($t), $type));
         }
 
@@ -179,6 +183,7 @@ class Typesystem
                 return "Array";
             case Type::Bool:
                 return "Bool";
+            case null:
             case Type::Null:
                 return "Null";
 
@@ -187,9 +192,12 @@ class Typesystem
 
             case Type::Map:
                 return "Map";
-
-            default:
-                return $type;
         }
+
+        if (is_string($type) && class_exists($type)) {
+            return invoke_get_class_name($type);
+        }
+
+        return $type;
     }
 }
