@@ -5,7 +5,7 @@ Brand-new way of creating web API (at least for me).
 ## Installation
 
 ```shell
-composer require storinka/core-php
+composer require storinka/invoke
 ```
 
 ## Basic usage
