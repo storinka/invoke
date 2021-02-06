@@ -2,9 +2,9 @@
 
 namespace Invoke\Typesystem;
 
-use RuntimeException;
+use Invoke\InvokeError;
 
-class TypesystemValidationException extends RuntimeException
+class TypesystemValidationException extends InvokeError
 {
     protected string $paramName;
     protected string $paramType;
@@ -16,7 +16,13 @@ class TypesystemValidationException extends RuntimeException
         $this->paramType = Typesystem::getTypeName($paramType);
         $this->actualType = Typesystem::getTypeName($actualType);
 
-        parent::__construct("Invalid \"{$this->paramName}\" type: expected \"{$this->paramType}\", got \"{$this->actualType}\".", 400);
+        parent::__construct("INVALID_PARAM_TYPE", 400, [
+            "param" => $paramName,
+            "type" => $this->paramType,
+            "actual_type" => $this->actualType,
+        ]);
+
+        $this->message = "Invalid \"{$this->paramName}\" type: expected \"{$this->paramType}\", got \"{$this->actualType}\".";
     }
 
     /**

@@ -157,7 +157,7 @@ class Typesystem
     public static function getTypeName($type): string
     {
         if ($type instanceof CustomType) {
-            return static::getTypeName($type->type);
+            return $type->string;
         }
 
         if (is_array($type)) {

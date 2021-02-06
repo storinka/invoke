@@ -101,7 +101,7 @@ class Type
             }
 
             return $value;
-        }, "In(" . implode(", ", $values) . ")");
+        }, Typesystem::getTypeName($type));
     }
 
     public static function Regex(string $pattern): CustomType
@@ -112,6 +112,6 @@ class Type
             }
 
             return $value;
-        }, "Regex($pattern)");
+        }, "String");
     }
 }

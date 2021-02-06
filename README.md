@@ -1,4 +1,4 @@
-# Fink
+# Storinka Invoke
 
 Brand-new way of creating web API (at least for me).
 
@@ -13,7 +13,8 @@ composer require storinka/core-php
 ```php
 // UserResult.php
 
-use Invoke\Typesystem\Result;use Invoke\Typesystem\Type;
+use Invoke\Typesystem\Result;
+use Invoke\Typesystem\Type;
 
 class UserResult extends Result
 {
