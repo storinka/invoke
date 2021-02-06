@@ -3,6 +3,7 @@
 namespace Invoke\Typesystem;
 
 use Invoke\Typesystem\CustomTypes\InArrayCustomType;
+use Invoke\Typesystem\CustomTypes\IntCustomType;
 use Invoke\Typesystem\CustomTypes\RegexCustomType;
 use Invoke\Typesystem\CustomTypes\StringCustomType;
 use Invoke\Typesystem\CustomTypes\TypedArrayCustomType;
@@ -57,7 +58,7 @@ class Type
             return Type::Int;
         }
 
-        return new TypedArrayCustomType($min, $max);
+        return new IntCustomType($min, $max);
     }
 
     public static function In(array $values, $type = Type::String)
