@@ -8,7 +8,7 @@ use Invoke\Typesystem\Type;
 
 class IntCustomType extends CustomType
 {
-    protected $type = Type::String;
+    protected $type = Type::Int;
 
     protected $minValue;
     protected $maxMax;

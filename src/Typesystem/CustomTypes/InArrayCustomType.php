@@ -8,12 +8,11 @@ use Invoke\Typesystem\Type;
 
 class InArrayCustomType extends CustomType
 {
-    protected $type = Type::Array;
-
     protected $values = [];
 
-    public function __construct(array $values)
+    public function __construct(array $values, $type = Type::String)
     {
+        $this->type = $type;
         $this->values = $values;
     }
 

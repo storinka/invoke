@@ -60,9 +60,9 @@ class Type
         return new TypedArrayCustomType($min, $max);
     }
 
-    public static function In(array $values)
+    public static function In(array $values, $type = Type::String)
     {
-        return new InArrayCustomType($values);
+        return new InArrayCustomType($values, $type);
     }
 
     public static function Regex(string $pattern)
