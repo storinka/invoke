@@ -183,8 +183,11 @@ class Typesystem
                 return "Float";
             case Type::Array:
                 return "Array";
+
+            case "bool":
             case Type::Bool:
                 return "Bool";
+
             case null:
             case Type::Null:
                 return "Null";
