@@ -3,6 +3,7 @@
 namespace Invoke;
 
 use Closure;
+use Invoke\Typesystem\CustomType;
 use Invoke\Typesystem\Typesystem;
 use Invoke\Typesystem\Undef;
 
@@ -12,9 +13,9 @@ abstract class InvokeFunction
     /**
      * Used for documentation.
      *
-     * @var string $resultType
+     * @var string|CustomType $resultType
      */
-    public static string $resultType;
+    public static $resultType;
 
     /**
      * Extension traits
