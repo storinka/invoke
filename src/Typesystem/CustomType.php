@@ -2,35 +2,47 @@
 
 namespace Invoke\Typesystem;
 
-class CustomType
+abstract class CustomType
 {
-    public $type;
-    public $handle;
-    public $string;
+    /**
+     * Basically a native type. But also can be @CustomType.
+     *
+     * @var string|CustomType $type
+     */
+    protected $type;
 
     /**
-     * @param string|array $type
-     * @param callable $handle
-     * @param string|null $string
+     * String representation of the type. If not set, then from $type will be used.
+     *
+     * @var null|string $stringRepresentation
      */
-    public function __construct($type, callable $handle, $string = null)
+    protected $stringRepresentation;
+
+    /**
+     * @param string $paramName
+     * @param $value
+     *
+     * @return mixed
+     */
+    public abstract function validate(string $paramName, $value);
+
+    /**
+     * @return string|CustomType
+     */
+    public function getType()
     {
-        $this->type = $type;
-        $this->handle = $handle;
-        $this->string = $string;
+        return $this->type;
     }
 
     /**
-     * @param $paramName
-     * @param $value
      * @return mixed
      */
-    public final function validate($paramName, $value)
+    public function getStringRepresentation(): string
     {
-        if (isset($this->type) && !is_null($this->type)) {
-            $value = Typesystem::validateParam($paramName, $this->type, $value);
+        if (is_null($this->stringRepresentation)) {
+            return Typesystem::getTypeName($this->type);
         }
 
-        return call_user_func($this->handle, $paramName, $value);
+        return $this->stringRepresentation;
     }
 }

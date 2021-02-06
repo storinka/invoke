@@ -2,7 +2,10 @@
 
 namespace Invoke\Typesystem;
 
-use RuntimeException;
+use Invoke\Typesystem\CustomTypes\InArrayCustomType;
+use Invoke\Typesystem\CustomTypes\RegexCustomType;
+use Invoke\Typesystem\CustomTypes\StringCustomType;
+use Invoke\Typesystem\CustomTypes\TypedArrayCustomType;
 
 class Type
 {
@@ -34,84 +37,36 @@ class Type
         return Type::Some(Type::Undef, $or);
     }
 
-    public static function ArrayOf($type, $min = 0, $max = null): CustomType
+    public static function ArrayOf($type = Type::String, $min = null, $max = null)
     {
-        return new CustomType(Type::Array, function ($paramName, $value) use ($max, $min, $type) {
-            $size = sizeof(array_values($value));
-
-            if ($size < $min) {
-                throw new RuntimeException("INVALID_PARAM_ARRAY_SIZE_VALUE");
-            }
-
-            if ($max && $size > $max) {
-                throw new RuntimeException("INVALID_PARAM_ARRAY_SIZE_VALUE");
-            }
-
-            foreach ($value as $i => $v) {
-                $value[$i] = Typesystem::validateParam("{$paramName}[{$i}]", $type, $v);
-            }
-
-            return $value;
-        }, "Array<" . Typesystem::getTypeName($type) . ">");
+        return new TypedArrayCustomType($type, $min, $max);
     }
 
-    public static function String(int $minLength = 0, $maxLength = null): CustomType
+    public static function String(int $minLength = null, $maxLength = null)
     {
-        return new CustomType(Type::String, function ($paramName, $value) use ($maxLength, $minLength) {
-            if (!is_null($minLength)) {
-                if (strlen($value) < $minLength) {
-                    throw new RuntimeException("INVALID_PARAM_STRING_VALUE");
-                }
-            }
+        if (is_null($minLength) && is_null($maxLength)) {
+            return Type::String;
+        }
 
-            if (!is_null($maxLength)) {
-                if (strlen($value) > $maxLength) {
-                    throw new RuntimeException("INVALID_PARAM_STRING_VALUE");
-                }
-            }
-
-            return $value;
-        }, "String");
+        return new StringCustomType($minLength, $maxLength);
     }
 
-    public static function Int(int $min = null, int $max = null): CustomType
+    public static function Int(int $min = null, int $max = null)
     {
-        return new CustomType(Type::Int, function ($paramName, $value) use ($min, $max) {
-            if (!is_null($min)) {
-                if ($value < $min) {
-                    throw new RuntimeException("INVALID_PARAM_INT_VALUE");
-                }
-            }
+        if (is_null($min) && is_null($max)) {
+            return Type::Int;
+        }
 
-            if (!is_null($max)) {
-                if ($value > $max) {
-                    throw new RuntimeException("INVALID_PARAM_INT_VALUE");
-                }
-            }
-
-            return $value;
-        }, "Int");
+        return new TypedArrayCustomType($min, $max);
     }
 
-    public static function In(array $values, $type = Type::String): CustomType
+    public static function In(array $values)
     {
-        return new CustomType($type, function ($paramName, $value) use ($values) {
-            if (!in_array($value, $values)) {
-                throw new RuntimeException("INVALID_PARAM_VALUES");
-            }
-
-            return $value;
-        }, Typesystem::getTypeName($type));
+        return new InArrayCustomType($values);
     }
 
-    public static function Regex(string $pattern): CustomType
+    public static function Regex(string $pattern)
     {
-        return new CustomType(Type::String, function ($paramName, $value) use ($pattern) {
-            if (!preg_match($pattern, $value)) {
-                throw new RuntimeException("INVALID_REGEX_VALUE");
-            }
-
-            return $value;
-        }, "String");
+        return new RegexCustomType($pattern);
     }
 }

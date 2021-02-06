@@ -124,6 +124,8 @@ class Typesystem
         }
 
         if ($paramType instanceof CustomType) {
+            Typesystem::validateParam($paramName, $paramType->getType(), $value);
+
             return $paramType->validate($paramName, $value);
         }
 
@@ -157,12 +159,12 @@ class Typesystem
     public static function getTypeName($type): string
     {
         if ($type instanceof CustomType) {
-            return $type->string;
+            return $type->getStringRepresentation();
         }
 
         if (is_array($type)) {
             if (invoke_is_assoc($type)) {
-                return "ASSOC";
+                return Type::T;
             }
 
             $type = implode(" | ", array_map(fn($t) => Typesystem::getTypeName($t), $type));
