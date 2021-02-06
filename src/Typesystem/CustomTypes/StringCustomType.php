@@ -19,7 +19,7 @@ class StringCustomType extends CustomType
         $this->maxLength = $maxLength;
     }
 
-    public function validate(string $paramName, $value): string
+    public function validate(string $paramName, $value)
     {
         $length = strlen($value);
 

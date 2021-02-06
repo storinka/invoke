@@ -19,7 +19,7 @@ class IntCustomType extends CustomType
         $this->maxMax = $maxValue;
     }
 
-    public function validate(string $paramName, $value): string
+    public function validate(string $paramName, $value)
     {
         if (!is_null($this->minValue)) {
             if ($value < $this->minValue) {
