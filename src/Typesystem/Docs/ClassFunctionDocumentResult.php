@@ -27,9 +27,9 @@ class ClassFunctionDocumentResult extends FunctionDocumentResult
         $summary = isset($docblock) ? $docblock->getSummary() : null;
         $description = isset($docblock) ? $docblock->getDescription() : null;
         if (!$class::resultType()) {
-            $result = $returnType ? Typesystem::getTypeName($returnType->getName()) : null;
+            $result = isset($returnType) ? Typesystem::getTypeName($returnType->getName()) : null;
         } else {
-            $result = Typesystem::getTypeName($class::$resultType);
+            $result = Typesystem::getTypeName($class::resultType());
         }
 
         $params = array_map(fn($type) => Typesystem::getTypeName($type), $class::params());
