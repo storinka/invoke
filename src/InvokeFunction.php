@@ -3,20 +3,11 @@
 namespace Invoke;
 
 use Closure;
-use Invoke\Typesystem\CustomType;
 use Invoke\Typesystem\Typesystem;
 use Invoke\Typesystem\Undef;
 
 abstract class InvokeFunction
 {
-
-    /**
-     * Used for documentation.
-     *
-     * @var string|CustomType $resultType
-     */
-    public static $resultType;
-
     /**
      * Extension traits
      *
@@ -112,6 +103,11 @@ abstract class InvokeFunction
         } else {
             return $result;
         }
+    }
+
+    public static function resultType()
+    {
+        return null;
     }
 
     private function registerTraits()

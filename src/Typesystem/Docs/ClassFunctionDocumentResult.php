@@ -20,13 +20,13 @@ class ClassFunctionDocumentResult extends FunctionDocumentResult
             $docblock = $docBlockFactory->create($comment);
         }
 
-        if (!isset($class::$resultType)) {
+        if (!$class::resultType()) {
             $returnType = $reflection->getMethod("handle")->getReturnType();
         }
 
         $summary = isset($docblock) ? $docblock->getSummary() : null;
         $description = isset($docblock) ? $docblock->getDescription() : null;
-        if (!isset($class::$resultType)) {
+        if (!$class::resultType()) {
             $result = $returnType ? Typesystem::getTypeName($returnType->getName()) : null;
         } else {
             $result = Typesystem::getTypeName($class::$resultType);
