@@ -1,5 +1,5 @@
 {
-  "version": "0.0.2",
+  "version": "0.0.3",
   "name": "storinka/invoke",
   "description": "invoke core library",
   "type": "library",
@@ -11,6 +11,7 @@
     }
   ],
   "minimum-stability": "dev",
+  "prefer-stable": true,
   "require": {
     "php": "^7.4",
     "ext-json": "*"
