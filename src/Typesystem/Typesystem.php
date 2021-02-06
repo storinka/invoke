@@ -57,6 +57,22 @@ class Typesystem
             throw new TypesystemValidationException($paramName, $paramType, $valueType);
         }
 
+        if (
+            // x is float && y is int
+            $paramType === Type::Float &&
+            $valueType === Type::Int
+        ) {
+            $value = floatval($value);
+            $valueType = gettype($value);
+        } else if (
+            // x is int && y is float
+            $paramType === Type::Int &&
+            $valueType === Type::Float
+        ) {
+            $value = intval($value);
+            $valueType = gettype($value);
+        }
+
         if (!InvokeMachine::configuration("strict")) {
             if (
                 // x is int && y is string
@@ -79,20 +95,6 @@ class Typesystem
                 }
 
                 $value = floatval(str_replace(",", ".", $value));
-                $valueType = gettype($value);
-            } else if (
-                // x is float && y is int
-                $paramType === Type::Float &&
-                $valueType === Type::Int
-            ) {
-                $value = floatval($value);
-                $valueType = gettype($value);
-            } else if (
-                // x is int && y is float
-                $paramType === Type::Int &&
-                $valueType === Type::Float
-            ) {
-                $value = intval($value);
                 $valueType = gettype($value);
             } else if (
                 // x is bool && y is int or string
@@ -124,7 +126,7 @@ class Typesystem
         }
 
         if ($paramType instanceof CustomType) {
-            Typesystem::validateParam($paramName, $paramType->getType(), $value);
+            $value = Typesystem::validateParam($paramName, $paramType->getType(), $value);
 
             return $paramType->validate($paramName, $value);
         }
