@@ -20,11 +20,17 @@ class ClassFunctionDocumentResult extends FunctionDocumentResult
             $docblock = $docBlockFactory->create($comment);
         }
 
-        $returnType = $reflection->getMethod("handle")->getReturnType();
+        if (!isset($class::$resultType)) {
+            $returnType = $reflection->getMethod("handle")->getReturnType();
+        }
 
         $summary = isset($docblock) ? $docblock->getSummary() : null;
         $description = isset($docblock) ? $docblock->getDescription() : null;
-        $result = $returnType ? Typesystem::getTypeName($returnType->getName()) : null;
+        if (!isset($class::$resultType)) {
+            $result = $returnType ? Typesystem::getTypeName($returnType->getName()) : null;
+        } else {
+            $result = Typesystem::getTypeName($class::$resultType);
+        }
 
         $params = array_map(fn($type) => Typesystem::getTypeName($type), $class::params());
 

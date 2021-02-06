@@ -8,12 +8,6 @@ use Invoke\Typesystem\Undef;
 
 abstract class InvokeFunction
 {
-    /**
-     * Extension traits
-     *
-     * @var array $registeredTraits
-     */
-    private array $registeredTraits = [];
 
     /**
      * Used for documentation.
@@ -21,6 +15,13 @@ abstract class InvokeFunction
      * @var string $resultType
      */
     public static string $resultType;
+
+    /**
+     * Extension traits
+     *
+     * @var array $registeredTraits
+     */
+    private array $registeredTraits = [];
 
     /**
      * Returns array of params.
