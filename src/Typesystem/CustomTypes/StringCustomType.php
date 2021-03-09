@@ -21,7 +21,11 @@ class StringCustomType extends CustomType
 
     public function validate(string $paramName, $value)
     {
-        $length = strlen($value);
+        if (function_exists("mb_strlen")) {
+            $length = mb_strlen($value);
+        } else {
+            $length = strlen($value);
+        }
 
         if (!is_null($this->minLength)) {
             if ($length < $this->minLength) {
