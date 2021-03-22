@@ -25,7 +25,7 @@ class ClassFunctionDocumentResult extends FunctionDocumentResult
         }
 
         $summary = isset($docblock) ? $docblock->getSummary() : null;
-        $description = isset($docblock) ? $docblock->getDescription() : null;
+        $description = isset($docblock) ? $docblock->getDescription()->render() : null;
         if (!$class::resultType()) {
             $result = isset($returnType) ? Typesystem::getTypeName($returnType->getName()) : null;
         } else {

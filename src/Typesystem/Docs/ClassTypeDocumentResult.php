@@ -21,7 +21,7 @@ class ClassTypeDocumentResult extends TypeDocumentResult
         }
 
         $summary = isset($docblock) ? $docblock->getSummary() : null;
-        $description = isset($docblock) ? $docblock->getDescription() : null;
+        $description = isset($docblock) ? $docblock->getDescription()->render() : null;
 
         $params = array_map(fn($type) => Typesystem::getTypeName($type), $class::params());
 
