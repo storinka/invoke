@@ -64,10 +64,10 @@ class InvokeMachine
         return static::$functionsFullTree[static::version()] ?? [];
     }
 
-    public static function configuration(?string $name = null)
+    public static function configuration(?string $name = null, $default = null)
     {
         if (isset($name)) {
-            return static::$configuration[$name];
+            return static::$configuration[$name] ?? $default;
         }
 
         return static::$configuration;
@@ -75,22 +75,30 @@ class InvokeMachine
 
     public static function invoke(string $functionName, array $inputParams, int $version = null)
     {
+        $functionClass = static::getFunctionClass($functionName, $version);
+        return static::invokeFunction(new $functionClass, $inputParams);
+    }
+
+    public static function invokeFunction(InvokeFunction $function, $inputParams)
+    {
+        return $function->invoke($inputParams);
+    }
+
+    public static function getFunctionClass(string $functionName, ?int $version)
+    {
         if (!$version) {
             $version = static::version();
         }
 
         if (!isset(static::$functionsFullTree[$version])) {
-            throw new InvokeError("INVALID_VERSION", 400);
+            throw new InvalidVersionException($version);
         }
 
         if (!isset(static::$functionsFullTree[$version][$functionName])) {
             throw new InvalidFunctionException($functionName);
         }
 
-        $functionClass = static::$functionsFullTree[$version][$functionName];
-        $functionInstance = new $functionClass;
-
-        return $functionInstance->invoke($inputParams);
+        return static::$functionsFullTree[$version][$functionName];
     }
 
     public static function version(): int

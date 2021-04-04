@@ -23,14 +23,6 @@ abstract class InvokeFunction
     public abstract static function params(): array;
 
     /**
-     * Handle function invocation.
-     *
-     * @param array $params
-     * @return mixed
-     */
-    protected abstract function handle(array $params);
-
-    /**
      * Prepare function to invocation.
      *
      * @param array $params
@@ -96,7 +88,27 @@ abstract class InvokeFunction
             }
         });
 
-        $result = $this->handle($validatedParams);
+        if (InvokeMachine::configuration("reflection", false)) {
+            $reflectionClass = new \ReflectionClass($this);
+            $reflectionMethod = $reflectionClass->getMethod("handle");
+            $reflectionParameters = $reflectionMethod->getParameters();
+
+            $resolvedParams = [];
+
+            foreach ($reflectionParameters as $reflectionParameter) {
+                $methodParamName = $reflectionParameter->getName();
+
+                if ($methodParamName === "params" && !array_key_exists("params", $validatedParams)) {
+                    array_push($resolvedParams, $validatedParams);
+                } else {
+                    array_push($resolvedParams, $validatedParams[$methodParamName]);
+                }
+            }
+
+            $result = $this->handle(...$resolvedParams);
+        } else {
+            $result = $this->handle($validatedParams);
+        }
 
         if (isset($this::$resultType)) {
             return Typesystem::validateParam("{$className}::{$this::$resultType}", $this::$resultType, $result);
