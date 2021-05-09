@@ -7,11 +7,16 @@ use RuntimeException;
 class InvokeError extends RuntimeException
 {
     protected string $error;
-    protected $data;
+    protected ?array $data;
 
-    public function __construct($error = "", $code = 500, $data = null)
+    public function __construct(
+        string $error,
+        string $message,
+        int $code = 500,
+        ?array $data = null
+    )
     {
-        parent::__construct($error, $code);
+        parent::__construct($message, $code);
 
         $this->error = $error;
         $this->data = $data;
@@ -22,7 +27,7 @@ class InvokeError extends RuntimeException
         return $this->error;
     }
 
-    public function getData()
+    public function getData(): ?array
     {
         return $this->data;
     }

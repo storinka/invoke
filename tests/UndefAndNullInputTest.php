@@ -1,6 +1,6 @@
 <?php
 
-use Invoke\Typesystem\TypesystemValidationException;
+use Invoke\Typesystem\Exceptions\TypesystemValidationException;
 use InvokeTests\UndefAndNullInput;
 use PHPUnit\Framework\TestCase;
 

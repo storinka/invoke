@@ -2,8 +2,8 @@
 
 namespace Invoke\Typesystem\CustomTypes;
 
-use Invoke\InvokeError;
 use Invoke\Typesystem\CustomType;
+use Invoke\Typesystem\Exceptions\InvalidParamValueException;
 use Invoke\Typesystem\Type;
 use Invoke\Typesystem\Typesystem;
 
@@ -29,11 +29,21 @@ class TypedArrayCustomType extends CustomType
         $size = sizeof(array_values($value));
 
         if ($this->minSize && $size < $this->minSize) {
-            throw new InvokeError("INVALID_PARAM_ARRAY_MIN_SIZE_VALUE");
+            throw new InvalidParamValueException(
+                $paramName,
+                $this,
+                $value,
+                "min size \"{$this->minSize}\", got \"{$size}\""
+            );
         }
 
         if ($this->maxSize && $size > $this->maxSize) {
-            throw new InvokeError("INVALID_PARAM_ARRAY_MAX_SIZE_VALUE");
+            throw new InvalidParamValueException(
+                $paramName,
+                $this,
+                $value,
+                "max size \"{$this->maxSize}\", got \"{$size}\""
+            );
         }
 
         foreach ($value as $i => $v) {

@@ -1,10 +1,10 @@
 <?php
 
-namespace Invoke\Typesystem;
+namespace Invoke\Typesystem\Exceptions;
 
-use Invoke\InvokeError;
+use Invoke\Typesystem\Typesystem;
 
-class TypesystemValidationException extends InvokeError
+class InvalidParamTypeException extends TypesystemValidationException
 {
     protected string $paramName;
     protected string $paramType;
@@ -16,13 +16,16 @@ class TypesystemValidationException extends InvokeError
         $this->paramType = Typesystem::getTypeName($paramType);
         $this->actualType = Typesystem::getTypeName($actualType);
 
-        parent::__construct("INVALID_PARAM_TYPE", 400, [
-            "param" => $paramName,
-            "type" => $this->paramType,
-            "actual_type" => $this->actualType,
-        ]);
-
-        $this->message = "Invalid \"{$this->paramName}\" type: expected \"{$this->paramType}\", got \"{$this->actualType}\".";
+        parent::__construct(
+            "INVALID_PARAM_TYPE",
+            "Invalid \"{$this->paramName}\" type: expected \"{$this->paramType}\", got \"{$this->actualType}\".",
+            400,
+            [
+                "param" => $paramName,
+                "type" => $this->paramType,
+                "actual_type" => $this->actualType,
+            ]
+        );
     }
 
     /**

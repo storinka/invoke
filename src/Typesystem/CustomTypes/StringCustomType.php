@@ -2,8 +2,8 @@
 
 namespace Invoke\Typesystem\CustomTypes;
 
-use Invoke\InvokeError;
 use Invoke\Typesystem\CustomType;
+use Invoke\Typesystem\Exceptions\InvalidParamValueException;
 use Invoke\Typesystem\Type;
 
 class StringCustomType extends CustomType
@@ -29,13 +29,23 @@ class StringCustomType extends CustomType
 
         if (!is_null($this->minLength)) {
             if ($length < $this->minLength) {
-                throw new InvokeError("INVALID_PARAM_STRING_MIN_LENGTH_VALUE");
+                throw new InvalidParamValueException(
+                    $paramName,
+                    $this,
+                    $value,
+                    "min length \"{$this->minLength}\", got \"{$length}\""
+                );
             }
         }
 
         if (!is_null($this->maxLength)) {
             if ($length > $this->maxLength) {
-                throw new InvokeError("INVALID_PARAM_STRING_MAX_LENGTH_VALUE");
+                throw new InvalidParamValueException(
+                    $paramName,
+                    $this,
+                    $value,
+                    "max length \"{$this->maxLength}\", got \"{$length}\""
+                );
             }
         }
 

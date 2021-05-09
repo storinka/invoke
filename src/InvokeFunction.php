@@ -79,12 +79,12 @@ abstract class InvokeFunction
         $this->executeRegisteredTraits("prepare", [$validatedParams]);
 
         if (!$this->guard($validatedParams)) {
-            throw new InvokeError("FORBIDDEN", 403);
+            throw new InvokeError("FORBIDDEN", "Forbidden.", 403);
         }
 
         $this->executeRegisteredTraits("guard", [$validatedParams], function ($allowed) {
             if (!$allowed) {
-                throw new InvokeError("FORBIDDEN", 403);
+                throw new InvokeError("FORBIDDEN", "Forbidden.", 403);
             }
         });
 

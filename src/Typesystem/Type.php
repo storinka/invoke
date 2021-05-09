@@ -38,9 +38,9 @@ class Type
         return Type::Some(Type::Undef, $or);
     }
 
-    public static function ArrayOf($type = Type::String, $min = null, $max = null)
+    public static function ArrayOf($type = Type::String, $minSize = null, $maxSize = null): TypedArrayCustomType
     {
-        return new TypedArrayCustomType($type, $min, $max);
+        return new TypedArrayCustomType($type, $minSize, $maxSize);
     }
 
     public static function String(int $minLength = null, $maxLength = null)
@@ -61,12 +61,12 @@ class Type
         return new IntCustomType($min, $max);
     }
 
-    public static function In(array $values, $type = Type::String)
+    public static function In(array $values, $type = Type::String): InArrayCustomType
     {
         return new InArrayCustomType($values, $type);
     }
 
-    public static function Regex(string $pattern)
+    public static function Regex(string $pattern): RegexCustomType
     {
         return new RegexCustomType($pattern);
     }

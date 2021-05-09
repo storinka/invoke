@@ -3,6 +3,7 @@
 namespace Invoke\Typesystem;
 
 use Invoke\InvokeMachine;
+use Invoke\Typesystem\Exceptions\InvalidParamTypeException;
 
 class Typesystem
 {
@@ -34,7 +35,7 @@ class Typesystem
                 }
             }
 
-            throw new TypesystemValidationException($paramName, $paramType, $valueType);
+            throw new InvalidParamTypeException($paramName, $paramType, $valueType);
         }
 
         if ($paramType === Type::T) {
@@ -46,7 +47,7 @@ class Typesystem
                 return $value;
             }
 
-            throw new TypesystemValidationException($paramName, $paramType, $valueType);
+            throw new InvalidParamTypeException($paramName, $paramType, $valueType);
         }
 
         if ($paramType === Type::Null) {
@@ -54,7 +55,7 @@ class Typesystem
                 return null;
             }
 
-            throw new TypesystemValidationException($paramName, $paramType, $valueType);
+            throw new InvalidParamTypeException($paramName, $paramType, $valueType);
         }
 
         if (
@@ -80,7 +81,7 @@ class Typesystem
                 $valueType === Type::String
             ) {
                 if (!preg_match("/^-?[0-9]+$/", $value)) {
-                    throw new TypesystemValidationException($paramName, $paramType, $valueType);
+                    throw new InvalidParamTypeException($paramName, $paramType, $valueType);
                 }
 
                 $value = intval($value);
@@ -91,7 +92,7 @@ class Typesystem
                 $valueType === Type::String
             ) {
                 if (!preg_match("/^-?[0-9]+([,.][0-9]+)?$/", $value)) {
-                    throw new TypesystemValidationException($paramName, $paramType, $valueType);
+                    throw new InvalidParamTypeException($paramName, $paramType, $valueType);
                 }
 
                 $value = floatval(str_replace(",", ".", $value));
@@ -122,7 +123,7 @@ class Typesystem
                 return $value;
             }
 
-            throw new TypesystemValidationException($paramName, $paramType, $valueType);
+            throw new InvalidParamTypeException($paramName, $paramType, $valueType);
         }
 
         if ($paramType instanceof CustomType) {
@@ -139,20 +140,20 @@ class Typesystem
             }
 
             if (!is_object($value)) {
-                throw new TypesystemValidationException($paramName, $paramType, $valueType);
+                throw new InvalidParamTypeException($paramName, $paramType, $valueType);
             }
 
             $actualClass = get_class($value);
 
             if ($actualClass !== $paramType) {
-                throw new TypesystemValidationException($paramName, $paramType, $valueType);
+                throw new InvalidParamTypeException($paramName, $paramType, $valueType);
             }
 
             return $value;
         }
 
         if ($paramType !== $valueType) {
-            throw new TypesystemValidationException($paramName, $paramType, $valueType);
+            throw new InvalidParamTypeException($paramName, $paramType, $valueType);
         }
 
         return $value;
