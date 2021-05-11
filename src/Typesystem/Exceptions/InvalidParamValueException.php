@@ -8,7 +8,7 @@ class InvalidParamValueException extends TypesystemValidationException
 {
     protected string $paramName;
     protected string $paramType;
-    protected string $value;
+    protected $value;
 
     public function __construct(string $paramName, $paramType, $value, ?string $message = null)
     {
