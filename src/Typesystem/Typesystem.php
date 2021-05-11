@@ -4,6 +4,7 @@ namespace Invoke\Typesystem;
 
 use Invoke\InvokeMachine;
 use Invoke\Typesystem\Exceptions\InvalidParamTypeException;
+use Invoke\Typesystem\Exceptions\TypesystemValidationException;
 
 class Typesystem
 {
@@ -39,11 +40,15 @@ class Typesystem
         }
 
         if ($paramType === Type::T) {
+            if ($valueType === Type::Undef || $valueType === Type::Null) {
+                throw new InvalidParamTypeException($paramName, $paramType, $valueType);
+            }
+
             return $value;
         }
 
         if ($paramType === Type::Undef) {
-            if ($value instanceof Undef) {
+            if ($valueType === Type::Undef) {
                 return $value;
             }
 
@@ -51,7 +56,7 @@ class Typesystem
         }
 
         if ($paramType === Type::Null) {
-            if ($valueType === Type::Null || $value instanceof Undef) {
+            if ($valueType === Type::Null || $valueType === Type::Undef) {
                 return null;
             }
 
