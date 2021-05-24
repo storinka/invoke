@@ -1,6 +1,6 @@
 {
     "name": "storinka/invoke",
-    "description": "invoke core library",
+    "description": "Invoke Core library",
     "type": "library",
     "license": "MIT",
     "authors": [
