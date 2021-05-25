@@ -52,4 +52,28 @@ class TypedArrayCustomType extends CustomType
 
         return $value;
     }
+
+    /**
+     * @return mixed|string
+     */
+    public function getItemType()
+    {
+        return $this->itemType;
+    }
+
+    /**
+     * @return mixed|null
+     */
+    public function getMinSize()
+    {
+        return $this->minSize;
+    }
+
+    /**
+     * @return mixed|null
+     */
+    public function getMaxSize()
+    {
+        return $this->maxSize;
+    }
 }
