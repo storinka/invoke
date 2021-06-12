@@ -10,16 +10,16 @@ class InvalidParamTypeException extends TypesystemValidationException
     protected string $paramType;
     protected string $actualType;
 
-    public function __construct(string $paramName, $paramType, $actualType, string $error = "INVALID_PARAM_TYPE", int $code = 400)
+    public function __construct(string $paramName, $paramType, $actualType)
     {
         $this->paramName = $paramName;
         $this->paramType = Typesystem::getTypeName($paramType);
         $this->actualType = Typesystem::getTypeName($actualType);
 
         parent::__construct(
-            $error,
+            "INVALID_PARAM_TYPE",
             "Invalid \"{$this->paramName}\" type: expected \"{$this->paramType}\", got \"{$this->actualType}\".",
-            $code,
+            400,
             [
                 "param" => $paramName,
                 "type" => $this->paramType,
