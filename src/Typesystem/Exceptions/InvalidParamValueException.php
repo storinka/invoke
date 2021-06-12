@@ -10,7 +10,7 @@ class InvalidParamValueException extends TypesystemValidationException
     protected string $paramType;
     protected $value;
 
-    public function __construct(string $paramName, $paramType, $value, ?string $message = null)
+    public function __construct(string $paramName, $paramType, $value, ?string $message = null, string $error = "INVALID_PARAM_VALUE", int $code = 400)
     {
         $this->paramName = $paramName;
         $this->paramType = Typesystem::getTypeName($paramType);
@@ -19,9 +19,9 @@ class InvalidParamValueException extends TypesystemValidationException
         $messageSuffix = $message ?? $this->value;
 
         parent::__construct(
-            "INVALID_PARAM_VALUE",
+            $error,
             "Invalid \"{$this->paramName}\" value: {$messageSuffix}.",
-            400,
+            $code,
             [
                 "param" => $this->paramName,
                 "type" => $this->paramType,

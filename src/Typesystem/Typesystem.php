@@ -18,7 +18,8 @@ class Typesystem
     public static function validateParam(
         string $paramName,
         $paramType,
-        $value
+        $value,
+        bool $input
     )
     {
         $valueType = gettype($value);
@@ -30,7 +31,7 @@ class Typesystem
         if (is_array($paramType)) {
             foreach ($paramType as $orParamType) {
                 try {
-                    return Typesystem::validateParam($paramName, $orParamType, $value);
+                    return Typesystem::validateParam($paramName, $orParamType, $value, $input);
                 } catch (TypesystemValidationException $e) {
                     // ignore
                 }
@@ -132,13 +133,13 @@ class Typesystem
         }
 
         if ($paramType instanceof CustomType) {
-            $value = Typesystem::validateParam($paramName, $paramType->getType(), $value);
+            $value = Typesystem::validateParam($paramName, $paramType->getType(), $value, $input);
 
             return $paramType->validate($paramName, $value);
         }
 
         if (class_exists($paramType)) {
-            if ($paramType === Input::class || is_subclass_of($paramType, Input::class)) {
+            if ($input && ($paramType === AbstractType::class || is_subclass_of($paramType, AbstractType::class))) {
                 $inputType = new $paramType($value);
 
                 return $inputType->getValidatedAttributes();
