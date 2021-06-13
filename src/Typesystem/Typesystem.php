@@ -168,7 +168,7 @@ class Typesystem
         return $value;
     }
 
-    public static function validateParams(array $params, array $data, array $rendered = []): array
+    public static function validateParams(array $params, $data, array $rendered = []): array
     {
         $result = [];
 
