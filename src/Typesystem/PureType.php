@@ -70,7 +70,7 @@ abstract class PureType
 
     // --- builder functions ---
 
-    public static function create($data): ?self
+    public static function create($data)
     {
         if (is_null($data)) {
             return null;
