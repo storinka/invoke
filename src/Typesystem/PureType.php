@@ -20,6 +20,8 @@ function getReflectionPropertyParam(ReflectionProperty $reflectionProperty, $obj
         $type = Typesystem::normalizeBuiltInType($reflectionType);
     }
 
+    $type = $type[0] === "?" ? substr($type, 1) : $type;
+
     if (isset($object->{$name})) {
         $type = Type::Null($type, $object->{$name});
     } else if ($reflectionType->allowsNull()) {
