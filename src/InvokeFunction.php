@@ -103,6 +103,8 @@ abstract class InvokeFunction
 
                 if ($refParamType instanceof ReflectionNamedType && $refParamType->isBuiltin()) {
                     $refParamType = normalizeType($refParamType->getName());
+                } else {
+                    $refParamType = $refParamType->getName();
                 }
 
                 if ($hasDefault) {
@@ -126,7 +128,9 @@ abstract class InvokeFunction
                 $value = $inputParams[$paramName];
             }
 
-            $value = Typesystem::validateParam($paramName, $paramType, $value);
+            $value = Typesystem::validateParam($paramName, $paramType, $value, [
+                "allow_create_type" => true,
+            ]);
 
             if ($value instanceof Undef) {
                 continue;
@@ -152,12 +156,12 @@ abstract class InvokeFunction
             $resolvedParams = [];
 
             foreach ($reflectionParameters as $reflectionParameter) {
-                $methodParamName = $reflectionParameter->getName();
+                $refParamName = $reflectionParameter->getName();
 
-                if ($methodParamName === "params" && !array_key_exists("params", $validatedParams)) {
+                if ($refParamName === "params" && !array_key_exists("params", $validatedParams)) {
                     array_push($resolvedParams, $validatedParams);
                 } else {
-                    array_push($resolvedParams, $validatedParams[$methodParamName]);
+                    array_push($resolvedParams, $validatedParams[$refParamName]);
                 }
             }
 
