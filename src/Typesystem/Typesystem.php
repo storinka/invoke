@@ -139,7 +139,13 @@ class Typesystem
 
         if (class_exists($paramType)) {
             if (is_array($value)) {
-                return new $paramType($value);
+                $type = new $paramType($value);
+
+                if (InvokeMachine::configuration("input_to_array", true)) {
+                    return $type->toArray();
+                }
+
+                return $type;
             }
 
             if (!is_object($value)) {

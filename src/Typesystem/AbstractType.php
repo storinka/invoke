@@ -150,4 +150,9 @@ abstract class AbstractType implements JsonSerializable, ArrayAccess
     {
         throw new \RuntimeException('Unsupported!');
     }
+
+    public function toArray(): array
+    {
+        return $this->getValidatedAttributes();
+    }
 }
