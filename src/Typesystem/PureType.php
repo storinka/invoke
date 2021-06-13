@@ -16,11 +16,11 @@ function getReflectionPropertyParam(ReflectionProperty $reflectionProperty, $obj
     if ($reflectionType instanceof ReflectionNamedType) {
         $type = $reflectionType->getName();
     }
-    if ($reflectionType->isBuiltin()) {
-        $type = Typesystem::normalizeBuiltInType($reflectionType);
-    }
 
     $type = $type[0] === "?" ? substr($type, 1) : $type;
+    if ($reflectionType->isBuiltin()) {
+        $type = Typesystem::normalizeBuiltInType($type);
+    }
 
     if (isset($object->{$name})) {
         $type = Type::Null($type, $object->{$name});
