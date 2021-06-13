@@ -81,7 +81,7 @@ class InvokeMachine
 
     public static function invokeFunction(InvokeFunction $function, $inputParams)
     {
-        return $function->invoke($inputParams);
+        return $function($inputParams);
     }
 
     public static function getFunctionClass(string $functionName, ?int $version)

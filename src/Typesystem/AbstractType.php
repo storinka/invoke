@@ -2,9 +2,10 @@
 
 namespace Invoke\Typesystem;
 
+use ArrayAccess;
 use JsonSerializable;
 
-abstract class AbstractType implements JsonSerializable
+abstract class AbstractType implements JsonSerializable, ArrayAccess
 {
     /**
      * @var mixed
@@ -129,4 +130,24 @@ abstract class AbstractType implements JsonSerializable
      * @return array
      */
     public static abstract function params(): array;
+
+    public function offsetGet($offset)
+    {
+        return $this->get($offset);
+    }
+
+    public function offsetExists($offset): bool
+    {
+        return array_key_exists($offset, $this->validatedAttributes);
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        throw new \RuntimeException('Unsupported!');
+    }
+
+    public function offsetUnset($offset)
+    {
+        throw new \RuntimeException('Unsupported!');
+    }
 }

@@ -3,8 +3,34 @@
 namespace Invoke;
 
 use Closure;
+use Invoke\Typesystem\CustomTypes\DefaultValueCustomType;
+use Invoke\Typesystem\Type;
 use Invoke\Typesystem\Typesystem;
 use Invoke\Typesystem\Undef;
+use ReflectionNamedType;
+
+function normalizeType($type): string
+{
+    switch ($type) {
+        case "int":
+        case "integer":
+            return Type::Int;
+        case "float":
+        case "double":
+            return Type::Float;
+        case "bool":
+        case "boolean":
+            return Type::Bool;
+        case "array":
+            return Type::Array;
+        case "null":
+            return Type::Null;
+        case "string":
+            return Type::String;
+    }
+
+    throw new \RuntimeException("Unsupported built-in type: $type");
+}
 
 abstract class InvokeFunction
 {
@@ -20,7 +46,10 @@ abstract class InvokeFunction
      *
      * @return array
      */
-    public abstract static function params(): array;
+    public static function params(): array
+    {
+        return [];
+    }
 
     /**
      * Prepare function to invocation.
@@ -49,17 +78,48 @@ abstract class InvokeFunction
      * @param array $inputParams
      * @return mixed
      */
-    public function invoke(array $inputParams)
+    public function __invoke(array $inputParams)
     {
         $this->registerTraits();
 
         $this->executeRegisteredTraits("initialize");
 
-        $className = static::class;
+        $reflection = InvokeMachine::configuration("reflection", false);
+        $reflectionParameters = null;
 
-        $params = static::params();
+        $funParams = static::params();
+
+        if ($reflection) {
+            $reflectionClass = new \ReflectionClass($this);
+            $reflectionMethod = $reflectionClass->getMethod("handle");
+            $reflectionParameters = $reflectionMethod->getParameters();
+
+            foreach ($reflectionParameters as $reflectionParameter) {
+                $hasDefault = $reflectionParameter->isDefaultValueAvailable();
+                $allowsNull = $reflectionParameter->allowsNull();
+
+                $refParamName = $reflectionParameter->getName();
+                $refParamType = $reflectionParameter->getType();
+
+                if ($refParamType instanceof ReflectionNamedType && $refParamType->isBuiltin()) {
+                    $refParamType = normalizeType($refParamType->getName());
+                }
+
+                if ($hasDefault) {
+                    $refParamType = new DefaultValueCustomType($refParamType, $reflectionParameter->getDefaultValue());
+                }
+                if ($allowsNull) {
+                    $refParamType = Type::Null($refParamType);
+                }
+
+                if ($refParamName !== "params" && !array_key_exists($refParamName, $funParams)) {
+                    $funParams[$refParamName] = $refParamType;
+                }
+            }
+        }
+
         $validatedParams = [];
-        foreach ($params as $paramName => $paramType) {
+        foreach ($funParams as $paramName => $paramType) {
             $value = new Undef();
 
             if (array_key_exists($paramName, $inputParams)) {
@@ -110,11 +170,7 @@ abstract class InvokeFunction
             $result = $this->handle($validatedParams);
         }
 
-        if (isset($this::$resultType)) {
-            return Typesystem::validateParam("{$className}::{$this::$resultType}", $this::$resultType, $result);
-        } else {
-            return $result;
-        }
+        return $result;
     }
 
     public static function resultType()
@@ -142,5 +198,21 @@ abstract class InvokeFunction
                 }
             }
         }
+    }
+
+    public static function invoke(array $params = [])
+    {
+        $fun = static::createInstance();
+
+        return $fun($params);
+    }
+
+    public static function createInstance(...$args): self
+    {
+        if (sizeof($args)) {
+            return new static(...$args);
+        }
+
+        return new static();
     }
 }

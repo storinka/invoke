@@ -2,6 +2,7 @@
 
 namespace Invoke\Typesystem;
 
+use Invoke\Typesystem\CustomTypes\DefaultValueCustomType;
 use Invoke\Typesystem\CustomTypes\InArrayCustomType;
 use Invoke\Typesystem\CustomTypes\IntCustomType;
 use Invoke\Typesystem\CustomTypes\RegexCustomType;
@@ -28,8 +29,12 @@ class Type
         return $of;
     }
 
-    public static function Null($or): array
+    public static function Null($or, $defaultValue = null)
     {
+        if ($defaultValue) {
+            return new DefaultValueCustomType($or, $defaultValue);
+        }
+
         return Type::Some(Type::Null, $or);
     }
 

@@ -28,6 +28,5 @@ class InArrayCustomType extends CustomType
         }
 
         return $value;
-
     }
 }
