@@ -168,6 +168,44 @@ class Typesystem
         return $value;
     }
 
+    public static function validateParams(array $params, array $data, array $rendered = []): array
+    {
+        $result = [];
+
+        foreach ($params as $paramName => $paramType) {
+            $value = new Undef();
+
+            if (array_key_exists($paramName, $rendered)) {
+                $value = $rendered[$paramName];
+            } else if (is_object($data)) {
+                if (method_exists($data, "getRenderAttributes")) {
+                    $data = $data->getRenderAttributes();
+
+                    if (array_key_exists($paramName, $data)) {
+                        $value = $data[$paramName];
+                    }
+                } else if (property_exists($data, $paramName)) {
+                    $value = $data->{$paramName};
+                }
+            } else if (
+                is_array($data) &&
+                array_key_exists($paramName, $data)
+            ) {
+                $value = $data[$paramName];
+            }
+
+            $value = Typesystem::validateParam($paramName, $paramType, $value);
+
+            if ($value instanceof Undef) {
+                continue;
+            }
+
+            $result[$paramName] = $value;
+        }
+
+        return $result;
+    }
+
     public static function getTypeName($type): string
     {
         if ($type instanceof CustomType) {
@@ -187,10 +225,12 @@ class Typesystem
         }
 
         switch ($type) {
+            case "int":
             case Type::Int:
                 return "Int";
             case Type::String:
                 return "String";
+            case "float":
             case Type::Float:
                 return "Float";
             case Type::Array:
@@ -216,5 +256,28 @@ class Typesystem
         }
 
         return $type;
+    }
+
+    public static function normalizeBuiltInType($type): string
+    {
+        switch ($type) {
+            case "int":
+            case "integer":
+                return Type::Int;
+            case "float":
+            case "double":
+                return Type::Float;
+            case "bool":
+            case "boolean":
+                return Type::Bool;
+            case "array":
+                return Type::Array;
+            case "null":
+                return Type::Null;
+            case "string":
+                return Type::String;
+        }
+
+        throw new \RuntimeException("Unsupported built-in type: $type");
     }
 }

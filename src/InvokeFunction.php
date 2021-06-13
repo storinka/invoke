@@ -9,29 +9,6 @@ use Invoke\Typesystem\Typesystem;
 use Invoke\Typesystem\Undef;
 use ReflectionNamedType;
 
-function normalizeType($type): string
-{
-    switch ($type) {
-        case "int":
-        case "integer":
-            return Type::Int;
-        case "float":
-        case "double":
-            return Type::Float;
-        case "bool":
-        case "boolean":
-            return Type::Bool;
-        case "array":
-            return Type::Array;
-        case "null":
-            return Type::Null;
-        case "string":
-            return Type::String;
-    }
-
-    throw new \RuntimeException("Unsupported built-in type: $type");
-}
-
 abstract class InvokeFunction
 {
     /**
@@ -102,7 +79,7 @@ abstract class InvokeFunction
                 $refParamType = $reflectionParameter->getType();
 
                 if ($refParamType instanceof ReflectionNamedType && $refParamType->isBuiltin()) {
-                    $refParamType = normalizeType($refParamType->getName());
+                    $refParamType = Typesystem::normalizeBuiltInType($refParamType->getName());
                 } else {
                     $refParamType = $refParamType->getName();
                 }
