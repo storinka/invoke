@@ -18,14 +18,9 @@ class Typesystem
     public static function validateParam(
         string $paramName,
         $paramType,
-        $value,
-        array $configuration
+        $value
     )
     {
-        $configuration = array_merge([
-            "allow_create_type" => false,
-        ], $configuration);
-
         $valueType = gettype($value);
 
         if ($value instanceof Undef) {
@@ -35,7 +30,7 @@ class Typesystem
         if (is_array($paramType)) {
             foreach ($paramType as $orParamType) {
                 try {
-                    return Typesystem::validateParam($paramName, $orParamType, $value, $configuration);
+                    return Typesystem::validateParam($paramName, $orParamType, $value);
                 } catch (TypesystemValidationException $e) {
                     // ignore
                 }
@@ -137,13 +132,13 @@ class Typesystem
         }
 
         if ($paramType instanceof CustomType) {
-            $value = Typesystem::validateParam($paramName, $paramType->getType(), $value, $configuration);
+            $value = Typesystem::validateParam($paramName, $paramType->getType(), $value);
 
             return $paramType->validate($paramName, $value);
         }
 
         if (class_exists($paramType)) {
-            if ($configuration["allow_create_type"]) {
+            if (is_array($value)) {
                 return new $paramType($value);
             }
 

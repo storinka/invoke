@@ -47,9 +47,7 @@ class TypedArrayCustomType extends CustomType
         }
 
         foreach ($value as $i => $v) {
-            $value[$i] = Typesystem::validateParam("{$paramName}[{$i}]", $this->itemType, $v, [
-                "allow_create_type" => true,
-            ]);
+            $value[$i] = Typesystem::validateParam("{$paramName}[{$i}]", $this->itemType, $v);
         }
 
         return $value;

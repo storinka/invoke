@@ -128,9 +128,7 @@ abstract class InvokeFunction
                 $value = $inputParams[$paramName];
             }
 
-            $value = Typesystem::validateParam($paramName, $paramType, $value, [
-                "allow_create_type" => true,
-            ]);
+            $value = Typesystem::validateParam($paramName, $paramType, $value);
 
             if ($value instanceof Undef) {
                 continue;

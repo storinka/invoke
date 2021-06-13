@@ -63,9 +63,7 @@ abstract class AbstractType implements JsonSerializable, ArrayAccess
                 $value = $input[$paramName];
             }
 
-            $value = Typesystem::validateParam($paramName, $paramType, $value, [
-                "allow_create_type" => false,
-            ]);
+            $value = Typesystem::validateParam($paramName, $paramType, $value);
 
             if ($value instanceof Undef) {
                 continue;
