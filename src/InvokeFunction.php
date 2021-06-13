@@ -139,20 +139,16 @@ abstract class InvokeFunction
         $this->executeRegisteredTraits("prepare", [$validatedParams]);
 
         if (!$this->guard($validatedParams)) {
-            throw new InvokeError("FORBIDDEN", "Forbidden.", 403);
+            throw new InvokeForbiddenException();
         }
 
         $this->executeRegisteredTraits("guard", [$validatedParams], function ($allowed) {
             if (!$allowed) {
-                throw new InvokeError("FORBIDDEN", "Forbidden.", 403);
+                throw new InvokeForbiddenException();
             }
         });
 
-        if (InvokeMachine::configuration("reflection", false)) {
-            $reflectionClass = new \ReflectionClass($this);
-            $reflectionMethod = $reflectionClass->getMethod("handle");
-            $reflectionParameters = $reflectionMethod->getParameters();
-
+        if ($reflection) {
             $resolvedParams = [];
 
             foreach ($reflectionParameters as $reflectionParameter) {
