@@ -12,9 +12,11 @@ function getReflectionPropertyParam(ReflectionProperty $reflectionProperty, $obj
 
     $reflectionType = $reflectionProperty->getType();
 
+    $type = $reflectionType;
     if ($reflectionType instanceof ReflectionNamedType) {
-        $type = Typesystem::normalizeBuiltInType($reflectionType->getName());
-    } else {
+        $type = $reflectionType->getName();
+    }
+    if ($reflectionType->isBuiltin()) {
         $type = Typesystem::normalizeBuiltInType($reflectionType);
     }
 
