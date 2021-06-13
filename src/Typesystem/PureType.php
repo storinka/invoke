@@ -63,4 +63,24 @@ abstract class PureType
     {
         return (array)$this;
     }
+
+    // --- builder functions ---
+
+    public static function create($data): ?self
+    {
+        if (is_null($data)) {
+            return null;
+        }
+
+        return new static($data);
+    }
+
+    public static function createArray($items): array
+    {
+        if (invoke_is_assoc($items)) {
+            $items = array_values($items);
+        }
+
+        return array_map(fn($item) => new static($item), $items);
+    }
 }
