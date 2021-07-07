@@ -2,7 +2,7 @@
 
 namespace Invoke\V1\Typesystem\CustomTypes;
 
-use Invoke\Typesystem\Exceptions\InvalidParamValueException;
+use Invoke\V1\Typesystem\Exceptions\InvalidParamValueExceptionV1;
 use Invoke\V1\Typesystem\GenericCustomTypeV1;
 use Invoke\V1\Typesystem\Types;
 use Invoke\V1\Typesystem\TypesystemV1;
@@ -28,7 +28,7 @@ class TypedArrayCustomTypeV1 extends GenericCustomTypeV1
         $size = sizeof(array_values($value));
 
         if ($this->minSize && $size < $this->minSize) {
-            throw new InvalidParamValueException(
+            throw new InvalidParamValueExceptionV1(
                 $paramName,
                 $this,
                 $value,
@@ -37,7 +37,7 @@ class TypedArrayCustomTypeV1 extends GenericCustomTypeV1
         }
 
         if ($this->maxSize && $size > $this->maxSize) {
-            throw new InvalidParamValueException(
+            throw new InvalidParamValueExceptionV1(
                 $paramName,
                 $this,
                 $value,
@@ -46,7 +46,6 @@ class TypedArrayCustomTypeV1 extends GenericCustomTypeV1
         }
 
         $itemType = $this->genericTypes[0];
-
 
 
         foreach ($value as $i => $v) {

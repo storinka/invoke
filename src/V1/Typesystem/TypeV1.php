@@ -44,16 +44,7 @@ abstract class TypeV1 implements InvokeType
     {
         $reflectionClass = new ReflectionClass($this);
 
-        // the type params
-        $params = [];
-
-        // map class properties to params
-        foreach ($reflectionClass->getProperties() as $reflectionProperty) {
-            $params = array_merge($params, ReflectionUtils::mapReflectionPropertyToParam($reflectionProperty, $this));
-        }
-
-        // merge params() result with params
-        $params = array_merge($params, static::params());
+        $params = ReflectionUtils::inspectInvokeTypeReflectionClassParams($reflectionClass, $this);
 
         // do values mapping through "render" method
         $rendered = [];

@@ -23,3 +23,9 @@ function invoke_is_assoc(array $array): bool
     $keys = array_keys($array);
     return array_keys($keys) !== $keys;
 }
+
+
+function dd(...$data) {
+    var_dump(...$data);
+    die();
+}
