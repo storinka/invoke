@@ -2,8 +2,8 @@
 
 namespace Invoke\Typesystem\Exceptions;
 
-use Invoke\InvokeError;
+use Invoke\InvokeException;
 
-class TypesystemValidationException extends InvokeError
+class TypesystemValidationException extends InvokeException
 {
 }

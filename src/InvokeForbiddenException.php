@@ -2,7 +2,7 @@
 
 namespace Invoke;
 
-class InvokeForbiddenException extends InvokeError
+class InvokeForbiddenException extends InvokeException
 {
     public function __construct(string $message = "Forbidden.")
     {

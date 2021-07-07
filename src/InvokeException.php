@@ -4,7 +4,7 @@ namespace Invoke;
 
 use RuntimeException;
 
-class InvokeError extends RuntimeException
+class InvokeException extends RuntimeException
 {
     protected string $error;
     protected ?array $data;

@@ -2,7 +2,7 @@
 
 namespace Invoke;
 
-class InvalidVersionException extends InvokeError
+class InvalidVersionException extends InvokeException
 {
     public function __construct(int $version)
     {

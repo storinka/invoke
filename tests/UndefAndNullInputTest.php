@@ -2,9 +2,8 @@
 
 use Invoke\Typesystem\Exceptions\TypesystemValidationException;
 use InvokeTests\UndefAndNullInput;
-use PHPUnit\Framework\TestCase;
 
-final class UndefAndNullInputTest extends TestCase
+final class UndefAndNullInputTest
 {
     public function testUndefInput1()
     {
@@ -13,9 +12,11 @@ final class UndefAndNullInputTest extends TestCase
             "nullOrInt" => null,
         ]);
 
-        $this->assertArrayHasKey("undefOrInt", $input->getValidatedAttributes());
-        $this->assertArrayHasKey("nullOrInt", $input->getValidatedAttributes());
-        $this->assertEquals(100, $input->get("undefOrInt"));
+        $params = $input->getValidatedParams();
+
+        $this->assertArrayHasKey("undefOrInt", $params);
+        $this->assertArrayHasKey("nullOrInt", $params);
+        $this->assertEquals(100, $params["undefOrInt"]);
     }
 
     public function testUndefInput2()
@@ -35,9 +36,10 @@ final class UndefAndNullInputTest extends TestCase
             "nullOrInt" => 200,
         ]);
 
-        $this->assertArrayNotHasKey("undefOrInt", $input3->getValidatedAttributes());
-        $this->assertArrayHasKey("nullOrInt", $input3->getValidatedAttributes());
-        $this->assertEquals(200, $input3->get("nullOrInt"));
+        $params = $input3->getValidatedParams();
+
+        $this->assertArrayHasKey("nullOrInt", $params);
+        $this->assertEquals(200, $params["nullOrInt"]);
     }
 
     public function testUndefInput4()
@@ -46,9 +48,11 @@ final class UndefAndNullInputTest extends TestCase
             "undefOrInt" => 100,
         ]);
 
-        $this->assertArrayHasKey("undefOrInt", $input4->getValidatedAttributes());
-        $this->assertArrayHasKey("nullOrInt", $input4->getValidatedAttributes());
-        $this->assertEquals(100, $input4->get("undefOrInt"));
-        $this->assertEquals(null, $input4->get("nullOrInt"));
+        $params = $input4->getValidatedParams();
+
+        $this->assertArrayHasKey("undefOrInt", $params);
+        $this->assertArrayHasKey("nullOrInt", $params);
+        $this->assertEquals(100, $params["undefOrInt"]);
+        $this->assertEquals(null, $params["nullOrInt"]);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Invoke;
 
-class InvalidFunctionException extends InvokeError
+class InvalidFunctionException extends InvokeException
 {
     public function __construct(string $functionName)
     {

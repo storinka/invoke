@@ -2,10 +2,10 @@
 
 namespace InvokeTests;
 
-use Invoke\Typesystem\Input;
 use Invoke\Typesystem\Type;
+use Invoke\V1\Typesystem\InputV1;
 
-class UndefAndNullInput extends Input
+class UndefAndNullInput extends InputV1
 {
     public static function params(): array
     {
