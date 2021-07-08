@@ -2,7 +2,10 @@
 
 namespace Invoke\Typesystem;
 
+use Invoke\Typesystem\CustomTypes\IntCustomType;
 use Invoke\Typesystem\CustomTypes\NullOrDefaultValueCustomType;
+use Invoke\Typesystem\CustomTypes\RegexCustomType;
+use Invoke\Typesystem\CustomTypes\StringCustomType;
 use Invoke\Typesystem\CustomTypes\TypedArrayCustomType;
 
 class Types
@@ -36,5 +39,28 @@ class Types
                                    ?int $maxSize = null): TypedArrayCustomType
     {
         return new TypedArrayCustomType($type, $minSize, $maxSize);
+    }
+
+    public static function String(int $minLength = null, $maxLength = null)
+    {
+        if (is_null($minLength) && is_null($maxLength)) {
+            return Types::String;
+        }
+
+        return new StringCustomType($minLength, $maxLength);
+    }
+
+    public static function Int(int $min = null, int $max = null)
+    {
+        if (is_null($min) && is_null($max)) {
+            return Types::Int;
+        }
+
+        return new IntCustomType($min, $max);
+    }
+
+    public static function Regex(string $pattern): RegexCustomType
+    {
+        return new RegexCustomType($pattern);
     }
 }
