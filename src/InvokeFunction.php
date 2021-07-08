@@ -75,6 +75,7 @@ abstract class InvokeFunction implements InvokeSubject
                 $exception->getParamName(),
                 $exception->getParamType(),
                 $exception->getActualType(),
+                $exception->getMessage(),
                 400
             );
         } catch (InvalidParamValueException $exception) {
