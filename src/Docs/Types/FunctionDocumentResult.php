@@ -25,7 +25,7 @@ class FunctionDocumentResult extends Result
     public ?string $description;
 
     /**
-     * @var TypeDocumentResult[] $params
+     * @var ParamDocumentResult[] $params
      */
     public array $params;
 
@@ -40,7 +40,7 @@ class FunctionDocumentResult extends Result
     public static function params(): array
     {
         return [
-            "params" => Types::ArrayOf(TypeDocumentResult::class),
+            "params" => Types::ArrayOf(ParamDocumentResult::class),
         ];
     }
 
@@ -59,10 +59,7 @@ class FunctionDocumentResult extends Result
 
         $params = [];
         foreach ($functionParams as $paramName => $paramType) {
-            $params[] = [
-                "name" => $paramName,
-                "type" => TypeDocumentResult::createFromInvokeType($paramType)
-            ];
+            $params[] = ParamDocumentResult::createFromNameAndType($paramName, $paramType);
         }
 
         $result = TypeDocumentResult::createFromInvokeType(Types::T);
