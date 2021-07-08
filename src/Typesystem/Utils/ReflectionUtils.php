@@ -155,7 +155,7 @@ class ReflectionUtils
             $docBlock = $docBlockFactory->create($docComment);
 
             $comment["summary"] = $docBlock->getSummary();
-            $comment["description"] = $docBlock->getDescription();
+            $comment["description"] = $docBlock->getDescription()->render();
         }
 
         return $comment;
