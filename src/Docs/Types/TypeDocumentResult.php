@@ -1,16 +1,15 @@
 <?php
 
-namespace Invoke\V1\Docs\Types;
+namespace Invoke\Docs\Types;
 
 use Invoke\Typesystem\CustomType;
-use Invoke\Typesystem\Type;
-use Invoke\V1\Typesystem\ResultV1;
-use Invoke\V1\Typesystem\Types;
-use Invoke\V1\Typesystem\TypesystemV1;
-use Invoke\V1\Typesystem\Utils\ReflectionUtils;
+use Invoke\Typesystem\Result;
+use Invoke\Typesystem\Types;
+use Invoke\Typesystem\Typesystem;
+use Invoke\Typesystem\Utils\ReflectionUtils;
 use ReflectionClass;
 
-class TypeDocumentResult extends ResultV1
+class TypeDocumentResult extends Result
 {
     /**
      * @var string $name
@@ -58,10 +57,10 @@ class TypeDocumentResult extends ResultV1
         }
 
         return static::create([
-            "name" => TypesystemV1::getTypeName($type),
+            "name" => Typesystem::getTypeName($type),
             "summary" => $comment["summary"],
             "description" => $comment["description"],
-            "params" => TypesystemV1::isSimpleType($type) ? null : $params,
+            "params" => Typesystem::isSimpleType($type) ? null : $params,
         ]);
     }
 
@@ -83,19 +82,19 @@ class TypeDocumentResult extends ResultV1
         ];
 
         switch ($type) {
-            case Type::String:
+            case Types::String:
                 $comment["summary"] = "A string value.";
                 break;
-            case Type::Int:
+            case Types::Int:
                 $comment["summary"] = "An integer value.";
                 break;
-            case Type::Float:
+            case Types::Float:
                 $comment["summary"] = "A float value.";
                 break;
-            case Type::Bool:
+            case Types::Bool:
                 $comment["summary"] = "A boolean value.";
                 break;
-            case Type::Array:
+            case Types::Array:
                 $comment["summary"] = "An array.";
                 break;
         }

@@ -2,7 +2,6 @@
 
 namespace Invoke\Typesystem;
 
-abstract class Input extends AbstractType
+class Input extends Type
 {
-    //
 }

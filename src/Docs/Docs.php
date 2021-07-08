@@ -1,10 +1,10 @@
 <?php
 
-namespace Invoke\V1\Docs;
+namespace Invoke\Docs;
 
+use Invoke\Docs\Types\FunctionDocumentResult;
 use Invoke\InvokeFunction;
 use Invoke\InvokeMachine;
-use Invoke\V1\Docs\Types\FunctionDocumentResult;
 
 class Docs
 {

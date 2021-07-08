@@ -2,10 +2,10 @@
 
 namespace InvokeTests;
 
-use Invoke\V1\Typesystem\ResultV1;
-use Invoke\V1\Typesystem\Types;
+use Invoke\Typesystem\Result;
+use Invoke\Typesystem\Types;
 
-class AllBasicTypesResult extends ResultV1
+class AllBasicTypesResult extends Result
 {
     public static function params(): array
     {
@@ -17,7 +17,6 @@ class AllBasicTypesResult extends ResultV1
             "string" => Types::String,
             "null" => Types::Null,
             "array" => Types::Array,
-            "nullOrInt" => Types::Null(Types::Int),
         ];
     }
 }

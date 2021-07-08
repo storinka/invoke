@@ -1,14 +1,13 @@
 <?php
 
-namespace Invoke\V1\Docs\Types;
+namespace Invoke\Docs\Types;
 
-use Invoke\V1\Typesystem\ResultV1;
-use Invoke\V1\Typesystem\Types;
-use Invoke\V1\Typesystem\Utils\ReflectionUtils;
+use Invoke\Typesystem\Result;
+use Invoke\Typesystem\Types;
+use Invoke\Typesystem\Utils\ReflectionUtils;
 use ReflectionClass;
-use ReflectionException;
 
-class FunctionDocumentResult extends ResultV1
+class FunctionDocumentResult extends Result
 {
     /**
      * @var string $name

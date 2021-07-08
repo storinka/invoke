@@ -25,7 +25,8 @@ function invoke_is_assoc(array $array): bool
 }
 
 
-function invoke_dd(...$data) {
+function invoke_dd(...$data)
+{
     var_dump(...$data);
     die();
 }

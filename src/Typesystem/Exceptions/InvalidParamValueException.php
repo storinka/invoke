@@ -7,24 +7,28 @@ use Invoke\Typesystem\Typesystem;
 class InvalidParamValueException extends TypesystemValidationException
 {
     protected string $paramName;
-    protected string $paramType;
+
+    protected $paramType;
+    protected string $paramTypeName;
+
     protected $value;
 
-    public function __construct(string $paramName, $paramType, $value, ?string $message = null)
+    public function __construct(string $paramName, $paramType, $value, ?string $message = null, int $code = 500)
     {
         $this->paramName = $paramName;
-        $this->paramType = Typesystem::getTypeName($paramType);
-        $this->value = $value;
 
-        $messageSuffix = $message ?? $this->value;
+        $this->paramType = $paramType;
+        $this->paramTypeName = Typesystem::getTypeName($paramType);
+
+        $this->value = $value;
 
         parent::__construct(
             "INVALID_PARAM_VALUE",
-            "Invalid \"{$this->paramName}\" value: {$messageSuffix}.",
-            400,
+            $message ?? "Invalid \"{$this->paramName}\" value: {$this->value}.",
+            $code,
             [
                 "param" => $this->paramName,
-                "type" => $this->paramType,
+                "type" => $this->paramTypeName,
                 "value" => $value,
             ]
         );
@@ -39,11 +43,19 @@ class InvalidParamValueException extends TypesystemValidationException
     }
 
     /**
-     * @return string
+     * @return mixed
      */
-    public function getParamType(): string
+    public function getParamType()
     {
         return $this->paramType;
+    }
+
+    /**
+     * @return string
+     */
+    public function getParamTypeName(): string
+    {
+        return $this->paramTypeName;
     }
 
     /**

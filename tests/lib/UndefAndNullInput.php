@@ -2,16 +2,16 @@
 
 namespace InvokeTests;
 
-use Invoke\Typesystem\Type;
-use Invoke\V1\Typesystem\InputV1;
+use Invoke\Typesystem\Input;
+use Invoke\Typesystem\Types;
 
-class UndefAndNullInput extends InputV1
+class UndefAndNullInput extends Input
 {
     public static function params(): array
     {
         return [
-            "undefOrInt" => Type::Undef(Type::Int),
-            "nullOrInt" => Type::Null(Type::Int),
+            "undefOrInt" => Types::Undef(Types::Int),
+            "nullOrInt" => Types::Null(Types::Int),
         ];
     }
 }

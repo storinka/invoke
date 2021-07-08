@@ -1,18 +1,18 @@
 <?php
 
-namespace Invoke\V1\Docs\Functions;
+namespace Invoke\Docs\Functions;
 
+use Invoke\Docs\Docs;
+use Invoke\Docs\Types\FunctionDocumentResult;
+use Invoke\InvokeFunction;
 use Invoke\InvokeMachine;
-use Invoke\V1\Docs\Docs;
-use Invoke\V1\Docs\Types\FunctionDocumentResult;
-use Invoke\V1\InvokeFunctionV1;
 
 /**
  * Get all functions documents.
  *
  * @method static FunctionDocumentResult[] invoke(array $params)
  */
-class InvokeDocsGetAllFunctionsFunction extends InvokeFunctionV1
+class InvokeDocsGetAllFunctionsFunction extends InvokeFunction
 {
     public function handle(?int $version): array
     {

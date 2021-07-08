@@ -2,77 +2,121 @@
 
 namespace Invoke\Typesystem;
 
-use Invoke\Typesystem\CustomTypes\DefaultValueCustomType;
-use Invoke\Typesystem\CustomTypes\InArrayCustomType;
-use Invoke\Typesystem\CustomTypes\IntCustomType;
-use Invoke\Typesystem\CustomTypes\RegexCustomType;
-use Invoke\Typesystem\CustomTypes\StringCustomType;
-use Invoke\Typesystem\CustomTypes\TypedArrayCustomType;
+use Invoke\Typesystem\Utils\ReflectionUtils;
+use ReflectionClass;
+use RuntimeException;
 
-class Type
+/**
+ * @method render(): array
+ */
+abstract class Type implements InvokeType
 {
-    public const T = "T";
+    /**
+     * Validated params during hydration.
+     *
+     * @var array
+     */
+    private array $_validatedParams = [];
 
-    public const Undef = "UNDEF";
-    public const Null = "NULL";
-
-    public const Bool = "boolean";
-    public const Int = "integer";
-    public const Float = "double";
-    public const String = "string";
-    public const Array = "array";
-
-    public const Map = "map";
-
-    public static function Some(...$of): array
+    /**
+     * Create an instance of the type and hydrate it with the data.
+     *
+     * @param $data
+     */
+    public function __construct($data)
     {
-        return $of;
+        $this->hydrate($data);
     }
 
-    public static function Null($or, $defaultValue = null)
+    /**
+     * Type params.
+     *
+     * @return array
+     */
+    public static function params(): array
     {
-        if ($defaultValue) {
-            return new DefaultValueCustomType($or, $defaultValue);
+        return [];
+    }
+
+    /**
+     * Validate the data and hydrate the type.
+     *
+     * @param $data
+     */
+    protected function hydrate($data): void
+    {
+        $reflectionClass = new ReflectionClass($this);
+
+        $params = ReflectionUtils::inspectInvokeTypeReflectionClassParams($reflectionClass, $this);
+
+        // do values mapping through "render" method
+        $rendered = [];
+        if (method_exists($this, "render")) {
+            $rendered = $this->render($data);
         }
 
-        return Type::Some(Type::Null, $or);
-    }
+        // validate params
+        $result = Typesystem::validateParams($params, $data, $rendered);
 
-    public static function Undef($or): array
-    {
-        return Type::Some(Type::Undef, $or);
-    }
-
-    public static function ArrayOf($type = Type::String, $minSize = null, $maxSize = null): TypedArrayCustomType
-    {
-        return new TypedArrayCustomType($type, $minSize, $maxSize);
-    }
-
-    public static function String(int $minLength = null, $maxLength = null)
-    {
-        if (is_null($minLength) && is_null($maxLength)) {
-            return Type::String;
+        // fill class properties with the data
+        foreach ($result as $paramName => $paramValue) {
+            $this->{$paramName} = $paramValue;
         }
 
-        return new StringCustomType($minLength, $maxLength);
+        $this->_validatedParams = $result;
     }
 
-    public static function Int(int $min = null, int $max = null)
+    /**
+     * Get validated params..
+     *
+     * @return array
+     */
+    public function getValidatedParams(): array
     {
-        if (is_null($min) && is_null($max)) {
-            return Type::Int;
+        return $this->_validatedParams;
+    }
+
+    // factory methods
+
+    /**
+     * Creates an instance of the type. If data is null, then null is returned.
+     *
+     * @param $data
+     * @return static|null
+     */
+    public static function create($data): ?self
+    {
+        if (is_null($data)) {
+            return null;
         }
 
-        return new IntCustomType($min, $max);
+        return new static($data);
     }
 
-    public static function In(array $values, $type = Type::String): InArrayCustomType
+    // util methods
+
+    public function jsonSerialize(): array
     {
-        return new InArrayCustomType($values, $type);
+        return $this->getValidatedParams();
     }
 
-    public static function Regex(string $pattern): RegexCustomType
+    public function offsetGet($offset)
     {
-        return new RegexCustomType($pattern);
+        return $this->getValidatedParams()[$offset];
+    }
+
+    public function offsetExists($offset): bool
+    {
+        return array_key_exists($offset, $this->getValidatedParams());
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        throw new RuntimeException("Unsupported!");
+    }
+
+    public function offsetUnset($offset)
+    {
+        throw new RuntimeException("Unsupported!");
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Invoke\V1;
+namespace Invoke;
 
 interface InvokeSubject
 {

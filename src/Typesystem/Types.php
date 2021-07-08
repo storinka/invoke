@@ -1,10 +1,9 @@
 <?php
 
-namespace Invoke\V1\Typesystem;
+namespace Invoke\Typesystem;
 
-use Invoke\Typesystem\Type;
-use Invoke\V1\Typesystem\CustomTypes\NullOrDefaultValueCustomTypeV1;
-use Invoke\V1\Typesystem\CustomTypes\TypedArrayCustomTypeV1;
+use Invoke\Typesystem\CustomTypes\NullOrDefaultValueCustomType;
+use Invoke\Typesystem\CustomTypes\TypedArrayCustomType;
 
 class Types
 {
@@ -26,16 +25,16 @@ class Types
     public static function Null($type, $defaultValue = null)
     {
         if ($defaultValue) {
-            return new NullOrDefaultValueCustomTypeV1($type, $defaultValue);
+            return new NullOrDefaultValueCustomType($type, $defaultValue);
         }
 
         return Types::Some(Types::Null, $type);
     }
 
-    public static function ArrayOf($type = Type::String,
+    public static function ArrayOf($type = Types::String,
                                    ?int $minSize = null,
-                                   ?int $maxSize = null): TypedArrayCustomTypeV1
+                                   ?int $maxSize = null): TypedArrayCustomType
     {
-        return new TypedArrayCustomTypeV1($type, $minSize, $maxSize);
+        return new TypedArrayCustomType($type, $minSize, $maxSize);
     }
 }

@@ -1,10 +1,9 @@
 <?php
 
-namespace Invoke\V1\Typesystem\Utils;
+namespace Invoke\Typesystem\Utils;
 
-use Invoke\Typesystem\Type;
-use Invoke\V1\Typesystem\CustomTypes\NullOrDefaultValueCustomTypeV1;
-use Invoke\V1\Typesystem\Types;
+use Invoke\Typesystem\CustomTypes\NullOrDefaultValueCustomType;
+use Invoke\Typesystem\Types;
 use phpDocumentor\Reflection\DocBlockFactory;
 use ReflectionClass;
 use ReflectionNamedType;
@@ -85,10 +84,10 @@ class ReflectionUtils
             }
 
             if ($hasDefault) {
-                $reflParamType = new NullOrDefaultValueCustomTypeV1($reflParamType, $reflectionParameter->getDefaultValue());
+                $reflParamType = new NullOrDefaultValueCustomType($reflParamType, $reflectionParameter->getDefaultValue());
             }
             if ($allowsNull) {
-                $reflParamType = Type::Null($reflParamType);
+                $reflParamType = Types::Null($reflParamType);
             }
 
             if ($reflParamName !== "params" && !array_key_exists($reflParamName, $params)) {

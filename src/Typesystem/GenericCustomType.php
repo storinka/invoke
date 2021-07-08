@@ -1,8 +1,8 @@
 <?php
 
-namespace Invoke\V1\Typesystem;
+namespace Invoke\Typesystem;
 
-abstract class GenericCustomTypeV1 extends CustomTypeV1
+abstract class GenericCustomType extends CustomType
 {
     /**
      * @var array $genericTypes
@@ -22,10 +22,10 @@ abstract class GenericCustomTypeV1 extends CustomTypeV1
      */
     public function toString(): string
     {
-        $genericTypes = array_map(fn($type) => TypesystemV1::getTypeName($type), $this->getGenericTypes());
+        $genericTypes = array_map(fn($type) => Typesystem::getTypeName($type), $this->getGenericTypes());
         $genericTypes = implode(", ", $genericTypes);
 
-        $type = TypesystemV1::getTypeName($this->baseType);
+        $type = Typesystem::getTypeName($this->baseType);
 
         return "{$type}<{$genericTypes}>";
     }

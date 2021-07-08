@@ -1,6 +1,6 @@
 <?php
 
-namespace Invoke\V1\Typesystem;
+namespace Invoke\Typesystem;
 
 interface HasInvokeParams
 {

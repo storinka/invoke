@@ -1,11 +1,11 @@
 <?php
 
-namespace Invoke\V1\Typesystem\CustomTypes;
+namespace Invoke\Typesystem\CustomTypes;
 
-use Invoke\Typesystem\Type;
-use Invoke\V1\Typesystem\CustomTypeV1;
+use Invoke\Typesystem\CustomType;
+use Invoke\Typesystem\Types;
 
-class NullOrDefaultValueCustomTypeV1 extends CustomTypeV1
+class NullOrDefaultValueCustomType extends CustomType
 {
     protected $realBaseType = null;
 
@@ -14,7 +14,7 @@ class NullOrDefaultValueCustomTypeV1 extends CustomTypeV1
     public function __construct($baseType, $defaultValue = null)
     {
         $this->realBaseType = $baseType;
-        $this->baseType = Type::Null($baseType);
+        $this->baseType = Types::Null($baseType);
         $this->defaultValue = $defaultValue;
     }
 
