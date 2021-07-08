@@ -46,12 +46,12 @@ class FunctionDocumentResult extends Result
 
     /**
      * @param string $functionName
-     * @param class-string $invokeFunction
+     * @param class-string $functionClass
      * @return FunctionDocumentResult
      */
-    public static function createFromInvokeFunction(string $functionName, string $invokeFunction): self
+    public static function createFromInvokeFunction(string $functionName, string $functionClass): self
     {
-        $reflectionClass = new ReflectionClass($invokeFunction);
+        $reflectionClass = new ReflectionClass($functionClass);
         $reflectionMethod = $reflectionClass->getMethod("handle");
         $reflectionReturnType = $reflectionMethod->getReturnType();
 
@@ -62,12 +62,14 @@ class FunctionDocumentResult extends Result
             $params[] = ParamDocumentResult::createFromNameAndType($paramName, $paramType);
         }
 
-        $result = TypeDocumentResult::createFromInvokeType(Types::T);
-
-        if ($reflectionReturnType) {
+        if ($functionClass::resultType()) {
+            $result = TypeDocumentResult::createFromInvokeType($functionClass::resultType());
+        } else if ($reflectionReturnType) {
             $resultType = ReflectionUtils::mapReflectionTypeToParamType($reflectionReturnType);
 
             $result = TypeDocumentResult::createFromInvokeType($resultType);
+        } else {
+            $result = TypeDocumentResult::createFromInvokeType(Types::T);
         }
 
         $comment = ReflectionUtils::parseComment($reflectionClass);

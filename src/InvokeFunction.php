@@ -152,4 +152,9 @@ abstract class InvokeFunction implements InvokeSubject
             }
         }
     }
+
+    public static function resultType()
+    {
+        return null;
+    }
 }
