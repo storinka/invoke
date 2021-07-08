@@ -54,7 +54,15 @@ class TypeDocumentResult extends Result
         if (is_string($type) && class_exists($type)) {
             $reflectionClass = new ReflectionClass($type);
 
-            $params = ReflectionUtils::inspectInvokeTypeReflectionClassParams($reflectionClass);
+            $typeParams = ReflectionUtils::inspectInvokeTypeReflectionClassParams($reflectionClass);
+
+            $params = [];
+            foreach ($typeParams as $paramName => $paramType) {
+                $params[] = [
+                    "name" => $paramName,
+                    "type" => TypeDocumentResult::createFromInvokeType($paramType)
+                ];
+            }
         }
 
         return static::create([

@@ -55,9 +55,14 @@ class FunctionDocumentResult extends Result
         $reflectionMethod = $reflectionClass->getMethod("handle");
         $reflectionReturnType = $reflectionMethod->getReturnType();
 
-        $params = ReflectionUtils::inspectInvokeFunctionReflectionClassParams($reflectionClass);
-        foreach ($params as $paramName => $paramType) {
-            $params[$paramName] = TypeDocumentResult::createFromInvokeType($paramType);
+        $functionParams = ReflectionUtils::inspectInvokeFunctionReflectionClassParams($reflectionClass);
+
+        $params = [];
+        foreach ($functionParams as $paramName => $paramType) {
+            $params[] = [
+                "name" => $paramName,
+                "type" => TypeDocumentResult::createFromInvokeType($paramType)
+            ];
         }
 
         $result = TypeDocumentResult::createFromInvokeType(Types::T);
