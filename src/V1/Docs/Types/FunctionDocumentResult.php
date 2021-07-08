@@ -49,7 +49,6 @@ class FunctionDocumentResult extends ResultV1
      * @param string $functionName
      * @param class-string $invokeFunction
      * @return FunctionDocumentResult
-     * @throws ReflectionException
      */
     public static function createFromInvokeFunction(string $functionName, string $invokeFunction): self
     {

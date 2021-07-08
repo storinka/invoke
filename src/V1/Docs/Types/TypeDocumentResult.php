@@ -30,7 +30,7 @@ class TypeDocumentResult extends ResultV1
     /**
      * @var TypeDocumentResult[] $params
      */
-    public array $params;
+    public ?array $params;
 
     /**
      * @return array
@@ -38,7 +38,7 @@ class TypeDocumentResult extends ResultV1
     public static function params(): array
     {
         return [
-            "params" => Types::ArrayOf(TypeDocumentResult::class),
+            "params" => Types::Null(Types::ArrayOf(TypeDocumentResult::class)),
         ];
     }
 
@@ -50,6 +50,7 @@ class TypeDocumentResult extends ResultV1
     {
         $comment = static::createComment($type);
 
+        $params = [];
         if (is_string($type) && class_exists($type)) {
             $reflectionClass = new ReflectionClass($type);
 
@@ -60,7 +61,7 @@ class TypeDocumentResult extends ResultV1
             "name" => TypesystemV1::getTypeName($type),
             "summary" => $comment["summary"],
             "description" => $comment["description"],
-            "params" => [],
+            "params" => TypesystemV1::isSimpleType($type) ? null : $params,
         ]);
     }
 

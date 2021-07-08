@@ -226,4 +226,9 @@ class TypesystemV1
 
         throw new \RuntimeException("Invalid type: {$type}");
     }
+
+    public static function isSimpleType($type): bool
+    {
+        return in_array($type, [Types::Null, Types::Int, Types::String, Types::Bool, Types::Float, Types::Array], true);
+    }
 }
