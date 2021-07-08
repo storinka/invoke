@@ -4,6 +4,7 @@ namespace Invoke\Docs\Types;
 
 use Invoke\Typesystem\CustomType;
 use Invoke\Typesystem\Result;
+use Invoke\Typesystem\Type;
 use Invoke\Typesystem\Types;
 use Invoke\Typesystem\Typesystem;
 use Invoke\Typesystem\Utils\ReflectionUtils;
@@ -70,7 +71,7 @@ class TypeDocumentResult extends Result
      */
     protected static function createComment($type): array
     {
-        if ($type instanceof CustomType || (is_string($type) && class_parents($type))) {
+        if ($type instanceof CustomType || (is_string($type) && is_subclass_of($type, Type::class))) {
             $reflectionClass = new ReflectionClass($type);
 
             return ReflectionUtils::parseComment($reflectionClass);
