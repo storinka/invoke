@@ -73,14 +73,14 @@ abstract class InvokeFunction implements InvokeSubject
         } catch (InvalidParamTypeException $exception) {
             throw new InvalidParamTypeException(
                 $exception->getParamName(),
-                $exception->getParamTypeName(),
+                $exception->getParamType(),
                 $exception->getActualType(),
                 400
             );
         } catch (InvalidParamValueException $exception) {
             throw new InvalidParamValueException(
                 $exception->getParamName(),
-                $exception->getParamTypeName(),
+                $exception->getParamType(),
                 $exception->getValue(),
                 $exception->getMessage(),
                 400
