@@ -31,15 +31,15 @@ class ReflectionUtils
     {
         $allowsNull = $reflectionType->allowsNull();
 
-        $paramType = null;
-
         if ($reflectionType instanceof ReflectionNamedType) {
             $paramType = $reflectionType->getName();
+        } else {
+            $paramType = (string)$reflectionType;
         }
 
         // check if property type is builtin, and if so, use it
         if ($reflectionType->isBuiltin()) {
-            $paramType = ReflectionUtils::getBasicTypeFromBuiltin((string)$reflectionType);
+            $paramType = ReflectionUtils::getBasicTypeFromBuiltin($paramType);
         }
 
         if ($allowsNull) {
