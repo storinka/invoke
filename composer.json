@@ -26,7 +26,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "InvokeTests\\": "tests/lib"
+            "InvokeTests\\": "tests/lib",
+            "InvokeTests\\Typesystem\\": "tests/typesystem"
         }
     },
     "require-dev": {
