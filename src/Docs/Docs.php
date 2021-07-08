@@ -3,14 +3,13 @@
 namespace Invoke\Docs;
 
 use Invoke\Docs\Types\FunctionDocumentResult;
-use Invoke\InvokeFunction;
 use Invoke\InvokeMachine;
 
 class Docs
 {
-    public static function getFunctionDocument(string $functionName, InvokeFunction $invokeFunction): FunctionDocumentResult
+    public static function getFunctionDocument(string $functionName, string $functionClass): FunctionDocumentResult
     {
-        return FunctionDocumentResult::createFromInvokeFunction($functionName, $invokeFunction);
+        return FunctionDocumentResult::createFromInvokeFunction($functionName, $functionClass);
     }
 
     public static function getAllFunctionsDocuments(?int $version = null): array
