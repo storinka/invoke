@@ -84,13 +84,28 @@ abstract class Type implements InvokeType
      * @param $data
      * @return static|null
      */
-    public static function create($data): ?self
+    public static function from($data): ?self
     {
         if (is_null($data)) {
             return null;
         }
 
         return new static($data);
+    }
+
+    /**
+     * Create many instances of the type.
+     *
+     * @param $items
+     * @return array
+     */
+    public static function many($items): array
+    {
+        if (is_array($items) && invoke_is_assoc($items)) {
+            $items = array_values($items);
+        }
+
+        return array_map(fn($item) => static::from($item), $items);
     }
 
     // util methods
