@@ -50,15 +50,19 @@ class TypeDocumentResult extends Result
     {
         $comment = static::createComment($type);
 
-        $params = [];
-        if (is_string($type) && class_exists($type)) {
-            $reflectionClass = new ReflectionClass($type);
-
-            $typeParams = ReflectionUtils::inspectInvokeTypeReflectionClassParams($reflectionClass);
-
+        $params = null;
+        if (!Typesystem::isSimpleType($type) && !($type instanceof CustomType) && !is_array($type)) {
             $params = [];
-            foreach ($typeParams as $paramName => $paramType) {
-                $params[] = ParamDocumentResult::createFromNameAndType($paramName, $paramType);
+
+            if (is_string($type) && class_exists($type)) {
+                $reflectionClass = new ReflectionClass($type);
+
+                $typeParams = ReflectionUtils::inspectInvokeTypeReflectionClassParams($reflectionClass);
+
+                $params = [];
+                foreach ($typeParams as $paramName => $paramType) {
+                    $params[] = ParamDocumentResult::createFromNameAndType($paramName, $paramType);
+                }
             }
         }
 
@@ -66,7 +70,7 @@ class TypeDocumentResult extends Result
             "name" => Typesystem::getTypeName($type),
             "summary" => $comment["summary"],
             "description" => $comment["description"],
-            "params" => Typesystem::isSimpleType($type) ? null : $params,
+            "params" => $params,
         ]);
     }
 
