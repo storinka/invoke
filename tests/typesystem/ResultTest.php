@@ -7,7 +7,7 @@ final class ResultTest extends TestCase
 {
     public function testGeneralResultShouldNotFail()
     {
-        $result = AllBasicTypesResult::create([
+        $result = AllBasicTypesResult::from([
             "T" => new RuntimeException(),
             "bool" => true,
             "int" => 256,

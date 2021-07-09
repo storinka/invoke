@@ -74,7 +74,7 @@ class FunctionDocumentResult extends Result
 
         $comment = ReflectionUtils::parseComment($reflectionClass);
 
-        return static::create([
+        return static::from([
             "name" => $functionName,
             "summary" => $comment["summary"],
             "description" => $comment["description"],

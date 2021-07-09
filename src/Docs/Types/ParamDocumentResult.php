@@ -12,7 +12,7 @@ class ParamDocumentResult extends Result
 
     public static function createFromNameAndType(string $paramName, $paramType)
     {
-        return static::create([
+        return static::from([
             "name" => $paramName,
             "type" => TypeDocumentResult::createFromInvokeType($paramType)
         ]);

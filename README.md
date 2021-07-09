@@ -48,7 +48,7 @@ class GetUser extends InvokeFunction
     {
         $user = getUserFromDb($params["id"]);
         
-        return UserResult::create($user);
+        return UserResult::from($user);
     }
 }
 ```

@@ -66,7 +66,7 @@ class TypeDocumentResult extends Result
             }
         }
 
-        return static::create([
+        return static::from([
             "name" => Typesystem::getTypeName($type),
             "summary" => $comment["summary"],
             "description" => $comment["description"],
