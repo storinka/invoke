@@ -2,6 +2,10 @@
 
 namespace Invoke;
 
+use Invoke\Typesystem\Typesystem;
+use Invoke\Typesystem\Utils\ReflectionUtils;
+use RuntimeException;
+
 class InvokeMachine
 {
     /**
@@ -83,9 +87,49 @@ class InvokeMachine
         );
     }
 
-    public static function invokeFunction(InvokeFunction $function, $inputParams)
+    public static function invokeFunction($function, $inputParams)
     {
-        return $function($inputParams);
+        if ($function instanceof InvokeFunction) {
+            return $function($inputParams);
+        }
+
+        if (function_exists($function)) {
+            return InvokeMachine::invokeNativeFunction($function, $inputParams);
+        }
+
+        throw new RuntimeException("Invalid function: {$function}");
+    }
+
+    public static function invokeNativeFunction($function, array $inputParams)
+    {
+        $reflectionFunction = new \ReflectionFunction($function);
+        $reflectionParameters = $reflectionFunction->getParameters();
+
+        $params = ReflectionUtils::inspectFunctionReflectionParameters($reflectionParameters);
+
+        $validatedParams = [];
+
+        foreach ($params as $paramName => $paramType) {
+            $value = $inputParams[$paramName] ?? null;
+
+            $value = Typesystem::validateParam($paramName, $paramType, $value);
+
+            $validatedParams[$paramName] = $value;
+        }
+
+        $neededParams = [];
+
+        foreach ($reflectionParameters as $reflectionParameter) {
+            $refParamName = $reflectionParameter->getName();
+
+            if ($refParamName === "params" && !array_key_exists("params", $validatedParams)) {
+                array_push($neededParams, $validatedParams);
+            } else {
+                array_push($neededParams, $validatedParams[$refParamName]);
+            }
+        }
+
+        return $function(...$neededParams);
     }
 
     public static function getFunctionClass(string $functionName, ?int $version)
