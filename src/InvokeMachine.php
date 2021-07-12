@@ -75,8 +75,12 @@ class InvokeMachine
 
     public static function invoke(string $functionName, array $inputParams, int $version = null)
     {
-        $functionClass = static::getFunctionClass($functionName, $version);
-        return static::invokeFunction(new $functionClass, $inputParams);
+        $functionOrClass = static::getFunctionClass($functionName, $version);
+
+        return static::invokeFunction(
+            function_exists($functionOrClass) ? $functionOrClass : new $functionOrClass,
+            $inputParams
+        );
     }
 
     public static function invokeFunction(InvokeFunction $function, $inputParams)

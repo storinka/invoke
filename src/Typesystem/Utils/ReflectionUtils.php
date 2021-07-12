@@ -9,6 +9,7 @@ use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionProperty;
 use ReflectionType;
+use Reflector;
 use RuntimeException;
 
 class ReflectionUtils
@@ -60,7 +61,47 @@ class ReflectionUtils
         return $paramType;
     }
 
-    public static function inspectInvokeFunctionReflectionClassParams(ReflectionClass $reflectionClass)
+    /**
+     * @param \ReflectionParameter[] $reflectionParameters
+     * @return array
+     */
+    public static function inspectFunctionReflectionParameters(array $reflectionParameters): array
+    {
+        $params = [];
+
+        foreach ($reflectionParameters as $reflectionParameter) {
+            $hasDefault = $reflectionParameter->isDefaultValueAvailable();
+            $allowsNull = $reflectionParameter->allowsNull();
+
+            $reflParamName = $reflectionParameter->getName();
+            $reflParamType = $reflectionParameter->getType();
+
+            if ($reflParamType) {
+                if ($reflParamType instanceof ReflectionNamedType && $reflParamType->isBuiltin()) {
+                    $reflParamType = ReflectionUtils::getBasicTypeFromBuiltin($reflParamType->getName());
+                } else {
+                    $reflParamType = $reflParamType->getName();
+                }
+
+                if ($hasDefault) {
+                    $reflParamType = new NullOrDefaultValueCustomType($reflParamType, $reflectionParameter->getDefaultValue());
+                }
+                if ($allowsNull) {
+                    $reflParamType = Types::Null($reflParamType);
+                }
+            } else {
+                $reflParamType = Types::T;
+            }
+
+            if ($reflParamName !== "params" && !array_key_exists($reflParamName, $params)) {
+                $params[$reflParamName] = $reflParamType;
+            }
+        }
+
+        return $params;
+    }
+
+    public static function inspectInvokeFunctionReflectionClassParams(ReflectionClass $reflectionClass): array
     {
         $actualClass = $reflectionClass->name;
         $params = $actualClass::params();
@@ -70,30 +111,10 @@ class ReflectionUtils
         $reflectionMethod = $reflectionClass->getMethod("handle");
         $reflectionParameters = $reflectionMethod->getParameters();
 
-        foreach ($reflectionParameters as $reflectionParameter) {
-            $hasDefault = $reflectionParameter->isDefaultValueAvailable();
-            $allowsNull = $reflectionParameter->allowsNull();
-
-            $reflParamName = $reflectionParameter->getName();
-            $reflParamType = $reflectionParameter->getType();
-
-            if ($reflParamType instanceof ReflectionNamedType && $reflParamType->isBuiltin()) {
-                $reflParamType = ReflectionUtils::getBasicTypeFromBuiltin($reflParamType->getName());
-            } else {
-                $reflParamType = $reflParamType->getName();
-            }
-
-            if ($hasDefault) {
-                $reflParamType = new NullOrDefaultValueCustomType($reflParamType, $reflectionParameter->getDefaultValue());
-            }
-            if ($allowsNull) {
-                $reflParamType = Types::Null($reflParamType);
-            }
-
-            if ($reflParamName !== "params" && !array_key_exists($reflParamName, $params)) {
-                $params[$reflParamName] = $reflParamType;
-            }
-        }
+        $params = array_merge(
+            $params,
+            ReflectionUtils::inspectFunctionReflectionParameters($reflectionParameters)
+        );
 
         return $params;
     }
@@ -141,7 +162,7 @@ class ReflectionUtils
         throw new RuntimeException("Unsupported built-in type: $builtin");
     }
 
-    public static function parseComment(ReflectionClass $reflectionClass): array
+    public static function parseComment(Reflector $reflectionClass): array
     {
         $comment = [
             "summary" => null,

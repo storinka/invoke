@@ -51,18 +51,30 @@ class FunctionDocumentResult extends Result
      */
     public static function createFromInvokeFunction(string $functionName, string $functionClass): self
     {
-        $reflectionClass = new ReflectionClass($functionClass);
-        $reflectionMethod = $reflectionClass->getMethod("handle");
-        $reflectionReturnType = $reflectionMethod->getReturnType();
+        if (function_exists($functionClass)) {
+            $reflectionFunction = new \ReflectionFunction($functionClass);
+            $reflectionParameters = $reflectionFunction->getParameters();
+            $reflectionReturnType = $reflectionFunction->getReturnType();
 
-        $functionParams = ReflectionUtils::inspectInvokeFunctionReflectionClassParams($reflectionClass);
+            $functionParams = ReflectionUtils::inspectFunctionReflectionParameters($reflectionParameters);
+
+            $comment = ReflectionUtils::parseComment($reflectionFunction);
+        } else {
+            $reflectionClass = new ReflectionClass($functionClass);
+            $reflectionMethod = $reflectionClass->getMethod("handle");
+            $reflectionReturnType = $reflectionMethod->getReturnType();
+
+            $functionParams = ReflectionUtils::inspectInvokeFunctionReflectionClassParams($reflectionClass);
+
+            $comment = ReflectionUtils::parseComment($reflectionClass);
+        }
 
         $params = [];
         foreach ($functionParams as $paramName => $paramType) {
             $params[] = ParamDocumentResult::createFromNameAndType($paramName, $paramType);
         }
 
-        if ($functionClass::resultType()) {
+        if (!function_exists($functionClass) && $functionClass::resultType()) {
             $result = TypeDocumentResult::createFromInvokeType($functionClass::resultType());
         } else if ($reflectionReturnType) {
             $resultType = ReflectionUtils::mapReflectionTypeToParamType($reflectionReturnType);
@@ -71,8 +83,6 @@ class FunctionDocumentResult extends Result
         } else {
             $result = TypeDocumentResult::createFromInvokeType(Types::T);
         }
-
-        $comment = ReflectionUtils::parseComment($reflectionClass);
 
         return static::from([
             "name" => $functionName,
