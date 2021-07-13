@@ -104,19 +104,16 @@ class ReflectionUtils
     public static function inspectInvokeFunctionReflectionClassParams(ReflectionClass $reflectionClass): array
     {
         $actualClass = $reflectionClass->name;
-        $params = $actualClass::params();
 
         // todo: document this thing
 
         $reflectionMethod = $reflectionClass->getMethod("handle");
         $reflectionParameters = $reflectionMethod->getParameters();
 
-        $params = array_merge(
-            $params,
-            ReflectionUtils::inspectFunctionReflectionParameters($reflectionParameters)
+        return array_merge(
+            ReflectionUtils::inspectFunctionReflectionParameters($reflectionParameters),
+            $actualClass::params()
         );
-
-        return $params;
     }
 
     public static function inspectInvokeTypeReflectionClassParams(ReflectionClass $reflectionClass, $object = null): array
@@ -134,7 +131,10 @@ class ReflectionUtils
         }
 
         // merge params() result with params
-        $params = array_merge($params, $actualClass::params());
+        $params = array_merge(
+            $params,
+            $actualClass::params()
+        );
 
         return $params;
     }
