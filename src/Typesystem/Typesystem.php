@@ -195,28 +195,28 @@ class Typesystem
             case "int":
             case "integer":
             case Types::Int:
-                return "Int";
+                return "int";
 
             case "string":
             case Types::String:
-                return "String";
+                return "string";
 
             case "float":
             case "double":
             case Types::Float:
-                return "Float";
+                return "float";
 
             case Types::Array:
-                return "Array";
+                return "array";
 
             case "bool":
             case "boolean":
             case Types::Bool:
-                return "Bool";
+                return "bool";
 
             case null:
             case Types::Null:
-                return "Null";
+                return "null";
         }
 
         if (is_string($type) && class_exists($type)) {

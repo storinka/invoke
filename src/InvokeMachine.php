@@ -22,7 +22,7 @@ class InvokeMachine
      * @var array $configuration
      */
     protected static array $configuration = [
-        "strict" => true,
+        "strict" => false,
     ];
 
     /**
@@ -153,5 +153,48 @@ class InvokeMachine
     {
         $versions = array_keys(static::functionsFullTree());
         return end($versions);
+    }
+
+    public static function handleRequest(?string $uri = null, ?array $params = null)
+    {
+        if (is_null($uri)) {
+            $uri = $_SERVER["REQUEST_URI"];
+        }
+
+        $uri = trim($uri);
+        $uri = trim($uri, "/");
+
+        [$path, $queryString] = explode("?", $uri);
+        [$prefix, $version, $functionName] = explode("/", $path);
+
+        $version = (int)$version;
+
+        if (is_null($params)) {
+            $params = [];
+
+            $headers = getallheaders();
+
+            if (array_key_exists("Content-Type", $headers)) {
+                $contentType = $headers["Content-Type"];
+
+                if (strpos($contentType, "application/json") > -1) {
+                    $body = file_get_contents("php://input");
+
+                    $params = json_decode($body, true);
+                }
+            } else {
+                parse_str($queryString, $params);
+            }
+        }
+
+        $result = InvokeMachine::invoke($functionName, $params, $version);
+
+        header("Content-Type: application/json");
+
+        echo json_encode([
+            "result" => $result,
+        ]);
+
+        die();
     }
 }
