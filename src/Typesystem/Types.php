@@ -2,6 +2,7 @@
 
 namespace Invoke\Typesystem;
 
+use Invoke\Typesystem\CustomTypes\InCustomType;
 use Invoke\Typesystem\CustomTypes\IntCustomType;
 use Invoke\Typesystem\CustomTypes\NullOrDefaultValueCustomType;
 use Invoke\Typesystem\CustomTypes\RegexCustomType;
@@ -62,5 +63,10 @@ class Types
     public static function Regex(string $pattern): RegexCustomType
     {
         return new RegexCustomType($pattern);
+    }
+
+    public static function In(array $items, $itemType): InCustomType
+    {
+        return new InCustomType($items, $itemType);
     }
 }
