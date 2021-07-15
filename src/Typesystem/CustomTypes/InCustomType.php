@@ -9,14 +9,12 @@ use Invoke\Typesystem\Types;
 class InCustomType extends CustomType
 {
     protected $items;
-    protected $itemType;
 
-    public function __construct($items, $itemType)
+    public function __construct($items, $type = Types::String)
     {
-        $this->baseType = Types::Array;
+        $this->baseType = $type;
 
         $this->items = $items;
-        $this->itemType = $itemType;
     }
 
     public function validate(string $paramName, $value)
