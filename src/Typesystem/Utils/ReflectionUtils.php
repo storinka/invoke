@@ -23,7 +23,13 @@ class ReflectionUtils
             $defaultValue = $object->{$paramName};
         }
 
-        $paramType = ReflectionUtils::mapReflectionTypeToParamType($reflectionProperty->getType(), $defaultValue);
+        $reflectionType = $reflectionProperty->getType();
+
+        if ($reflectionType) {
+            $paramType = ReflectionUtils::mapReflectionTypeToParamType($reflectionType, $defaultValue);
+        } else {
+            $paramType = Types::T;
+        }
 
         return [$paramName, $paramType];
     }
@@ -125,6 +131,10 @@ class ReflectionUtils
 
         // map class properties to params
         foreach ($reflectionClass->getProperties() as $reflectionProperty) {
+            if ($reflectionProperty->isPrivate()) {
+                continue;
+            }
+
             [$name, $type] = ReflectionUtils::mapReflectionPropertyToParam($reflectionProperty, $object);
 
             $params = array_merge($params, [$name => $type]);

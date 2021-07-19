@@ -16,7 +16,7 @@ class TypeDocumentResult extends Result
     /**
      * @var mixed $type
      */
-    public $type;
+    private $type;
 
     /**
      * @var string $name
@@ -83,15 +83,17 @@ class TypeDocumentResult extends Result
             $generics = array_map(fn($type) => TypeDocumentResult::createFromInvokeType($type), $type->getGenericTypes());
         }
 
-        return static::from([
-            "type" => $type,
-
+        $result = static::from([
             "name" => Typesystem::getTypeName($type),
             "summary" => $comment["summary"],
             "description" => $comment["description"],
             "params" => $params,
             "generics" => $generics,
         ]);
+
+        $result->setType($type);
+
+        return $result;
     }
 
     /**
@@ -138,5 +140,15 @@ class TypeDocumentResult extends Result
     public function getType()
     {
         return $this->type;
+    }
+
+    /**
+     * todo: fix this thing
+     *
+     * @param mixed $type
+     */
+    public function setType($type): void
+    {
+        $this->type = $type;
     }
 }
