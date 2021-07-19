@@ -14,6 +14,11 @@ use ReflectionClass;
 class TypeDocumentResult extends Result
 {
     /**
+     * @var mixed $type
+     */
+    public $type;
+
+    /**
      * @var string $name
      */
     public string $name;
@@ -79,6 +84,8 @@ class TypeDocumentResult extends Result
         }
 
         return static::from([
+            "type" => $type,
+
             "name" => Typesystem::getTypeName($type),
             "summary" => $comment["summary"],
             "description" => $comment["description"],
@@ -123,5 +130,13 @@ class TypeDocumentResult extends Result
         }
 
         return $comment;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getType()
+    {
+        return $this->type;
     }
 }
