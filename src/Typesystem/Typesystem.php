@@ -225,7 +225,7 @@ class Typesystem
             }
         }
 
-        throw new RuntimeException("Invalid type: {$type}");
+        return $type;
     }
 
     public static function isSimpleType($type): bool
