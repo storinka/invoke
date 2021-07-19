@@ -5,7 +5,6 @@ namespace Invoke\Typesystem;
 use Invoke\InvokeMachine;
 use Invoke\Typesystem\Exceptions\InvalidParamTypeException;
 use Invoke\Typesystem\Exceptions\TypesystemValidationException;
-use RuntimeException;
 
 class Typesystem
 {
@@ -176,7 +175,7 @@ class Typesystem
     public static function getTypeName($type): string
     {
         if ($type instanceof CustomType) {
-            return $type->toString();
+            $type = $type->getBaseType();
         }
 
         if (is_array($type)) {

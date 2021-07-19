@@ -3,6 +3,7 @@
 namespace Invoke\Docs\Types;
 
 use Invoke\Typesystem\CustomType;
+use Invoke\Typesystem\GenericCustomType;
 use Invoke\Typesystem\Result;
 use Invoke\Typesystem\Type;
 use Invoke\Typesystem\Types;
@@ -16,6 +17,11 @@ class TypeDocumentResult extends Result
      * @var string $name
      */
     public string $name;
+
+    /**
+     * @var TypeDocumentResult[] $generics
+     */
+    public ?array $generics;
 
     /**
      * @var string|null $summary
@@ -38,6 +44,7 @@ class TypeDocumentResult extends Result
     public static function params(): array
     {
         return [
+            "generics" => Types::Null(Types::ArrayOf(TypeDocumentResult::class)),
             "params" => Types::Null(Types::ArrayOf(ParamDocumentResult::class)),
         ];
     }
@@ -66,11 +73,17 @@ class TypeDocumentResult extends Result
             }
         }
 
+        $generics = null;
+        if ($type instanceof GenericCustomType) {
+            $generics = array_map(fn($type) => TypeDocumentResult::createFromInvokeType($type), $type->getGenericTypes());
+        }
+
         return static::from([
             "name" => Typesystem::getTypeName($type),
             "summary" => $comment["summary"],
             "description" => $comment["description"],
             "params" => $params,
+            "generics" => $generics,
         ]);
     }
 
