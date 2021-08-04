@@ -29,6 +29,11 @@ class TypeDocumentResult extends Result
     public string $as_string;
 
     /**
+     * @var string $some_types
+     */
+    public ?array $some_types;
+
+    /**
      * @var TypeDocumentResult[] $generics
      */
     public ?array $generics;
@@ -91,6 +96,7 @@ class TypeDocumentResult extends Result
         $result = static::from([
             "name" => Typesystem::getTypeName($type),
             "as_string" => Typesystem::getTypeAsString($type),
+            "some_types" => is_array($type) ? array_map(fn($type) => static::createFromInvokeType($type), $type) : null,
             "summary" => $comment["summary"],
             "description" => $comment["description"],
             "params" => $params,
