@@ -19,6 +19,11 @@ class TypeDocumentResult extends Result
     private $type;
 
     /**
+     * @var string $class
+     */
+    private ?string $class;
+
+    /**
      * @var string $name
      */
     public string $name;
@@ -94,6 +99,7 @@ class TypeDocumentResult extends Result
         }
 
         $result = static::from([
+            "class" => is_string($type) && class_exists($type) ? $type : null,
             "name" => Typesystem::getTypeName($type),
             "as_string" => Typesystem::getTypeAsString($type),
             "some_types" => is_array($type) ? array_map(fn($type) => static::createFromInvokeType($type), $type) : null,
