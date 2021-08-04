@@ -5,22 +5,23 @@ namespace Invoke\Typesystem\CustomTypes;
 use Invoke\Typesystem\CustomType;
 use Invoke\Typesystem\Exceptions\InvalidParamValueException;
 use Invoke\Typesystem\Types;
+use Invoke\Typesystem\Typesystem;
 
 class InCustomType extends CustomType
 {
-    protected $items;
+    protected array $values;
 
-    public function __construct($items, $type = Types::String)
+    public function __construct(array $values, $type = Types::String)
     {
         $this->baseType = $type;
 
-        $this->items = $items;
+        $this->values = $values;
     }
 
     public function validate(string $paramName, $value)
     {
-        if (!in_array($value, $this->items)) {
-            $itemsString = implode(", ", $this->items);
+        if (!in_array($value, $this->values)) {
+            $itemsString = implode(", ", $this->values);
 
             throw new InvalidParamValueException(
                 $paramName,
@@ -35,6 +36,9 @@ class InCustomType extends CustomType
 
     public function toString(): string
     {
-        return implode(", ", $this->items);
+        $baseType = Typesystem::getTypeAsString($this->baseType);
+        $items = implode(", ", $this->values);
+
+        return "$baseType: (values: $items)";
     }
 }
