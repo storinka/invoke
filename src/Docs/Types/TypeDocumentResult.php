@@ -21,7 +21,7 @@ class TypeDocumentResult extends Result
     /**
      * @var string $class
      */
-    private ?string $class;
+    public ?string $class;
 
     /**
      * @var string $name
