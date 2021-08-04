@@ -24,6 +24,11 @@ class TypeDocumentResult extends Result
     public string $name;
 
     /**
+     * @var string $as_string
+     */
+    public string $as_string;
+
+    /**
      * @var TypeDocumentResult[] $generics
      */
     public ?array $generics;
@@ -85,6 +90,7 @@ class TypeDocumentResult extends Result
 
         $result = static::from([
             "name" => Typesystem::getTypeName($type),
+            "as_string" => $type instanceof CustomType ? $type->toString() : Typesystem::getTypeName($type),
             "summary" => $comment["summary"],
             "description" => $comment["description"],
             "params" => $params,

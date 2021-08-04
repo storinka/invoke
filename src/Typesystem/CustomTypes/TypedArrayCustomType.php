@@ -32,7 +32,7 @@ class TypedArrayCustomType extends GenericCustomType
                 $paramName,
                 $this,
                 $value,
-                "min size \"{$this->minSize}\", got \"{$size}\""
+                "Invalid \"{$paramName}\" size: min \"{$this->minSize}\", got \"{$size}\""
             );
         }
 
@@ -41,7 +41,7 @@ class TypedArrayCustomType extends GenericCustomType
                 $paramName,
                 $this,
                 $value,
-                "max size \"{$this->maxSize}\", got \"{$size}\""
+                "Invalid \"{$paramName}\" size: max \"{$this->maxSize}\", got \"{$size}\""
             );
         }
 

@@ -32,4 +32,9 @@ class InCustomType extends CustomType
 
         return $value;
     }
+
+    public function toString(): string
+    {
+        return implode(", ", $this->items);
+    }
 }
