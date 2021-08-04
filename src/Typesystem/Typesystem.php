@@ -233,7 +233,7 @@ class Typesystem
 
         if (is_string($type) && class_exists($type)) {
             if (is_subclass_of($type, InvokeType::class)) {
-                return $type;
+                return invoke_get_class_name($type);
             }
         }
 
