@@ -172,6 +172,19 @@ class Typesystem
         return $value;
     }
 
+    public static function getTypeAsString($type): string
+    {
+        if ($type instanceof CustomType) {
+            return $type->toString();
+        }
+
+        if (is_array($type)) {
+            return implode(" | ", array_map(fn($t) => Typesystem::getTypeAsString($t), $type));
+        }
+
+        return Typesystem::getTypeName($type);
+    }
+
     public static function getTypeName($type): string
     {
         if ($type instanceof CustomType) {

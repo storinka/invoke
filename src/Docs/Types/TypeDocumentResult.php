@@ -90,7 +90,7 @@ class TypeDocumentResult extends Result
 
         $result = static::from([
             "name" => Typesystem::getTypeName($type),
-            "as_string" => $type instanceof CustomType ? $type->toString() : Typesystem::getTypeName($type),
+            "as_string" => Typesystem::getTypeAsString($type),
             "summary" => $comment["summary"],
             "description" => $comment["description"],
             "params" => $params,
