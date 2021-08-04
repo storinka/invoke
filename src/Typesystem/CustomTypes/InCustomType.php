@@ -39,6 +39,6 @@ class InCustomType extends CustomType
         $baseType = Typesystem::getTypeAsString($this->baseType);
         $items = implode(", ", $this->values);
 
-        return "$baseType: (values: $items)";
+        return "$baseType(values: $items)";
     }
 }

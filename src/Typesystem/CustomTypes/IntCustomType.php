@@ -68,7 +68,7 @@ class IntCustomType extends CustomType
         $string = "int";
 
         if ($params) {
-            $string .= ": ($params)";
+            $string .= "($params)";
         }
 
         return $string;
