@@ -2,8 +2,7 @@
 
 namespace Invoke\Typesystem;
 
-use Invoke\Typesystem\Utils\ReflectionUtils;
-use ReflectionClass;
+use Invoke\Typesystem\Utils\TypeUtils;
 use RuntimeException;
 
 /**
@@ -17,16 +16,6 @@ abstract class Type implements InvokeType
      * @var array
      */
     private array $_validatedParams = [];
-
-    /**
-     * Create an instance of the type and hydrate it with the data.
-     *
-     * @param $data
-     */
-    public function __construct($data)
-    {
-        $this->hydrate($data);
-    }
 
     /**
      * Type params.
@@ -45,23 +34,8 @@ abstract class Type implements InvokeType
      */
     protected function hydrate($data): void
     {
-        $reflectionClass = new ReflectionClass($this);
-
-        $params = ReflectionUtils::inspectInvokeTypeReflectionClassParams($reflectionClass, $this);
-
-        // do values mapping through "render" method
-        $rendered = [];
-        if (method_exists($this, "render")) {
-            $rendered = $this->render($data);
-        }
-
-        // validate params
-        $result = Typesystem::validateParams($params, $data, $rendered);
-
-        // fill class properties with the data
-        foreach ($result as $paramName => $paramValue) {
-            $this->{$paramName} = $paramValue;
-        }
+        // a bit confusing, prob should be rewritten in the future
+        $result = TypeUtils::hydrate($this, $data);
 
         $this->_validatedParams = $result;
     }
@@ -90,7 +64,11 @@ abstract class Type implements InvokeType
             return null;
         }
 
-        return new static($data);
+        $type = new static();
+
+        $type->hydrate($data);
+
+        return $type;
     }
 
     /**

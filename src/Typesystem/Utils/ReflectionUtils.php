@@ -112,8 +112,10 @@ class ReflectionUtils
             $params = array_merge($params, [$name => $type]);
         }
 
-        // merge params() result with params
-        $params = array_merge($params, $actualClass::params());
+        // merge params() result with params if such method exists
+        if ($reflectionClass->hasMethod("params")) {
+            $params = array_merge($params, $actualClass::params());
+        }
 
         return $params;
     }

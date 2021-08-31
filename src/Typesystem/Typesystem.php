@@ -5,6 +5,7 @@ namespace Invoke\Typesystem;
 use Invoke\InvokeMachine;
 use Invoke\Typesystem\Exceptions\InvalidParamTypeException;
 use Invoke\Typesystem\Exceptions\TypesystemValidationException;
+use Invoke\Typesystem\Utils\TypeUtils;
 use RuntimeException;
 
 class Typesystem
@@ -150,7 +151,15 @@ class Typesystem
             if (is_array($value)) {
                 // todo: input_to_array
 
-                return new $paramType($value);
+                if (is_subclass_of($paramType, Type::class)) {
+                    return $paramType::from($value);
+                } else {
+                    $paramType = new $paramType;
+
+                    TypeUtils::hydrate($paramType, $value);
+
+                    return $paramType;
+                }
             }
 
             if (!is_object($value)) {
@@ -220,9 +229,7 @@ class Typesystem
         }
 
         if (is_string($type) && class_exists($type)) {
-            if (is_subclass_of($type, InvokeType::class)) {
-                return $type;
-            }
+            return $type;
         }
 
         throw new RuntimeException("Invalid type: {$type}");

@@ -1,13 +1,13 @@
 <?php
 
-use InvokeTests\AllBasicTypesResult;
+use InvokeTests\AllBasicTypesType;
 use PHPUnit\Framework\TestCase;
 
-final class ResultTest extends TestCase
+final class TypeTest extends TestCase
 {
     public function testGeneralResultShouldNotFail()
     {
-        $result = AllBasicTypesResult::from([
+        $result = AllBasicTypesType::from([
             "T" => new RuntimeException(),
             "bool" => true,
             "int" => 256,
@@ -15,6 +15,15 @@ final class ResultTest extends TestCase
             "string" => "love is a trap",
             "null" => null,
             "array" => [2, 0, 2, 0],
+
+            "notType" => [
+                "id" => 1,
+                "name" => "some name",
+
+                "nestedNotType" => [
+                    "is_active" => true
+                ],
+            ],
         ]);
 
         $validatedAttributes = $result->getValidatedParams();
@@ -26,5 +35,6 @@ final class ResultTest extends TestCase
         $this->assertArrayHasKey("string", $validatedAttributes);
         $this->assertArrayHasKey("null", $validatedAttributes);
         $this->assertArrayHasKey("array", $validatedAttributes);
+        $this->assertArrayHasKey("notType", $validatedAttributes);
     }
 }
