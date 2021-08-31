@@ -2,6 +2,10 @@
 
 namespace Invoke;
 
+use Invoke\Typesystem\Typesystem;
+use Invoke\Typesystem\Utils\ReflectionUtils;
+use RuntimeException;
+
 class InvokeMachine
 {
     /**
@@ -18,7 +22,7 @@ class InvokeMachine
      * @var array $configuration
      */
     protected static array $configuration = [
-        "strict" => true,
+        "strict" => false,
     ];
 
     /**
@@ -75,13 +79,57 @@ class InvokeMachine
 
     public static function invoke(string $functionName, array $inputParams, int $version = null)
     {
-        $functionClass = static::getFunctionClass($functionName, $version);
-        return static::invokeFunction(new $functionClass, $inputParams);
+        $functionOrClass = static::getFunctionClass($functionName, $version);
+
+        return static::invokeFunction(
+            function_exists($functionOrClass) ? $functionOrClass : new $functionOrClass,
+            $inputParams
+        );
     }
 
-    public static function invokeFunction(InvokeFunction $function, $inputParams)
+    public static function invokeFunction($function, $inputParams)
     {
-        return $function($inputParams);
+        if ($function instanceof InvokeFunction) {
+            return $function($inputParams);
+        }
+
+        if (function_exists($function)) {
+            return InvokeMachine::invokeNativeFunction($function, $inputParams);
+        }
+
+        throw new RuntimeException("Invalid function: {$function}");
+    }
+
+    public static function invokeNativeFunction($function, array $inputParams)
+    {
+        $reflectionFunction = new \ReflectionFunction($function);
+        $reflectionParameters = $reflectionFunction->getParameters();
+
+        $params = ReflectionUtils::inspectFunctionReflectionParameters($reflectionParameters);
+
+        $validatedParams = [];
+
+        foreach ($params as $paramName => $paramType) {
+            $value = $inputParams[$paramName] ?? null;
+
+            $value = Typesystem::validateParam($paramName, $paramType, $value);
+
+            $validatedParams[$paramName] = $value;
+        }
+
+        $neededParams = [];
+
+        foreach ($reflectionParameters as $reflectionParameter) {
+            $refParamName = $reflectionParameter->getName();
+
+            if ($refParamName === "params" && !array_key_exists("params", $validatedParams)) {
+                array_push($neededParams, $validatedParams);
+            } else {
+                array_push($neededParams, $validatedParams[$refParamName]);
+            }
+        }
+
+        return $function(...$neededParams);
     }
 
     public static function getFunctionClass(string $functionName, ?int $version)
@@ -105,5 +153,48 @@ class InvokeMachine
     {
         $versions = array_keys(static::functionsFullTree());
         return end($versions);
+    }
+
+    public static function handleRequest(?string $uri = null, ?array $params = null)
+    {
+        if (is_null($uri)) {
+            $uri = $_SERVER["REQUEST_URI"];
+        }
+
+        $uri = trim($uri);
+        $uri = trim($uri, "/");
+
+        [$path, $queryString] = explode("?", $uri);
+        [$prefix, $version, $functionName] = explode("/", $path);
+
+        $version = (int)$version;
+
+        if (is_null($params)) {
+            $params = [];
+
+            $headers = getallheaders();
+
+            if (array_key_exists("Content-Type", $headers)) {
+                $contentType = $headers["Content-Type"];
+
+                if (strpos($contentType, "application/json") > -1) {
+                    $body = file_get_contents("php://input");
+
+                    $params = json_decode($body, true);
+                }
+            } else {
+                parse_str($queryString, $params);
+            }
+        }
+
+        $result = InvokeMachine::invoke($functionName, $params, $version);
+
+        header("Content-Type: application/json");
+
+        echo json_encode([
+            "result" => $result,
+        ]);
+
+        die();
     }
 }

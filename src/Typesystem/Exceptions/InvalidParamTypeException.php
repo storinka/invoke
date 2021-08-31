@@ -19,10 +19,10 @@ class InvalidParamTypeException extends TypesystemValidationException
         $this->paramName = $paramName;
 
         $this->paramType = $paramType;
-        $this->paramTypeName = Typesystem::getTypeName($paramType);
+        $this->paramTypeName = Typesystem::getTypeAsString($paramType);
 
         $this->actualType = $actualType;
-        $this->actualTypeName = Typesystem::getTypeName($actualType);
+        $this->actualTypeName = Typesystem::getTypeAsString($actualType);
 
         parent::__construct(
             "INVALID_PARAM_TYPE",

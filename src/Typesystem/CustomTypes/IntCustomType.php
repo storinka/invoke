@@ -45,4 +45,32 @@ class IntCustomType extends CustomType
 
         return $value;
     }
+
+    public function toString(): string
+    {
+        $min = !is_null($this->minValue) ? "min: {$this->minValue}" : null;
+        $max = !is_null($this->maxValue) ? "max: {$this->maxValue}" : null;
+
+        $params = "";
+
+        if ($min) {
+            $params .= $min;
+        }
+
+        if ($max) {
+            if ($min) {
+                $params .= ", ";
+            }
+
+            $params .= $max;
+        }
+
+        $string = "int";
+
+        if ($params) {
+            $string .= "($params)";
+        }
+
+        return $string;
+    }
 }

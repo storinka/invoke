@@ -3,6 +3,7 @@
 namespace Invoke\Docs\Types;
 
 use Invoke\Typesystem\CustomType;
+use Invoke\Typesystem\GenericCustomType;
 use Invoke\Typesystem\Result;
 use Invoke\Typesystem\Type;
 use Invoke\Typesystem\Types;
@@ -13,9 +14,34 @@ use ReflectionClass;
 class TypeDocumentResult extends Result
 {
     /**
+     * @var mixed $type
+     */
+    private $type;
+
+    /**
+     * @var string $class
+     */
+    public ?string $class;
+
+    /**
      * @var string $name
      */
     public string $name;
+
+    /**
+     * @var string $as_string
+     */
+    public string $as_string;
+
+    /**
+     * @var string $some_types
+     */
+    public ?array $some_types;
+
+    /**
+     * @var TypeDocumentResult[] $generics
+     */
+    public ?array $generics;
 
     /**
      * @var string|null $summary
@@ -38,6 +64,7 @@ class TypeDocumentResult extends Result
     public static function params(): array
     {
         return [
+            "generics" => Types::Null(Types::ArrayOf(TypeDocumentResult::class)),
             "params" => Types::Null(Types::ArrayOf(ParamDocumentResult::class)),
         ];
     }
@@ -66,12 +93,25 @@ class TypeDocumentResult extends Result
             }
         }
 
-        return static::from([
+        $generics = null;
+        if ($type instanceof GenericCustomType) {
+            $generics = array_map(fn($type) => TypeDocumentResult::createFromInvokeType($type), $type->getGenericTypes());
+        }
+
+        $result = static::from([
+            "class" => is_string($type) && class_exists($type) ? $type : null,
             "name" => Typesystem::getTypeName($type),
+            "as_string" => Typesystem::getTypeAsString($type),
+            "some_types" => is_array($type) ? array_map(fn($type) => static::createFromInvokeType($type), $type) : null,
             "summary" => $comment["summary"],
             "description" => $comment["description"],
             "params" => $params,
+            "generics" => $generics,
         ]);
+
+        $result->setType($type);
+
+        return $result;
     }
 
     /**
@@ -110,5 +150,23 @@ class TypeDocumentResult extends Result
         }
 
         return $comment;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * todo: fix this thing
+     *
+     * @param mixed $type
+     */
+    public function setType($type): void
+    {
+        $this->type = $type;
     }
 }

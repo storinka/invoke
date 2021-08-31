@@ -6,7 +6,6 @@ use Invoke\InvokeMachine;
 use Invoke\Typesystem\Exceptions\InvalidParamTypeException;
 use Invoke\Typesystem\Exceptions\TypesystemValidationException;
 use Invoke\Typesystem\Utils\TypeUtils;
-use RuntimeException;
 
 class Typesystem
 {
@@ -182,10 +181,23 @@ class Typesystem
         return $value;
     }
 
-    public static function getTypeName($type): string
+    public static function getTypeAsString($type): string
     {
         if ($type instanceof CustomType) {
             return $type->toString();
+        }
+
+        if (is_array($type)) {
+            return implode(" | ", array_map(fn($t) => Typesystem::getTypeAsString($t), $type));
+        }
+
+        return Typesystem::getTypeName($type);
+    }
+
+    public static function getTypeName($type): string
+    {
+        if ($type instanceof CustomType) {
+            $type = $type->getBaseType();
         }
 
         if (is_array($type)) {
@@ -204,35 +216,35 @@ class Typesystem
             case "int":
             case "integer":
             case Types::Int:
-                return "Int";
+                return "int";
 
             case "string":
             case Types::String:
-                return "String";
+                return "string";
 
             case "float":
             case "double":
             case Types::Float:
-                return "Float";
+                return "float";
 
             case Types::Array:
-                return "Array";
+                return "array";
 
             case "bool":
             case "boolean":
             case Types::Bool:
-                return "Bool";
+                return "bool";
 
             case null:
             case Types::Null:
-                return "Null";
+                return "null";
         }
 
         if (is_string($type) && class_exists($type)) {
-            return $type;
+            return invoke_get_class_name($type);
         }
 
-        throw new RuntimeException("Invalid type: {$type}");
+        return $type;
     }
 
     public static function isSimpleType($type): bool

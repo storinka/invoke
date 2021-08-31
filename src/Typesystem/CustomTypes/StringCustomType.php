@@ -33,7 +33,7 @@ class StringCustomType extends CustomType
                     $paramName,
                     $this,
                     $value,
-                    "min length \"{$this->minLength}\", got \"{$length}\""
+                    "Invalid \"{$paramName}\" length: min \"{$this->minLength}\", got \"{$length}\"."
                 );
             }
         }
@@ -44,7 +44,7 @@ class StringCustomType extends CustomType
                     $paramName,
                     $this,
                     $value,
-                    "max length \"{$this->maxLength}\", got \"{$length}\""
+                    "Invalid \"{$paramName}\" length: max \"{$this->maxLength}\", got \"{$length}\"."
                 );
             }
         }
