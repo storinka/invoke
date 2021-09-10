@@ -32,3 +32,28 @@ function invoke_dd(...$data)
     die();
     echo "</pre>";
 }
+
+if (!function_exists("invoke_semver_sort")) {
+    function invoke_semver_sort(array $versions)
+    {
+        usort($versions, function ($version1, $version2) {
+            return -1 * version_compare($version1, $version2);
+        });
+    }
+}
+
+if (!function_exists("invoke_closest_semver")) {
+    function invoke_closest_semver(string $search, array $versions): ?string
+    {
+        $versions = array_reverse($versions);
+        invoke_semver_sort($versions);
+
+        foreach ($versions as $version) {
+            if (version_compare($search, $version, ">=")) {
+                return $version;
+            }
+        }
+
+        return null;
+    }
+}

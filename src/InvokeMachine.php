@@ -2,30 +2,12 @@
 
 namespace Invoke;
 
-use Composer\Semver\Comparator;
 use Invoke\Typesystem\Typesystem;
 use Invoke\Typesystem\Utils\ReflectionUtils;
 use RuntimeException;
 
-function semver_sort_fn($a, $b): int
-{
-    if (Comparator::equalTo($a, $b)) {
-        return 0;
-    } else if (Comparator::greaterThan($a, $b)) {
-        return 1;
-    } else {
-        return -1;
-    }
-}
-
-
 class InvokeMachine
 {
-    /**
-     * @var array $functionsTree
-     */
-    protected static array $functionsTree = [];
-
     /**
      * @var array $functionsFullTree
      */
@@ -44,27 +26,35 @@ class InvokeMachine
      */
     public static function setup(array $functionsTree, array $configuration = [])
     {
-        uksort($functionsTree, "Invoke\\semver_sort_fn");
+        static::$functionsFullTree = [];
 
         $normalizedFunctionsTree = [];
         foreach ($functionsTree as $functionsVersion => $functionsList) {
             $normalizedFunctionsTree[Versions::semver($functionsVersion)] = $functionsList;
         }
 
-        static::$functionsTree = $normalizedFunctionsTree;
+        // sort functions tree using semver
+        uksort($normalizedFunctionsTree, "version_compare");
 
         foreach ($normalizedFunctionsTree as $functionsVersion => $functionsList) {
+            // get previous version functions list
+            $prevVersionFunctionsList = end(static::$functionsFullTree);
+            if (!$prevVersionFunctionsList) {
+                $prevVersionFunctionsList = [];
+            }
+
+            // create new version functions list
             static::$functionsFullTree[$functionsVersion] = [];
 
-            // clone previous version
-            $prevVersionFunctionsList = end(static::$functionsFullTree) ?? [];
-
+            // copy previous version functions list to new
             foreach ($prevVersionFunctionsList as $prevVersionFunctionName => $prevVersionFunctionClass) {
                 static::$functionsFullTree[$functionsVersion][$prevVersionFunctionName] = $prevVersionFunctionClass;
             }
 
-            // fill out new functions
+            // set new functions list
             foreach ($functionsList as $functionName => $functionClass) {
+                // check if function is not null
+                // if null, then we remove this function
                 if ($functionClass) {
                     static::$functionsFullTree[$functionsVersion][$functionName] = $functionClass;
                 } else {
@@ -74,11 +64,6 @@ class InvokeMachine
         }
 
         static::$configuration = array_merge(static::$configuration, $configuration);
-    }
-
-    public static function functionsTree(): array
-    {
-        return static::$functionsTree;
     }
 
     public static function functionsFullTree(): array
@@ -155,12 +140,12 @@ class InvokeMachine
         return $function(...$neededParams);
     }
 
-    public static function getFunctionClass(string $functionName, $version)
+    public static function getFunctionClass(string $functionName, $version = null)
     {
         if (!$version) {
             $version = static::version();
         } else {
-            $version = Versions::semver($version);
+            $version = static::getClosestVersion($version);
         }
 
         if (!isset(static::$functionsFullTree[$version])) {
@@ -178,6 +163,58 @@ class InvokeMachine
     {
         $versions = array_keys(static::functionsFullTree());
         return end($versions);
+    }
+
+    public static function getClosestVersion($version)
+    {
+        if (!empty(static::$functionsFullTree[$version])) {
+            return $version;
+        }
+
+        $semver = Versions::semver($version);
+        if (!empty(static::$functionsFullTree[$semver])) {
+            return $semver;
+        }
+
+        [$major, $minor, $patch] = Versions::parseSemver($version);
+
+        $minorI = $minor;
+        if ($minorI === null) {
+            $minorI = PHP_INT_MAX;
+        }
+        $patchI = $patch;
+        if ($patchI === null) {
+            $patchI = PHP_INT_MAX;
+        }
+
+        $closestVersion = invoke_closest_semver(
+            "$major.$minorI.$patchI",
+            array_keys(static::$functionsFullTree)
+        );
+
+        if ($closestVersion === null) {
+            throw new InvalidVersionException($version);
+        }
+
+        [$closestMajor, $closestMinor, $closestPatch] = Versions::parseSemver($closestVersion);
+
+        if ($major !== $closestMajor) {
+            throw new InvalidVersionException($version);
+        }
+
+        if ($minor !== null) {
+            if ($minor !== $closestMinor) {
+                throw new InvalidVersionException($version);
+            }
+
+            if ($patch !== null) {
+                if ($patch !== $closestPatch) {
+                    throw new InvalidVersionException($version);
+                }
+            }
+        }
+
+        return $closestVersion;
     }
 
     public static function handleRequest(?string $uri = null, ?array $params = null)

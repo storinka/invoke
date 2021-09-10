@@ -29,7 +29,8 @@
         "psr-4": {
             "InvokeTests\\": "tests",
             "InvokeTests\\Lib\\": "tests/lib",
-            "InvokeTests\\Typesystem\\": "tests/typesystem"
+            "InvokeTests\\Typesystem\\": "tests/typesystem",
+            "InvokeTests\\Invoke\\": "tests/invoke"
         }
     },
     "require-dev": {

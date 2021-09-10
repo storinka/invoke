@@ -1,6 +1,6 @@
 <?php
 
-namespace InvokeTests;
+namespace InvokeTests\Invoke;
 
 use Invoke\InvokeMachine;
 use InvokeTests\Lib\SetupInvoke;
