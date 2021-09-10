@@ -14,7 +14,7 @@ use Invoke\InvokeMachine;
  */
 class InvokeDocsGetAllFunctionsFunction extends InvokeFunction
 {
-    public function handle(?int $version): array
+    public function handle($version): array
     {
         if (!$version) {
             $version = InvokeMachine::version();

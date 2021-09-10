@@ -192,8 +192,6 @@ class InvokeMachine
         [$path, $queryString] = explode("?", $uri);
         [$prefix, $version, $functionName] = explode("/", $path);
 
-        $version = (int)$version;
-
         if (is_null($params)) {
             $params = [];
 

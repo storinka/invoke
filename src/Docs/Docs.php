@@ -12,7 +12,7 @@ class Docs
         return FunctionDocumentResult::createFromInvokeFunction($functionName, $functionClass);
     }
 
-    public static function getAllFunctionsDocuments(?int $version = null): array
+    public static function getAllFunctionsDocuments($version = null): array
     {
         if (!$version) {
             $version = InvokeMachine::version();

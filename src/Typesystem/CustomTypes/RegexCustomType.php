@@ -24,7 +24,7 @@ class RegexCustomType extends CustomType
                 $paramName,
                 $this,
                 $value,
-                "does not match pattern \"{$this->pattern}\""
+                "Invalid param \"{$paramName}\" value: does not match pattern \"{$this->pattern}\"."
             );
         }
 

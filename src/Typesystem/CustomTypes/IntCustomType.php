@@ -27,7 +27,7 @@ class IntCustomType extends CustomType
                     $paramName,
                     $this,
                     $value,
-                    "min \"{$this->minValue}\", got \"{$value}\""
+                    "Invalid param \"{$paramName}\" value: min \"{$this->minValue}\", got \"{$value}\"."
                 );
             }
         }
@@ -38,7 +38,7 @@ class IntCustomType extends CustomType
                     $paramName,
                     $this,
                     $value,
-                    "max \"{$this->maxValue}\", got \"{$value}\""
+                    "Invalid param \"{$paramName}\" value: max \"{$this->maxValue}\", got \"{$value}\"."
                 );
             }
         }
