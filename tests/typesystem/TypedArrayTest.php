@@ -1,12 +1,17 @@
 <?php
 
+namespace InvokeTests\Typesystem;
+
 use Invoke\Typesystem\Exceptions\InvalidParamTypeException;
 use Invoke\Typesystem\Types;
 use Invoke\Typesystem\Typesystem;
+use InvokeTests\Lib\SetupInvoke;
 use PHPUnit\Framework\TestCase;
 
 class TypedArrayTest extends TestCase
 {
+    use SetupInvoke;
+
     public function testTypedArrayShouldNotFail()
     {
         $result = Typesystem::validateParam("some_items", Types::ArrayOf(Types::Int), [1, 2, 3, 4]);

@@ -1,6 +1,6 @@
 <?php
 
-namespace InvokeTests\Functions;
+namespace InvokeTests\Lib\Functions;
 
 class Dec2HexFunctionV2 extends Dec2HexFunction
 {

@@ -1,12 +1,17 @@
 <?php
 
+namespace InvokeTests\Typesystem;
+
 use Invoke\Typesystem\Exceptions\InvalidParamTypeException;
 use Invoke\Typesystem\Types;
 use Invoke\Typesystem\Typesystem;
+use InvokeTests\Lib\SetupInvoke;
 use PHPUnit\Framework\TestCase;
 
 class IntTest extends TestCase
 {
+    use SetupInvoke;
+
     public function testIntShouldNotFail()
     {
         $result = Typesystem::validateParam("some_id", Types::Int, 10);

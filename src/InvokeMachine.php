@@ -2,9 +2,22 @@
 
 namespace Invoke;
 
+use Composer\Semver\Comparator;
 use Invoke\Typesystem\Typesystem;
 use Invoke\Typesystem\Utils\ReflectionUtils;
 use RuntimeException;
+
+function semver_sort_fn($a, $b): int
+{
+    if (Comparator::equalTo($a, $b)) {
+        return 0;
+    } else if (Comparator::greaterThan($a, $b)) {
+        return 1;
+    } else {
+        return -1;
+    }
+}
+
 
 class InvokeMachine
 {
@@ -31,22 +44,32 @@ class InvokeMachine
      */
     public static function setup(array $functionsTree, array $configuration = [])
     {
-        ksort($functionsTree);
+        uksort($functionsTree, "Invoke\\semver_sort_fn");
 
-        static::$functionsTree = $functionsTree;
-
+        $normalizedFunctionsTree = [];
         foreach ($functionsTree as $functionsVersion => $functionsList) {
+            $normalizedFunctionsTree[Versions::semver($functionsVersion)] = $functionsList;
+        }
+
+        static::$functionsTree = $normalizedFunctionsTree;
+
+        foreach ($normalizedFunctionsTree as $functionsVersion => $functionsList) {
             static::$functionsFullTree[$functionsVersion] = [];
 
             // clone previous version
-            $prevVersionFunctionsList = static::$functionsFullTree[$functionsVersion - 1] ?? [];
+            $prevVersionFunctionsList = end(static::$functionsFullTree) ?? [];
+
             foreach ($prevVersionFunctionsList as $prevVersionFunctionName => $prevVersionFunctionClass) {
                 static::$functionsFullTree[$functionsVersion][$prevVersionFunctionName] = $prevVersionFunctionClass;
             }
 
             // fill out new functions
             foreach ($functionsList as $functionName => $functionClass) {
-                static::$functionsFullTree[$functionsVersion][$functionName] = $functionClass;
+                if ($functionClass) {
+                    static::$functionsFullTree[$functionsVersion][$functionName] = $functionClass;
+                } else {
+                    unset(static::$functionsFullTree[$functionsVersion][$functionName]);
+                }
             }
         }
 
@@ -77,7 +100,7 @@ class InvokeMachine
         return static::$configuration;
     }
 
-    public static function invoke(string $functionName, array $inputParams, int $version = null)
+    public static function invoke(string $functionName, array $inputParams, $version = null)
     {
         $functionOrClass = static::getFunctionClass($functionName, $version);
 
@@ -132,10 +155,12 @@ class InvokeMachine
         return $function(...$neededParams);
     }
 
-    public static function getFunctionClass(string $functionName, ?int $version)
+    public static function getFunctionClass(string $functionName, $version)
     {
         if (!$version) {
             $version = static::version();
+        } else {
+            $version = Versions::semver($version);
         }
 
         if (!isset(static::$functionsFullTree[$version])) {
@@ -149,7 +174,7 @@ class InvokeMachine
         return static::$functionsFullTree[$version][$functionName];
     }
 
-    public static function version(): int
+    public static function version(): string
     {
         $versions = array_keys(static::functionsFullTree());
         return end($versions);

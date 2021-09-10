@@ -1,6 +1,6 @@
 <?php
 
-namespace InvokeTests;
+namespace InvokeTests\Lib;
 
 class NestedNotType
 {

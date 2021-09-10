@@ -1,6 +1,6 @@
 <?php
 
-namespace InvokeTests;
+namespace InvokeTests\Lib;
 
 use Invoke\Typesystem\Type;
 use Invoke\Typesystem\Types;

@@ -1,12 +1,17 @@
 <?php
 
+namespace InvokeTests\Typesystem;
+
 use Invoke\Typesystem\Exceptions\InvalidParamTypeException;
 use Invoke\Typesystem\Types;
 use Invoke\Typesystem\Typesystem;
+use InvokeTests\Lib\SetupInvoke;
 use PHPUnit\Framework\TestCase;
 
 class FloatTest extends TestCase
 {
+    use SetupInvoke;
+
     public function testFloatShouldNotFail()
     {
         $result = Typesystem::validateParam("some_price", Types::Float, 10);

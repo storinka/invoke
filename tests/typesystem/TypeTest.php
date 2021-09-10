@@ -1,10 +1,16 @@
 <?php
 
-use InvokeTests\AllBasicTypesType;
+namespace InvokeTests\Typesystem;
+
+use InvokeTests\Lib\AllBasicTypesType;
+use InvokeTests\Lib\SetupInvoke;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class TypeTest extends TestCase
 {
+    use SetupInvoke;
+
     public function testGeneralResultShouldNotFail()
     {
         $result = AllBasicTypesType::from([

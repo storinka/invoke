@@ -1,12 +1,17 @@
 <?php
 
+namespace InvokeTests\Typesystem;
+
 use Invoke\Typesystem\Exceptions\InvalidParamTypeException;
 use Invoke\Typesystem\Types;
 use Invoke\Typesystem\Typesystem;
+use InvokeTests\Lib\SetupInvoke;
 use PHPUnit\Framework\TestCase;
 
 class StringTest extends TestCase
 {
+    use SetupInvoke;
+
     public function testStringShouldNotFail()
     {
         $result = Typesystem::validateParam("some_name", Types::String, "some name");
@@ -19,7 +24,7 @@ class StringTest extends TestCase
         Typesystem::validateParam("some_name", Types::String, null);
     }
 
-    public function testBoolAndIntShouldFail()
+    public function testStringAndIntShouldFail()
     {
         $this->expectException(InvalidParamTypeException::class);
         Typesystem::validateParam("some_name", Types::String, 10);
@@ -31,7 +36,7 @@ class StringTest extends TestCase
         Typesystem::validateParam("some_name", Types::String, true);
     }
 
-    public function testBoolAndArrayShouldFail()
+    public function testStringAndArrayShouldFail()
     {
         $this->expectException(InvalidParamTypeException::class);
         Typesystem::validateParam("some_name", Types::String, []);

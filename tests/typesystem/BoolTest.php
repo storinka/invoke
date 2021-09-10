@@ -1,12 +1,17 @@
 <?php
 
+namespace InvokeTests\Typesystem;
+
 use Invoke\Typesystem\Exceptions\InvalidParamTypeException;
 use Invoke\Typesystem\Types;
 use Invoke\Typesystem\Typesystem;
+use InvokeTests\Lib\SetupInvoke;
 use PHPUnit\Framework\TestCase;
 
 class BoolTest extends TestCase
 {
+    use SetupInvoke;
+
     public function testBoolShouldNotFail()
     {
         $result = Typesystem::validateParam("is_something_true", Types::Bool, true);
