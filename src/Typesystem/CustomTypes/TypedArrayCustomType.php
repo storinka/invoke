@@ -49,7 +49,11 @@ class TypedArrayCustomType extends GenericCustomType
 
 
         foreach ($value as $i => $v) {
-            $value[$i] = Typesystem::validateParam("{$paramName}[{$i}]", $itemType, $v);
+            $value[$i] = Typesystem::validateParam(
+                "{$paramName}[{$i}]",
+                $itemType,
+                $v
+            );
         }
 
         return $value;

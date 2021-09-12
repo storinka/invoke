@@ -20,7 +20,12 @@ class TypeUtils
         }
 
         // validate params
-        $result = Typesystem::validateParams($params, $data, $rendered);
+        $result = Typesystem::validateParams(
+            $params,
+            $data,
+            $rendered,
+            $reflectionClass->getName()
+        );
 
         return $result;
     }
@@ -35,5 +40,14 @@ class TypeUtils
         }
 
         return $result;
+    }
+
+    public static function getParamNameWithContextClass($paramName, $contextClass)
+    {
+        if ($contextClass) {
+            return invoke_get_class_name($contextClass) . "::" . $paramName;
+        }
+
+        return $paramName;
     }
 }

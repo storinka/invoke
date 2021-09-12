@@ -9,7 +9,10 @@ use Invoke\Typesystem\Utils\TypeUtils;
 
 class Typesystem
 {
-    public static function validateParams(array $params, $data, array $rendered = []): array
+    public static function validateParams(array $params,
+                                                $data,
+                                          array $rendered = [],
+                                                $contextClass = null): array
     {
         $result = [];
 
@@ -36,15 +39,27 @@ class Typesystem
                 $value = $data[$paramName];
             }
 
-            $result[$paramName] = Typesystem::validateParam($paramName, $paramType, $value);
+            $result[$paramName] = Typesystem::validateParam(
+                $paramName,
+                $paramType,
+                $value,
+                $contextClass
+            );
         }
 
         return $result;
     }
 
-    public static function validateParam(string $paramName, $paramType, $value)
+    public static function validateParam(string $paramName,
+                                                $paramType,
+                                                $value,
+                                                $contextClass = null)
     {
         $valueType = gettype($value);
+
+        if ($contextClass) {
+            $paramName = TypeUtils::getParamNameWithContextClass($paramName, $contextClass);
+        }
 
         // if paramType is array then we check if value is matching any type of its items
         if (is_array($paramType)) {

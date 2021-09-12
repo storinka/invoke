@@ -14,7 +14,11 @@ class InvalidParamTypeException extends TypesystemValidationException
     protected $actualType;
     protected string $actualTypeName;
 
-    public function __construct(string $paramName, $paramType, $actualType, ?string $message = null, int $code = 500)
+    public function __construct(string  $paramName,
+                                        $paramType,
+                                        $actualType,
+                                ?string $message = null,
+                                int     $code = 500)
     {
         $this->paramName = $paramName;
 

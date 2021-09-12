@@ -13,12 +13,15 @@ class InvalidParamValueException extends TypesystemValidationException
 
     protected $value;
 
-    public function __construct(string $paramName, $paramType, $value, ?string $message = null, int $code = 500)
+    public function __construct(string $paramName,
+                                       $paramType,
+                                       $value, ?string $message = null,
+                                int    $code = 500)
     {
         $this->paramName = $paramName;
 
         $this->paramType = $paramType;
-        $this->paramTypeName = Typesystem::getTypeName($paramType);
+        $this->paramTypeName = Typesystem::getTypeAsString($paramType);
 
         $this->value = $value;
 
