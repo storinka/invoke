@@ -28,7 +28,7 @@ Invoke::setup([
 ]);
 
 // run invoke to handle current http request
-Invoke::handleRequest();
+Invoke::handleJSONRPCRequest();
 ```
 
 2. Run a server
@@ -40,7 +40,7 @@ php -S localhost:8000 index.php
 3. Send a request
 
 ```shell
-curl -X POST 'localhost:8000/add' --data '{ "a": 2, "b": 2 }'
+curl -X POST 'localhost:8000' --data '{ "method": "add", "params": { "a": 2, "b": 2 } }'
 
 // result will be: { "result": 4 }
 ```
@@ -78,4 +78,13 @@ class GetUsers extends Method
 }
 ```
 
-3. Run a server and try to invoke as above
+3. Setup Invoke
+```php
+Invoke::setup([
+    "getUsers" => GetUsers::class,
+]);
+
+Invoke::handleJSONRPCRequest();
+```
+
+4. Run a server and try to invoke as above
