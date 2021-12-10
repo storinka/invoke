@@ -11,70 +11,33 @@ JSON-RPC compliant library for building fast and convenient web APIs.
 composer require storinka/invoke
 ```
 
-## Basic usage
+## Basic example
+
+1. Create index.php
 
 ```php
-// UserResult.php
-
-use Invoke\OLDTypesystem\Result;
-use Invoke\OLDTypesystem\Type;
-
-class UserResult extends Result
+function add(float $a, float $b): float
 {
-    public static function params() : array
-    {
-        return [
-            "id" => Type::Int,
-            "name" => Type::String,
-            "email" => Type::String,
-        ];
-    }
+    return $a + $b;
 }
-```
 
-```php
-// GetUser.php
-
-use Invoke\InvokeFunction;
-use Invoke\OLDTypesystem\Type;
-
-class GetUser extends InvokeFunction
-{
-    public static function params() : array
-    {
-         return [
-            "id" => Type::Int,
-         ];
-    }
-
-    protected function handle(array $params): UserResult
-    {
-        $user = getUserFromDb($params["id"]);
-        
-        return UserResult::from($user);
-    }
-}
-```
-
-```php
-// index.php
-
-use Invoke\InvokeMachine;
-
-$functionName = trim(trim(trim($_SERVER["PATH_INFO"]), "/"));
-$inputParams = $_REQUEST;
-
-InvokeMachine::setup([
-    0 => [
-        "getUser" => GetUser::class,
-    ],
-], [
-    "strict" => false,
+Invoke::setup([
+    "add" => "add",
 ]);
 
-$result = InvokeMachine::invoke($functionName, $inputParams, 0);
+Invoke::handleRequest();
+```
 
-print_r($result);
+2. Run a server
 
-// curl localhost:9000/getUser?id=1
+```shell
+pgp -S localhost:8000 index.php 
+```
+
+3. Send a request
+
+```shell
+curl -X POST 'localhost:8000/add' --data '{ "a": 2, "b": 2 }'
+
+// result will be: { "result": 4 }
 ```
