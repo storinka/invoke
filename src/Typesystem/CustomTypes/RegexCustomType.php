@@ -4,16 +4,16 @@ namespace Invoke\Typesystem\CustomTypes;
 
 use Invoke\Typesystem\CustomType;
 use Invoke\Typesystem\Exceptions\InvalidParamValueException;
-use Invoke\Typesystem\Type;
+use Invoke\Typesystem\Types;
 
 class RegexCustomType extends CustomType
 {
-    protected $type = Type::String;
-
-    protected $pattern;
+    protected string $pattern;
 
     public function __construct(string $pattern)
     {
+        $this->baseType = Types::String;
+
         $this->pattern = $pattern;
     }
 
@@ -24,7 +24,7 @@ class RegexCustomType extends CustomType
                 $paramName,
                 $this,
                 $value,
-                "does not match pattern \"{$this->pattern}\""
+                "Invalid param \"{$paramName}\" value: does not match pattern \"{$this->pattern}\"."
             );
         }
 

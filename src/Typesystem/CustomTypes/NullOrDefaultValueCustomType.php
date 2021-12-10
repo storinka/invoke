@@ -3,15 +3,18 @@
 namespace Invoke\Typesystem\CustomTypes;
 
 use Invoke\Typesystem\CustomType;
-use Invoke\Typesystem\Type;
+use Invoke\Typesystem\Types;
 
-class DefaultValueCustomType extends CustomType
+class NullOrDefaultValueCustomType extends CustomType
 {
+    protected $realBaseType = null;
+
     protected $defaultValue = null;
 
-    public function __construct($type, $defaultValue = null)
+    public function __construct($baseType, $defaultValue = null)
     {
-        $this->type = Type::Null($type);
+        $this->realBaseType = $baseType;
+        $this->baseType = Types::Null($baseType);
         $this->defaultValue = $defaultValue;
     }
 

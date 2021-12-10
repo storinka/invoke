@@ -1,0 +1,196 @@
+<?php
+
+namespace Invoke\Typesystem\Utils;
+
+use Invoke\Typesystem\CustomTypes\NullOrDefaultValueCustomType;
+use Invoke\Typesystem\Types;
+use phpDocumentor\Reflection\DocBlockFactory;
+use ReflectionClass;
+use ReflectionNamedType;
+use ReflectionProperty;
+use ReflectionType;
+use Reflector;
+use RuntimeException;
+
+class ReflectionUtils
+{
+    public static function mapReflectionPropertyToParam(ReflectionProperty $reflectionProperty, $object): array
+    {
+        $paramName = $reflectionProperty->getName();
+
+        $defaultValue = null;
+        if ($object && isset($object->{$paramName})) {
+            $defaultValue = $object->{$paramName};
+        }
+
+        $reflectionType = $reflectionProperty->getType();
+
+        if ($reflectionType) {
+            $paramType = ReflectionUtils::mapReflectionTypeToParamType($reflectionType, $defaultValue);
+        } else {
+            $paramType = Types::T;
+        }
+
+        return [$paramName, $paramType];
+    }
+
+    public static function mapReflectionTypeToParamType(ReflectionType $reflectionType, $defaultValue = null)
+    {
+        $allowsNull = $reflectionType->allowsNull();
+
+        if ($reflectionType instanceof ReflectionNamedType) {
+            $paramType = $reflectionType->getName();
+        } else {
+            $paramType = (string)$reflectionType;
+        }
+
+        // check if property type is builtin, and if so, use it
+        if ($reflectionType->isBuiltin()) {
+            $paramType = ReflectionUtils::getBasicTypeFromBuiltin($paramType);
+        }
+
+        if ($allowsNull) {
+            if ($paramType[0] === "?") {
+                // get actual type
+                $paramType = substr($paramType, 1);
+            }
+
+            // if there is default value in the object, we use it
+            if (isset($defaultValue)) {
+                $paramType = Types::Null($paramType, $defaultValue);
+            } else {
+                // if no default value, just say that the type nullable
+                $paramType = Types::Null($paramType);
+            }
+        }
+
+        return $paramType;
+    }
+
+    /**
+     * @param \ReflectionParameter[] $reflectionParameters
+     * @return array
+     */
+    public static function inspectFunctionReflectionParameters(array $reflectionParameters): array
+    {
+        $params = [];
+
+        foreach ($reflectionParameters as $reflectionParameter) {
+            $hasDefault = $reflectionParameter->isDefaultValueAvailable();
+            $allowsNull = $reflectionParameter->allowsNull();
+
+            $reflParamName = $reflectionParameter->getName();
+            $reflParamType = $reflectionParameter->getType();
+
+            if ($reflParamType) {
+                if ($reflParamType instanceof ReflectionNamedType && $reflParamType->isBuiltin()) {
+                    $reflParamType = ReflectionUtils::getBasicTypeFromBuiltin($reflParamType->getName());
+                } else {
+                    $reflParamType = $reflParamType->getName();
+                }
+
+                if ($hasDefault) {
+                    $reflParamType = new NullOrDefaultValueCustomType($reflParamType, $reflectionParameter->getDefaultValue());
+                }
+                if ($allowsNull) {
+                    $reflParamType = Types::Null($reflParamType);
+                }
+            } else {
+                $reflParamType = Types::T;
+            }
+
+            if ($reflParamName !== "params" && !array_key_exists($reflParamName, $params)) {
+                $params[$reflParamName] = $reflParamType;
+            }
+        }
+
+        return $params;
+    }
+
+    public static function inspectInvokeFunctionReflectionClassParams(ReflectionClass $reflectionClass): array
+    {
+        $actualClass = $reflectionClass->name;
+
+        // todo: document this thing
+
+        $reflectionMethod = $reflectionClass->getMethod("handle");
+        $reflectionParameters = $reflectionMethod->getParameters();
+
+        return array_merge(
+            ReflectionUtils::inspectFunctionReflectionParameters($reflectionParameters),
+            $actualClass::params()
+        );
+    }
+
+    public static function inspectInvokeTypeReflectionClassParams(ReflectionClass $reflectionClass, $object = null): array
+    {
+        $actualClass = $reflectionClass->name;
+
+        // the type params
+        $params = [];
+
+        // map class properties to params
+        foreach ($reflectionClass->getProperties() as $reflectionProperty) {
+            if ($reflectionProperty->isPrivate()) {
+                continue;
+            }
+
+            [$name, $type] = ReflectionUtils::mapReflectionPropertyToParam($reflectionProperty, $object);
+
+            $params = array_merge($params, [$name => $type]);
+        }
+
+        // merge params() result with params if such method exists
+        if ($reflectionClass->hasMethod("params")) {
+            $params = array_merge(
+                $params,
+                $actualClass::params()
+            );
+        }
+
+        return $params;
+    }
+
+    public static function getBasicTypeFromBuiltin(string $builtin): string
+    {
+        switch ($builtin) {
+            case "int":
+            case "integer":
+                return Types::Int;
+            case "float":
+            case "double":
+                return Types::Float;
+            case "bool":
+            case "boolean":
+                return Types::Bool;
+            case "array":
+                return Types::Array;
+            case "null":
+                return Types::Null;
+            case "string":
+                return Types::String;
+        }
+
+        throw new RuntimeException("Unsupported built-in type: $builtin");
+    }
+
+    public static function parseComment(Reflector $reflectionClass): array
+    {
+        $comment = [
+            "summary" => null,
+            "description" => null
+        ];
+
+        $docComment = $reflectionClass->getDocComment();
+        $docBlockFactory = DocBlockFactory::createInstance();
+
+        if ($docComment) {
+            $docBlock = $docBlockFactory->create($docComment);
+
+            $comment["summary"] = $docBlock->getSummary();
+            $comment["description"] = $docBlock->getDescription()->render();
+        }
+
+        return $comment;
+    }
+}

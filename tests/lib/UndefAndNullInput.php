@@ -1,17 +1,17 @@
 <?php
 
-namespace InvokeTests;
+namespace InvokeTests\Lib;
 
 use Invoke\Typesystem\Input;
-use Invoke\Typesystem\Type;
+use Invoke\Typesystem\Types;
 
 class UndefAndNullInput extends Input
 {
     public static function params(): array
     {
         return [
-            "undefOrInt" => Type::Undef(Type::Int),
-            "nullOrInt" => Type::Null(Type::Int),
+            "undefOrInt" => Types::Undef(Types::Int),
+            "nullOrInt" => Types::Null(Types::Int),
         ];
     }
 }

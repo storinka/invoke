@@ -5,18 +5,9 @@ namespace Invoke\Typesystem;
 abstract class CustomType
 {
     /**
-     * Basically a native type. But also can be @CustomType.
-     *
-     * @var string|CustomType $type
+     * @var string|CustomType $baseType
      */
-    protected $type;
-
-    /**
-     * String representation of the type. If not set, then from $type will be used.
-     *
-     * @var null|string $stringRepresentation
-     */
-    protected $stringRepresentation;
+    protected $baseType;
 
     /**
      * @param string $paramName
@@ -27,22 +18,26 @@ abstract class CustomType
     public abstract function validate(string $paramName, $value);
 
     /**
-     * @return string|CustomType
+     * @return string
      */
-    public function getType()
+    public function toString(): string
     {
-        return $this->type;
+        return Typesystem::getTypeName($this->baseType);
     }
 
     /**
-     * @return mixed
+     * @return string|CustomType
      */
-    public function getStringRepresentation(): string
+    public function getBaseType()
     {
-        if (is_null($this->stringRepresentation)) {
-            return Typesystem::getTypeName($this->type);
-        }
+        return $this->baseType;
+    }
 
-        return $this->stringRepresentation;
+    /**
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->toString();
     }
 }

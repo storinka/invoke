@@ -13,8 +13,8 @@ composer require storinka/invoke
 ```php
 // UserResult.php
 
-use Invoke\Typesystem\Result;
-use Invoke\Typesystem\Type;
+use Invoke\OLDTypesystem\Result;
+use Invoke\OLDTypesystem\Type;
 
 class UserResult extends Result
 {
@@ -33,7 +33,7 @@ class UserResult extends Result
 // GetUser.php
 
 use Invoke\InvokeFunction;
-use Invoke\Typesystem\Type;
+use Invoke\OLDTypesystem\Type;
 
 class GetUser extends InvokeFunction
 {
@@ -48,7 +48,7 @@ class GetUser extends InvokeFunction
     {
         $user = getUserFromDb($params["id"]);
         
-        return UserResult::create($user);
+        return UserResult::from($user);
     }
 }
 ```

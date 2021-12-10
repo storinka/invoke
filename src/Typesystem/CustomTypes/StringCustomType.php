@@ -4,17 +4,17 @@ namespace Invoke\Typesystem\CustomTypes;
 
 use Invoke\Typesystem\CustomType;
 use Invoke\Typesystem\Exceptions\InvalidParamValueException;
-use Invoke\Typesystem\Type;
+use Invoke\Typesystem\Types;
 
 class StringCustomType extends CustomType
 {
-    protected $type = Type::String;
-
     protected $minLength;
     protected $maxLength;
 
     public function __construct($minLength = null, $maxLength = null)
     {
+        $this->baseType = Types::String;
+
         $this->minLength = $minLength;
         $this->maxLength = $maxLength;
     }
@@ -33,7 +33,7 @@ class StringCustomType extends CustomType
                     $paramName,
                     $this,
                     $value,
-                    "min length \"{$this->minLength}\", got \"{$length}\""
+                    "Invalid \"{$paramName}\" length: min \"{$this->minLength}\", got \"{$length}\"."
                 );
             }
         }
@@ -44,7 +44,7 @@ class StringCustomType extends CustomType
                     $paramName,
                     $this,
                     $value,
-                    "max length \"{$this->maxLength}\", got \"{$length}\""
+                    "Invalid \"{$paramName}\" length: max \"{$this->maxLength}\", got \"{$length}\"."
                 );
             }
         }

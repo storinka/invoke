@@ -2,26 +2,25 @@
 
 namespace Invoke\Typesystem\CustomTypes;
 
-use Invoke\Typesystem\CustomType;
 use Invoke\Typesystem\Exceptions\InvalidParamValueException;
-use Invoke\Typesystem\Type;
+use Invoke\Typesystem\GenericCustomType;
+use Invoke\Typesystem\Types;
 use Invoke\Typesystem\Typesystem;
 
-class TypedArrayCustomType extends CustomType
+class TypedArrayCustomType extends GenericCustomType
 {
-    protected $type = Type::Array;
+    public ?int $minSize;
+    public ?int $maxSize;
 
-    protected $itemType;
-    protected $minSize;
-    protected $maxSize;
-
-    public function __construct($itemType = Type::String, $minSize = null, $maxSize = null)
+    public function __construct($itemType = Types::String,
+                                ?int $minSize = null,
+                                ?int $maxSize = null)
     {
-        $this->itemType = $itemType;
+        $this->baseType = Types::Array;
+        $this->genericTypes = [$itemType];
+
         $this->minSize = $minSize;
         $this->maxSize = $maxSize;
-
-        $this->stringRepresentation = "Array<" . Typesystem::getTypeName($itemType) . ">";
     }
 
     public function validate(string $paramName, $value)
@@ -33,7 +32,7 @@ class TypedArrayCustomType extends CustomType
                 $paramName,
                 $this,
                 $value,
-                "min size \"{$this->minSize}\", got \"{$size}\""
+                "Invalid \"{$paramName}\" size: min \"{$this->minSize}\", got \"{$size}\"."
             );
         }
 
@@ -42,38 +41,21 @@ class TypedArrayCustomType extends CustomType
                 $paramName,
                 $this,
                 $value,
-                "max size \"{$this->maxSize}\", got \"{$size}\""
+                "Invalid \"{$paramName}\" size: max \"{$this->maxSize}\", got \"{$size}\"."
             );
         }
 
+        $itemType = $this->genericTypes[0];
+
+
         foreach ($value as $i => $v) {
-            $value[$i] = Typesystem::validateParam("{$paramName}[{$i}]", $this->itemType, $v);
+            $value[$i] = Typesystem::validateParam(
+                "{$paramName}[{$i}]",
+                $itemType,
+                $v
+            );
         }
 
         return $value;
-    }
-
-    /**
-     * @return mixed|string
-     */
-    public function getItemType()
-    {
-        return $this->itemType;
-    }
-
-    /**
-     * @return mixed|null
-     */
-    public function getMinSize()
-    {
-        return $this->minSize;
-    }
-
-    /**
-     * @return mixed|null
-     */
-    public function getMaxSize()
-    {
-        return $this->maxSize;
     }
 }

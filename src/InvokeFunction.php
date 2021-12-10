@@ -3,13 +3,14 @@
 namespace Invoke;
 
 use Closure;
-use Invoke\Typesystem\CustomTypes\DefaultValueCustomType;
-use Invoke\Typesystem\Type;
+use Invoke\Typesystem\Exceptions\InvalidParamTypeException;
+use Invoke\Typesystem\Exceptions\InvalidParamValueException;
 use Invoke\Typesystem\Typesystem;
-use Invoke\Typesystem\Undef;
-use ReflectionNamedType;
+use Invoke\Typesystem\Utils\ReflectionUtils;
+use ReflectionClass;
+use RuntimeException;
 
-abstract class InvokeFunction
+abstract class InvokeFunction implements InvokeSubject
 {
     /**
      * Extension traits
@@ -17,16 +18,6 @@ abstract class InvokeFunction
      * @var array $registeredTraits
      */
     private array $registeredTraits = [];
-
-    /**
-     * Returns array of params.
-     *
-     * @return array
-     */
-    public static function params(): array
-    {
-        return [];
-    }
 
     /**
      * Prepare function to invocation.
@@ -39,134 +30,121 @@ abstract class InvokeFunction
     }
 
     /**
-     * Add access verification.
+     * Check if it is allowed to invoke the function.
      *
      * @param array $params
      * @return bool
      */
-    protected function guard(array $params): bool
+    protected function authorize(array $params): bool
     {
         return true;
     }
 
     /**
-     * Invoke the function.
-     *
-     * @param array $inputParams
-     * @return mixed
+     * @return array
      */
+    public static function params(): array
+    {
+        return [];
+    }
+
+    // implementation
+
     public function __invoke(array $inputParams)
     {
         $this->registerTraits();
 
-        $this->executeRegisteredTraits("initialize");
+        $this->executeTraits("initialize");
 
-        $reflection = InvokeMachine::configuration("reflection", false);
-        $reflectionParameters = null;
+        $reflectionClass = new ReflectionClass($this);
 
-        $funParams = static::params();
-
-        if ($reflection) {
-            $reflectionClass = new \ReflectionClass($this);
-            $reflectionMethod = $reflectionClass->getMethod("handle");
-            $reflectionParameters = $reflectionMethod->getParameters();
-
-            foreach ($reflectionParameters as $reflectionParameter) {
-                $hasDefault = $reflectionParameter->isDefaultValueAvailable();
-                $allowsNull = $reflectionParameter->allowsNull();
-
-                $refParamName = $reflectionParameter->getName();
-                $refParamType = $reflectionParameter->getType();
-
-                if ($refParamType instanceof ReflectionNamedType && $refParamType->isBuiltin()) {
-                    $refParamType = Typesystem::normalizeBuiltInType($refParamType->getName());
-                } else {
-                    $refParamType = $refParamType->getName();
-                }
-
-                if ($hasDefault) {
-                    $refParamType = new DefaultValueCustomType($refParamType, $reflectionParameter->getDefaultValue());
-                }
-                if ($allowsNull) {
-                    $refParamType = Type::Null($refParamType);
-                }
-
-                if ($refParamName !== "params" && !array_key_exists($refParamName, $funParams)) {
-                    $funParams[$refParamName] = $refParamType;
-                }
-            }
-        }
+        $params = ReflectionUtils::inspectInvokeFunctionReflectionClassParams($reflectionClass);
 
         $validatedParams = [];
-        foreach ($funParams as $paramName => $paramType) {
-            $value = new Undef();
 
-            if (array_key_exists($paramName, $inputParams)) {
-                $value = $inputParams[$paramName];
+        try {
+            foreach ($params as $paramName => $paramType) {
+                $value = $inputParams[$paramName] ?? null;
+
+                $value = Typesystem::validateParam($paramName, $paramType, $value);
+
+                $validatedParams[$paramName] = $value;
             }
-
-            $value = Typesystem::validateParam($paramName, $paramType, $value);
-
-            if ($value instanceof Undef) {
-                continue;
-            }
-
-            $validatedParams[$paramName] = $value;
+        } catch (InvalidParamTypeException $exception) {
+            throw new InvalidParamTypeException(
+                $exception->getParamName(),
+                $exception->getParamType(),
+                $exception->getActualType(),
+                $exception->getMessage(),
+                400
+            );
+        } catch (InvalidParamValueException $exception) {
+            throw new InvalidParamValueException(
+                $exception->getParamName(),
+                $exception->getParamType(),
+                $exception->getValue(),
+                $exception->getMessage(),
+                400
+            );
         }
 
+        $this->executeTraits("prepare", [$validatedParams]);
         $this->prepare($validatedParams);
-        $this->executeRegisteredTraits("prepare", [$validatedParams]);
 
-        if (!$this->guard($validatedParams)) {
-            throw new InvokeForbiddenException();
-        }
-
-        $this->executeRegisteredTraits("guard", [$validatedParams], function ($allowed) {
+        $this->executeTraits("authorize", [$validatedParams], function ($allowed) {
             if (!$allowed) {
                 throw new InvokeForbiddenException();
             }
         });
-
-        if ($reflection) {
-            $resolvedParams = [];
-
-            foreach ($reflectionParameters as $reflectionParameter) {
-                $refParamName = $reflectionParameter->getName();
-
-                if ($refParamName === "params" && !array_key_exists("params", $validatedParams)) {
-                    array_push($resolvedParams, $validatedParams);
-                } else {
-                    array_push($resolvedParams, $validatedParams[$refParamName]);
-                }
-            }
-
-            $result = $this->handle(...$resolvedParams);
-        } else {
-            $result = $this->handle($validatedParams);
+        if (!$this->authorize($validatedParams)) {
+            throw new InvokeForbiddenException();
         }
 
-        return $result;
-    }
+        // final handling
 
-    public static function resultType()
-    {
-        return null;
+        $neededParams = [];
+
+        $reflectionMethod = $reflectionClass->getMethod("handle");
+        $reflectionParameters = $reflectionMethod->getParameters();
+
+        // loop though all handle method params
+        // to get needed params
+        foreach ($reflectionParameters as $reflectionParameter) {
+            $refParamName = $reflectionParameter->getName();
+
+            if ($refParamName === "params" && !array_key_exists("params", $validatedParams)) {
+                array_push($neededParams, $validatedParams);
+            } else {
+                array_push($neededParams, $validatedParams[$refParamName]);
+            }
+        }
+
+        return $this->handle(...$neededParams);
     }
 
     private function registerTraits()
     {
+        if (sizeof($this->registeredTraits)) {
+            throw new RuntimeException("BUG: traits were already registered.");
+        }
+
         foreach (class_uses($this) as $trait) {
             $this->registeredTraits[] = $trait;
         }
     }
 
-    private function executeRegisteredTraits(string $name, array $functionParams = [], Closure $handler = null)
+    private function executeTraits(string $name, array $functionParams = [], Closure $handler = null)
     {
         foreach ($this->registeredTraits as $trait) {
+            // method + traitClass
+            // example:
+            // method is "prepare"
+            // traitClass is "WithEditPermission"
+            // methodName = prepareWithEditPermission
             $methodName = $name . invoke_get_class_name($trait);
 
             if (method_exists($this, $methodName)) {
-                $result = $this->{$methodName}(...$functionParams);;
+                $result = $this->{$methodName}(...$functionParams);
 
                 if ($handler) {
                     $handler($result);
@@ -175,19 +153,8 @@ abstract class InvokeFunction
         }
     }
 
-    public static function invoke(array $params = [])
+    public static function resultType()
     {
-        $fun = static::createInstance();
-
-        return $fun($params);
-    }
-
-    public static function createInstance(...$args): self
-    {
-        if (sizeof($args)) {
-            return new static(...$args);
-        }
-
-        return new static();
+        return null;
     }
 }

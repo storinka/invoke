@@ -7,23 +7,35 @@ use Invoke\Typesystem\Typesystem;
 class InvalidParamTypeException extends TypesystemValidationException
 {
     protected string $paramName;
-    protected string $paramType;
-    protected string $actualType;
 
-    public function __construct(string $paramName, $paramType, $actualType)
+    protected $paramType;
+    protected string $paramTypeName;
+
+    protected $actualType;
+    protected string $actualTypeName;
+
+    public function __construct(string  $paramName,
+                                        $paramType,
+                                        $actualType,
+                                ?string $message = null,
+                                int     $code = 500)
     {
         $this->paramName = $paramName;
-        $this->paramType = Typesystem::getTypeName($paramType);
-        $this->actualType = Typesystem::getTypeName($actualType);
+
+        $this->paramType = $paramType;
+        $this->paramTypeName = Typesystem::getTypeAsString($paramType);
+
+        $this->actualType = $actualType;
+        $this->actualTypeName = Typesystem::getTypeAsString($actualType);
 
         parent::__construct(
             "INVALID_PARAM_TYPE",
-            "Invalid \"{$this->paramName}\" type: expected \"{$this->paramType}\", got \"{$this->actualType}\".",
-            400,
+            $message ?? "Invalid \"{$this->paramName}\" type: expected \"{$this->paramTypeName}\", got \"{$this->actualTypeName}\".",
+            $code,
             [
                 "param" => $paramName,
-                "type" => $this->paramType,
-                "actual_type" => $this->actualType,
+                "type" => $this->paramTypeName,
+                "actual_type" => $this->actualTypeName,
             ]
         );
     }
@@ -37,9 +49,9 @@ class InvalidParamTypeException extends TypesystemValidationException
     }
 
     /**
-     * @return string
+     * @return mixed
      */
-    public function getParamType(): string
+    public function getParamType()
     {
         return $this->paramType;
     }
@@ -47,8 +59,24 @@ class InvalidParamTypeException extends TypesystemValidationException
     /**
      * @return string
      */
-    public function getActualType(): string
+    public function getParamTypeName(): string
+    {
+        return $this->paramTypeName;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getActualType()
     {
         return $this->actualType;
+    }
+
+    /**
+     * @return string
+     */
+    public function getActualTypeName(): string
+    {
+        return $this->actualTypeName;
     }
 }
