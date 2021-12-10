@@ -16,22 +16,25 @@ composer require storinka/invoke
 1. Create index.php
 
 ```php
+// define some function
 function add(float $a, float $b): float
 {
     return $a + $b;
 }
 
+// setup invoke providing map of functions
 Invoke::setup([
     "add" => "add",
 ]);
 
+// run invoke to handle current http request
 Invoke::handleRequest();
 ```
 
 2. Run a server
 
 ```shell
-pgp -S localhost:8000 index.php 
+php -S localhost:8000 index.php 
 ```
 
 3. Send a request
