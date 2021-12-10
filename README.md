@@ -44,3 +44,38 @@ curl -X POST 'localhost:8000/add' --data '{ "a": 2, "b": 2 }'
 
 // result will be: { "result": 4 }
 ```
+
+## Complex example
+
+1. Create a type
+```php
+class UserResult extends Result
+{
+    public int $id;
+    
+    public string $name;
+}
+```
+
+2. Create a method to get list of users
+```php
+class GetUsers extends Method
+{
+    public static function params(): array
+    {
+        return [
+            "id" => int(),
+            "perPage" => int(1, 100), // min 1, max 100
+        ];
+    }
+
+    protected function handle(int $page, int $perPage): array
+    {
+        $usersFromDB = /* fetch users from db */;
+        
+        return UserResult::many($usersFromDB);
+    }
+}
+```
+
+3. Run a server and try to invoke as above
