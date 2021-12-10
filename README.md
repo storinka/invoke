@@ -1,8 +1,11 @@
-# Storinka Invoke
+![Invoke](https://user-images.githubusercontent.com/21020331/145628046-ca19dbdf-2935-49fe-934c-a171219566cc.png)
 
-Brand-new way of creating web API (at least for me).
+
+JSON-RPC compliant library for building fast and convenient web APIs.
 
 ## Installation
+
+**The library is still work-in-progress.**
 
 ```shell
 composer require storinka/invoke
