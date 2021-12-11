@@ -23,9 +23,7 @@ function add(float $a, float $b): float
 }
 
 // setup invoke providing map of functions
-Invoke::setup([
-    "add" => "add",
-]);
+Invoke::setup(["add"]);
 
 // run invoke to handle current http request
 Invoke::handleJSONRPCRequest();
