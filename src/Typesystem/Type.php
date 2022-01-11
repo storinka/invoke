@@ -53,6 +53,25 @@ abstract class Type implements InvokeType
     // factory methods
 
     /**
+     * Creates an instance of the type.
+     *
+     * @param $data
+     * @return static
+     */
+    public static function notNull($data): self
+    {
+        if ($data === null){
+            throw new RuntimeException("Null value was passed to notNull method.");
+        }
+
+        $type = new static();
+
+        $type->hydrate($data);
+
+        return $type;
+    }
+
+    /**
      * Creates an instance of the type. If data is null, then null is returned.
      *
      * @param $data
@@ -64,11 +83,7 @@ abstract class Type implements InvokeType
             return null;
         }
 
-        $type = new static();
-
-        $type->hydrate($data);
-
-        return $type;
+        return static::notNull($data);
     }
 
     /**
