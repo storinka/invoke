@@ -2,9 +2,9 @@
 
 namespace InvokeTests\Typesystem;
 
-use Invoke\Typesystem\Exceptions\InvalidParamTypeException;
-use Invoke\Typesystem\Types;
-use Invoke\Typesystem\Typesystem;
+use Invoke\Exceptions\InvalidParamTypeException;
+use Invoke\Types;
+use Invoke\Typesystem;
 use InvokeTests\Lib\SetupInvoke;
 use PHPUnit\Framework\TestCase;
 
@@ -14,34 +14,34 @@ class BoolTest extends TestCase
 
     public function testBoolShouldNotFail()
     {
-        $result = Typesystem::validateParam("is_something_true", Types::Bool, true);
+        $result = Typesystem::validateParam("is_something_true", Types::bool, true);
         $this->assertEquals(true, $result);
 
-        $result = Typesystem::validateParam("is_something_true", Types::Bool, false);
+        $result = Typesystem::validateParam("is_something_true", Types::bool, false);
         $this->assertEquals(false, $result);
     }
 
     public function testBoolAndNullShouldFail()
     {
         $this->expectException(InvalidParamTypeException::class);
-        Typesystem::validateParam("is_something_true", Types::Bool, null);
+        Typesystem::validateParam("is_something_true", Types::bool, null);
     }
 
     public function testBoolAndIntShouldFail()
     {
         $this->expectException(InvalidParamTypeException::class);
-        Typesystem::validateParam("is_something_true", Types::Bool, 10);
+        Typesystem::validateParam("is_something_true", Types::bool, 10);
     }
 
     public function testBoolAndStringShouldFail()
     {
         $this->expectException(InvalidParamTypeException::class);
-        Typesystem::validateParam("is_something_true", Types::Bool, "a string");
+        Typesystem::validateParam("is_something_true", Types::bool, "a string");
     }
 
     public function testBoolAndArrayShouldFail()
     {
         $this->expectException(InvalidParamTypeException::class);
-        Typesystem::validateParam("is_something_true", Types::Bool, []);
+        Typesystem::validateParam("is_something_true", Types::bool, []);
     }
 }

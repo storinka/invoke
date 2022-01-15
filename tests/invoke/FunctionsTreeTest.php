@@ -2,8 +2,8 @@
 
 namespace InvokeTests\Invoke;
 
-use Invoke\InvalidFunctionException;
-use Invoke\InvalidVersionException;
+use Invoke\Exceptions\InvalidFunctionException;
+use Invoke\Exceptions\InvalidVersionException;
 use Invoke\InvokeMachine;
 use PHPUnit\Framework\TestCase;
 

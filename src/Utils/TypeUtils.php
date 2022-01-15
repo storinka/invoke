@@ -1,17 +1,15 @@
 <?php
 
-namespace Invoke\Typesystem\Utils;
+namespace Invoke\Utils;
 
-use Invoke\Typesystem\Typesystem;
-use ReflectionClass;
+use Invoke\AsData;
+use Invoke\Typesystem;
 
 class TypeUtils
 {
-    public static function validate($type, $data): array
+    public static function validate(AsData $type, $data): array
     {
-        $reflectionClass = new ReflectionClass($type);
-
-        $params = ReflectionUtils::inspectInvokeTypeReflectionClassParams($reflectionClass, $type);
+        $params = $type->getDataParams();
 
         // map values through "render" method
         $rendered = [];
@@ -20,17 +18,14 @@ class TypeUtils
         }
 
         // validate params
-        $result = Typesystem::validateParams(
+        return Typesystem::validateParams(
             $params,
             $data,
             $rendered,
-            $reflectionClass->getName()
         );
-
-        return $result;
     }
 
-    public static function hydrate($type, $data): array
+    public static function hydrate(AsData $type, $data): array
     {
         $result = static::validate($type, $data);
 

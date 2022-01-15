@@ -2,7 +2,7 @@
 
 namespace Invoke\Docs\Types;
 
-use Invoke\Typesystem\Result;
+use Invoke\Typesystemx\Result;
 
 class ParamDocumentResult extends Result
 {

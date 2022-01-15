@@ -1,8 +1,8 @@
 <?php
 
-namespace Invoke\Typesystem\Exceptions;
+namespace Invoke\Exceptions;
 
-use Invoke\Typesystem\Typesystem;
+use Invoke\Typesystem;
 
 class InvalidParamValueException extends TypesystemValidationException
 {
@@ -13,10 +13,11 @@ class InvalidParamValueException extends TypesystemValidationException
 
     protected $value;
 
-    public function __construct(string $paramName,
-                                       $paramType,
-                                       $value, ?string $message = null,
-                                int    $code = 500)
+    public function __construct(string  $paramName,
+                                        $paramType,
+                                        $value,
+                                ?string $message = null,
+                                int     $code = 500)
     {
         $this->paramName = $paramName;
 

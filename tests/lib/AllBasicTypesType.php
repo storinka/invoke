@@ -2,8 +2,8 @@
 
 namespace InvokeTests\Lib;
 
-use Invoke\Typesystem\Type;
-use Invoke\Typesystem\Types;
+use Invoke\Typesystemx\Type;
+use Invoke\Types;
 
 class AllBasicTypesType extends Type
 {
@@ -11,12 +11,12 @@ class AllBasicTypesType extends Type
     {
         return [
             "T" => Types::T,
-            "bool" => Types::Bool,
-            "int" => Types::Int,
-            "float" => Types::Float,
-            "string" => Types::String,
-            "null" => Types::Null,
-            "array" => Types::Array,
+            "bool" => Types::bool,
+            "int" => Types::int,
+            "float" => Types::float,
+            "string" => Types::string,
+            "null" => Types::null,
+            "array" => Types::array,
 
             "notType" => NotType::class,
         ];

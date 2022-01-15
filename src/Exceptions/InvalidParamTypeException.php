@@ -1,8 +1,8 @@
 <?php
 
-namespace Invoke\Typesystem\Exceptions;
+namespace Invoke\Exceptions;
 
-use Invoke\Typesystem\Typesystem;
+use Invoke\Typesystem;
 
 class InvalidParamTypeException extends TypesystemValidationException
 {

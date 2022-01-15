@@ -2,13 +2,13 @@
 
 namespace Invoke\Docs\Types;
 
-use Invoke\Typesystem\CustomType;
-use Invoke\Typesystem\GenericCustomType;
-use Invoke\Typesystem\Result;
-use Invoke\Typesystem\Type;
-use Invoke\Typesystem\Types;
-use Invoke\Typesystem\Typesystem;
-use Invoke\Typesystem\Utils\ReflectionUtils;
+use Invoke\Typesystemx\CustomType;
+use Invoke\Typesystemx\GenericCustomType;
+use Invoke\Typesystemx\Result;
+use Invoke\Typesystemx\Type;
+use Invoke\Types;
+use Invoke\Typesystem;
+use Invoke\Utils\ReflectionUtils;
 use ReflectionClass;
 
 class TypeDocumentResult extends Result
@@ -78,13 +78,13 @@ class TypeDocumentResult extends Result
         $comment = static::createComment($type);
 
         $params = null;
-        if (!Typesystem::isSimpleType($type) && !($type instanceof CustomType) && !is_array($type)) {
+        if (!Typesystem::isBuiltinType($type) && !($type instanceof CustomType) && !is_array($type)) {
             $params = [];
 
             if (is_string($type) && class_exists($type)) {
                 $reflectionClass = new ReflectionClass($type);
 
-                $typeParams = ReflectionUtils::inspectInvokeTypeReflectionClassParams($reflectionClass);
+                $typeParams = ReflectionUtils::reflectionParamsOrPropsToInvoke($reflectionClass);
 
                 $params = [];
                 foreach ($typeParams as $paramName => $paramType) {
@@ -132,19 +132,19 @@ class TypeDocumentResult extends Result
         ];
 
         switch ($type) {
-            case Types::String:
+            case Types::string:
                 $comment["summary"] = "A string value.";
                 break;
-            case Types::Int:
+            case Types::int:
                 $comment["summary"] = "An integer value.";
                 break;
-            case Types::Float:
+            case Types::float:
                 $comment["summary"] = "A float value.";
                 break;
-            case Types::Bool:
+            case Types::bool:
                 $comment["summary"] = "A boolean value.";
                 break;
-            case Types::Array:
+            case Types::array:
                 $comment["summary"] = "An array.";
                 break;
         }

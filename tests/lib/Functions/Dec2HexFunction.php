@@ -3,14 +3,14 @@
 namespace InvokeTests\Lib\Functions;
 
 use Invoke\InvokeFunction;
-use Invoke\Typesystem\Types;
+use Invoke\Types;
 
 class Dec2HexFunction extends InvokeFunction
 {
     public static function params(): array
     {
         return [
-            "dec" => Types::Int
+            "dec" => Types::int
         ];
     }
 

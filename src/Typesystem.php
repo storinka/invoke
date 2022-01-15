@@ -1,67 +1,19 @@
 <?php
 
-namespace Invoke\Typesystem;
+namespace Invoke;
 
-use Invoke\InvokeMachine;
-use Invoke\Typesystem\Exceptions\InvalidParamTypeException;
-use Invoke\Typesystem\Exceptions\TypesystemValidationException;
-use Invoke\Typesystem\Utils\TypeUtils;
+use Invoke\Exceptions\InvalidParamTypeException;
+use Invoke\Exceptions\TypesystemValidationException;
+use Invoke\Utils\TypeUtils;
 
 class Typesystem
 {
-    public static function validateParams(array $params,
-                                                $data,
-                                          array $rendered = [],
-                                                $contextClass = null): array
-    {
-        $result = [];
-
-        foreach ($params as $paramName => $paramType) {
-            $value = null;
-
-            // check if params were rendered manually
-            if (array_key_exists($paramName, $rendered)) {
-                $value = $rendered[$paramName];
-            } else if (is_object($data)) {
-                if ($data instanceof HasInvokeParams) { // if data implements HasInvokeParams, we use them
-                    $data = $data->getInvokeParams();
-
-                    if (array_key_exists($paramName, $data)) {
-                        $value = $data[$paramName];
-                    }
-                } else if (property_exists($data, $paramName)) { // either way we try to get the value directly
-                    $value = $data->{$paramName};
-                }
-            } else if (
-                is_array($data) && // if data is an array, the
-                array_key_exists($paramName, $data)
-            ) {
-                $value = $data[$paramName];
-            }
-
-            $result[$paramName] = Typesystem::validateParam(
-                $paramName,
-                $paramType,
-                $value,
-                $contextClass
-            );
-        }
-
-        return $result;
-    }
-
     public static function validateParam(string $paramName,
                                                 $paramType,
-                                                $value,
-                                                $contextClass = null)
+                                                $value): mixed
     {
         $valueType = gettype($value);
 
-        if ($contextClass) {
-            $paramName = TypeUtils::getParamNameWithContextClass($paramName, $contextClass);
-        }
-
-        // if paramType is array then we check if value is matching any type of its items
         if (is_array($paramType)) {
             foreach ($paramType as $orParamType) {
                 try {
@@ -75,15 +27,15 @@ class Typesystem
         }
 
         if ($paramType === Types::T) {
-            if ($valueType === Types::Null) {
+            if ($valueType === Types::null) {
                 throw new InvalidParamTypeException($paramName, $paramType, $valueType);
             }
 
             return $value;
         }
 
-        if ($paramType === Types::Null) {
-            if ($valueType === Types::Null) {
+        if ($paramType === Types::null) {
+            if ($valueType === Types::null) {
                 return null;
             }
 
@@ -91,26 +43,27 @@ class Typesystem
         }
 
         if (
-            // x is float && y is int
-            $paramType === Types::Float &&
-            $valueType === Types::Int
+            // p is float && v is int
+            $paramType === Types::float &&
+            $valueType === Types::int
         ) {
             $value = floatval($value);
             $valueType = gettype($value);
         } else if (
-            // x is int && y is float
-            $paramType === Types::Int &&
-            $valueType === Types::Float
+            // p is int && v is float
+            $paramType === Types::int &&
+            $valueType === Types::float
         ) {
             $value = intval($value);
             $valueType = gettype($value);
         }
 
-        if (!InvokeMachine::configuration("strict", true)) {
+
+        if (!Invoke::$config["typesystem"]["strict"]) {
             if (
                 // x is int && y is string
-                $paramType === Types::Int &&
-                $valueType === Types::String
+                $paramType === Types::int &&
+                $valueType === Types::string
             ) {
                 if (!preg_match("/^-?[0-9]+$/", $value)) {
                     throw new InvalidParamTypeException($paramName, $paramType, $valueType);
@@ -120,8 +73,8 @@ class Typesystem
                 $valueType = gettype($value);
             } else if (
                 // x is float && y is string
-                $paramType === Types::Float &&
-                $valueType === Types::String
+                $paramType === Types::float &&
+                $valueType === Types::string
             ) {
                 if (!preg_match("/^-?[0-9]+([,.][0-9]+)?$/", $value)) {
                     throw new InvalidParamTypeException($paramName, $paramType, $valueType);
@@ -131,8 +84,8 @@ class Typesystem
                 $valueType = gettype($value);
             } else if (
                 // x is bool && y is int or string
-                $paramType === Types::Bool &&
-                ($valueType === Types::Int || $valueType === Types::String)
+                $paramType === Types::bool &&
+                ($valueType === Types::int || $valueType === Types::string)
             ) {
                 // prob should be removed checking by string
                 if ($value === "true" || $value === "1" || $value === 1) {
@@ -144,36 +97,34 @@ class Typesystem
                 $valueType = gettype($value);
             } else if (
                 // x is string && y is int or float
-                $paramType === Types::String &&
-                ($valueType === Types::Int || $valueType === Types::Float)
+                $paramType === Types::string &&
+                ($valueType === Types::int || $valueType === Types::float)
             ) {
                 return (string)$value;
             }
         }
 
-        if ($paramType instanceof CustomType) {
-            $value = Typesystem::validateParam(
+        if ($paramType instanceof Validation) {
+            return $paramType->validate(
                 $paramName,
-                $paramType->getBaseType(),
-                $value
+                $value,
             );
-
-            return $paramType->validate($paramName, $value);
         }
 
         if (class_exists($paramType)) {
+            if (is_subclass_of($paramType, Type::class)) {
+                return new $paramType(
+                    $paramName,
+                    $value
+                );
+            }
+
             if (is_array($value)) {
-                // todo: input_to_array
+                $paramType = new $paramType;
 
-                if (is_subclass_of($paramType, Type::class)) {
-                    return $paramType::from($value);
-                } else {
-                    $paramType = new $paramType;
+                TypeUtils::hydrate($paramType, $value);
 
-                    TypeUtils::hydrate($paramType, $value);
-
-                    return $paramType;
-                }
+                return $paramType;
             }
 
             if (!is_object($value)) {
@@ -196,10 +147,50 @@ class Typesystem
         return $value;
     }
 
+
+    public static function validateParams(array $params,
+                                                $data,
+                                          array $rendered = []): array
+    {
+        $result = [];
+
+        foreach ($params as $paramName => $paramType) {
+            $value = null;
+
+            // check if params were rendered manually
+            if (array_key_exists($paramName, $rendered)) {
+                $value = $rendered[$paramName];
+            } else if (is_object($data)) {
+                if ($data instanceof AsData) { // if data implements AsData, we use params from getDataParams
+                    $data = $data->getDataParams();
+
+                    if (array_key_exists($paramName, $data)) {
+                        $value = $data[$paramName];
+                    }
+                } else if (property_exists($data, $paramName)) { // either way we try to get the value directly
+                    $value = $data->{$paramName};
+                }
+            } else if (
+                is_array($data) && // if data is an array, the
+                array_key_exists($paramName, $data)
+            ) {
+                $value = $data[$paramName];
+            }
+
+            $result[$paramName] = Typesystem::validateParam(
+                $paramName,
+                $paramType,
+                $value
+            );
+        }
+
+        return $result;
+    }
+
     public static function getTypeAsString($type): string
     {
-        if ($type instanceof CustomType) {
-            return $type->toString();
+        if ($type instanceof Validation) {
+            return invoke_get_class_name($type::class);
         }
 
         if (is_array($type)) {
@@ -211,14 +202,13 @@ class Typesystem
 
     public static function getTypeName($type): string
     {
-        if ($type instanceof CustomType) {
-            $type = $type->getBaseType();
+        if ($type instanceof Validation) {
+            return invoke_get_class_name($type::class);
         }
 
         if (is_array($type)) {
-            // todo: throw an exception
             if (invoke_is_assoc($type)) {
-                return Types::T;
+                return "map";
             }
 
             return implode(" | ", array_map(fn($t) => Typesystem::getTypeName($t), $type));
@@ -230,28 +220,28 @@ class Typesystem
 
             case "int":
             case "integer":
-            case Types::Int:
+            case Types::int:
                 return "int";
 
             case "string":
-            case Types::String:
+            case Types::string:
                 return "string";
 
             case "float":
             case "double":
-            case Types::Float:
+            case Types::float:
                 return "float";
 
-            case Types::Array:
+            case Types::array:
                 return "array";
 
             case "bool":
             case "boolean":
-            case Types::Bool:
+            case Types::bool:
                 return "bool";
 
             case null:
-            case Types::Null:
+            case Types::null:
                 return "null";
         }
 
@@ -262,8 +252,8 @@ class Typesystem
         return $type;
     }
 
-    public static function isSimpleType($type): bool
+    public static function isBuiltinType($type): bool
     {
-        return in_array($type, [Types::Null, Types::Int, Types::String, Types::Bool, Types::Float, Types::Array], true);
+        return in_array($type, [Types::null, Types::int, Types::string, Types::bool, Types::float, Types::array], true);
     }
 }

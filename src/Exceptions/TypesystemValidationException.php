@@ -1,8 +1,6 @@
 <?php
 
-namespace Invoke\Typesystem\Exceptions;
-
-use Invoke\InvokeException;
+namespace Invoke\Exceptions;
 
 class TypesystemValidationException extends InvokeException
 {

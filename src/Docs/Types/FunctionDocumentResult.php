@@ -2,9 +2,9 @@
 
 namespace Invoke\Docs\Types;
 
-use Invoke\Typesystem\Result;
-use Invoke\Typesystem\Types;
-use Invoke\Typesystem\Utils\ReflectionUtils;
+use Invoke\Typesystemx\Result;
+use Invoke\Types;
+use Invoke\Utils\ReflectionUtils;
 use ReflectionClass;
 
 class FunctionDocumentResult extends Result
@@ -56,7 +56,7 @@ class FunctionDocumentResult extends Result
             $reflectionParameters = $reflectionFunction->getParameters();
             $reflectionReturnType = $reflectionFunction->getReturnType();
 
-            $functionParams = ReflectionUtils::inspectFunctionReflectionParameters($reflectionParameters);
+            $functionParams = ReflectionUtils::reflectionParamsOrPropsToInvoke($reflectionParameters);
 
             $comment = ReflectionUtils::parseComment($reflectionFunction);
         } else {
@@ -64,7 +64,7 @@ class FunctionDocumentResult extends Result
             $reflectionMethod = $reflectionClass->getMethod("handle");
             $reflectionReturnType = $reflectionMethod->getReturnType();
 
-            $functionParams = ReflectionUtils::inspectInvokeFunctionReflectionClassParams($reflectionClass);
+            $functionParams = ReflectionUtils::reflectionParamsOrPropsToInvoke($reflectionClass->getProperties());
 
             $comment = ReflectionUtils::parseComment($reflectionClass);
         }
@@ -77,7 +77,9 @@ class FunctionDocumentResult extends Result
         if (!function_exists($functionClass) && $functionClass::resultType()) {
             $result = TypeDocumentResult::createFromInvokeType($functionClass::resultType());
         } else if ($reflectionReturnType) {
-            $resultType = ReflectionUtils::mapReflectionTypeToParamType($reflectionReturnType);
+            // todo fix
+            $resultType = null;
+//            $resultType = ReflectionUtils::mapReflectionTypeToParamType($reflectionReturnType);
 
             $result = TypeDocumentResult::createFromInvokeType($resultType);
         } else {

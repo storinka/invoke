@@ -1,6 +1,6 @@
 <?php
 
-namespace Invoke;
+namespace Invoke\Exceptions;
 
 class InvalidVersionException extends InvokeException
 {

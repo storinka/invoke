@@ -57,3 +57,16 @@ if (!function_exists("invoke_closest_semver")) {
         return null;
     }
 }
+
+if (!function_exists("array_merge_recursive2")) {
+    function array_merge_recursive2($paArray1, $paArray2)
+    {
+        if (!is_array($paArray1) or !is_array($paArray2)) {
+            return $paArray2;
+        }
+        foreach ($paArray2 as $sKey2 => $sValue2) {
+            $paArray1[$sKey2] = array_merge_recursive2(@$paArray1[$sKey2], $sValue2);
+        }
+        return $paArray1;
+    }
+}

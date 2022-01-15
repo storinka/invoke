@@ -1,6 +1,6 @@
 <?php
 
-namespace Invoke;
+namespace Invoke\Exceptions;
 
 use RuntimeException;
 
@@ -12,7 +12,7 @@ class InvokeException extends RuntimeException
     public function __construct(
         string $error,
         string $message,
-        int $code = 500,
+        int    $code = 500,
         ?array $data = null
     )
     {
