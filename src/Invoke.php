@@ -9,8 +9,6 @@ use ReflectionFunction;
 
 class Invoke
 {
-    protected static ?Invoke $instance = null;
-
     public static array $methods = [
     ];
 
@@ -23,7 +21,7 @@ class Invoke
             "enableUi" => true,
         ],
         "ioc" => [
-            "resolve" => null,
+            "makeFn" => null,
         ],
         "typesystem" => [
             "strict" => true,
@@ -50,9 +48,19 @@ class Invoke
             return call_user_func_array($method, $params);
         }
 
-        $method = new $method;
+        $method = static::makeMethod($method);
 
         return $method($params);
+    }
+
+    public static function makeMethod(string $method,
+                                      array  $dependencies = []): Method
+    {
+        if (!empty($makeFn = static::$config["ioc"]["makeFn"])) {
+            return $makeFn($method, $dependencies);
+        }
+
+        return (new \ReflectionClass($method))->newInstanceArgs($dependencies);
     }
 
     public static function getMethods(): array
