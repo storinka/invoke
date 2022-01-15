@@ -2,6 +2,7 @@
 
 namespace Invoke;
 
+use Closure;
 use Invoke\Exceptions\InvalidFunctionException;
 use Invoke\Utils\ReflectionUtils;
 use ReflectionFunction;
@@ -52,6 +53,16 @@ class Invoke
         $method = new $method;
 
         return $method($params);
+    }
+
+    public static function getMethods(): array
+    {
+        return static::$methods;
+    }
+
+    public static function getMethod(string $name): string|callable|Closure
+    {
+        return static::$methods[$name];
     }
 
     public static function setMethods(array $methods): void
