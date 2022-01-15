@@ -1,14 +1,13 @@
 ![Invoke](https://user-images.githubusercontent.com/21020331/145628046-ca19dbdf-2935-49fe-934c-a171219566cc.png)
 
-
-JSON-RPC compliant library for building fast and convenient web APIs.
+PHP library for building fast and convenient web APIs.
 
 ## Installation
 
 **The library is still work-in-progress.**
 
 ```shell
-composer require storinka/invoke
+composer require storinka/invoke:^2
 ```
 
 ## Basic example
@@ -26,7 +25,7 @@ function add(float $a, float $b): float
 Invoke::setup(["add"]);
 
 // run invoke to handle current http request
-Invoke::handleJSONRPCRequest();
+Invoke::serve();
 ```
 
 2. Run a server
@@ -38,7 +37,7 @@ php -S localhost:8000 index.php
 3. Send a request
 
 ```shell
-curl -X POST 'localhost:8000' --data '{ "method": "add", "params": { "a": 2, "b": 2 } }'
+curl -X POST 'localhost:8000/invoke/add' --data '{ "a": 2, "b": 2 }'
 
 // result will be: { "result": 4 }
 ```
@@ -46,8 +45,11 @@ curl -X POST 'localhost:8000' --data '{ "method": "add", "params": { "a": 2, "b"
 ## Complex example
 
 1. Create a type
+
 ```php
-class UserResult extends Result
+use Invoke\Data;
+
+class UserResult extends Data
 {
     public int $id;
     
@@ -56,20 +58,17 @@ class UserResult extends Result
 ```
 
 2. Create a method to get list of users
+
 ```php
 class GetUsers extends Method
 {
-    public static function params(): array
-    {
-        return [
-            "id" => int(),
-            "perPage" => int(1, 100), // min 1, max 100
-        ];
-    }
+    public int $page;
+    
+    public int $perPage;
 
-    protected function handle(int $page, int $perPage): array
+    protected function handle(): array
     {
-        $usersFromDB = /* fetch users from db */;
+        $usersFromDB = getUsersFromDb($this->page, $this->perPage);
         
         return UserResult::many($usersFromDB);
     }
@@ -77,12 +76,19 @@ class GetUsers extends Method
 ```
 
 3. Setup Invoke
+
 ```php
 Invoke::setup([
     "getUsers" => GetUsers::class,
 ]);
 
-Invoke::handleJSONRPCRequest();
+Invoke::serve();
 ```
 
-4. Run a server and try to invoke as above
+4. Run a server and try to invoke as above:
+
+```shell
+curl -X POST 'localhost:8000/invoke/getUsers' --data '{ "page": 1, "perPage": 10 }'
+
+// result will be: { "result": [] }
+```
