@@ -3,6 +3,8 @@
 namespace Invoke;
 
 use Invoke\Exceptions\InvalidFunctionException;
+use Invoke\Utils\ReflectionUtils;
+use ReflectionFunction;
 
 class Invoke
 {
@@ -37,6 +39,13 @@ class Invoke
         }
 
         if (is_callable($method) || (is_string($method) && function_exists($method))) {
+            $reflectionFunction = new ReflectionFunction($method);
+
+            $params = Typesystem::validateParams(
+                ReflectionUtils::reflectionParamsOrPropsToInvoke($reflectionFunction->getParameters()),
+                $params
+            );
+
             return call_user_func_array($method, $params);
         }
 
@@ -47,6 +56,13 @@ class Invoke
 
     public static function setMethods(array $methods): void
     {
+        foreach ($methods as $name => $method) {
+            if (is_numeric($name) && is_string($method)) {
+                unset($methods[$name]);
+                $methods[$method] = $method;
+            }
+        }
+
         static::$methods = $methods;
     }
 

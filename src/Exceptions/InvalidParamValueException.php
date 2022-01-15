@@ -22,7 +22,7 @@ class InvalidParamValueException extends TypesystemValidationException
         $this->paramName = $paramName;
 
         $this->paramType = $paramType;
-        $this->paramTypeName = Typesystem::getTypeAsString($paramType);
+        $this->paramTypeName = Typesystem::getTypeName($paramType);
 
         $this->value = $value;
 

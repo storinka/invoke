@@ -7,10 +7,10 @@ use Invoke\Validation;
 
 class TypeWithValidations extends Validation
 {
+    protected mixed $type;
+
     /** @var Validation[] $validations */
     protected array $validations;
-
-    protected mixed $type;
 
     public function __construct(mixed $type, array $validations)
     {
@@ -48,8 +48,11 @@ class TypeWithValidations extends Validation
         return $this->validations;
     }
 
-    public function __toString()
+    /**
+     * @return mixed
+     */
+    public function getType(): mixed
     {
-        return "Internal";
+        return $this->type;
     }
 }

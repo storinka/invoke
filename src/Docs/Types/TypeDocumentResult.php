@@ -101,7 +101,7 @@ class TypeDocumentResult extends Result
         $result = static::from([
             "class" => is_string($type) && class_exists($type) ? $type : null,
             "name" => Typesystem::getTypeName($type),
-            "as_string" => Typesystem::getTypeAsString($type),
+            "as_string" => Typesystem::getTypeName($type),
             "some_types" => is_array($type) ? array_map(fn($type) => static::createFromInvokeType($type), $type) : null,
             "summary" => $comment["summary"],
             "description" => $comment["description"],

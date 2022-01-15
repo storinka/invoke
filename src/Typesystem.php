@@ -5,6 +5,7 @@ namespace Invoke;
 use Invoke\Exceptions\InvalidParamTypeException;
 use Invoke\Exceptions\TypesystemValidationException;
 use Invoke\Utils\TypeUtils;
+use Invoke\Validations\TypeWithValidations;
 
 class Typesystem
 {
@@ -187,23 +188,10 @@ class Typesystem
         return $result;
     }
 
-    public static function getTypeAsString($type): string
-    {
-        if ($type instanceof Validation) {
-            return invoke_get_class_name($type::class);
-        }
-
-        if (is_array($type)) {
-            return implode(" | ", array_map(fn($t) => Typesystem::getTypeAsString($t), $type));
-        }
-
-        return Typesystem::getTypeName($type);
-    }
-
     public static function getTypeName($type): string
     {
-        if ($type instanceof Validation) {
-            return invoke_get_class_name($type::class);
+        if ($type instanceof TypeWithValidations) {
+            $type = $type->getType();
         }
 
         if (is_array($type)) {

@@ -5,8 +5,10 @@ namespace Invoke\Newdoc;
 use Invoke\AsData;
 use Invoke\Data;
 use Invoke\Type;
+use Invoke\Types;
 use Invoke\Typesystem;
 use Invoke\Validation;
+use Invoke\Validations\ArrayOf;
 use Invoke\Validations\TypeWithValidations;
 
 class TypeDocument extends Data
@@ -21,30 +23,57 @@ class TypeDocument extends Data
 
     public bool $isCustom;
 
+    #[ArrayOf(ParamDocument::class)]
+    public array $params;
+
+    #[ArrayOf(ValidationDocument::class)]
     public array $validations;
 
+    #[ArrayOf(Types::string)]
     public array $tags;
 
     public function render($type): array
     {
         $name = Typesystem::getTypeName($type);
+        $isClass = is_string($type) && class_exists($type);
+        $isBuiltin = Typesystem::isBuiltinType($type);
+        $isData = $isClass && is_subclass_of($type, AsData::class);
+        $isCustom = $type instanceof Type;
+
+        $paramsDocuments = [];
+
+        if ($isData) {
+            $typeInstance = (new $type);
+
+            foreach ($typeInstance->getDataParams() as $paramName => $paramType) {
+                $paramsDocuments[] = [
+                    "name" => $paramName,
+                    "type" => $paramType
+                ];
+            }
+        }
 
         return [
             "name" => $name,
-            "class" => is_string($type) && class_exists($type) ? $type : null,
 
-            "isBuiltin" => Typesystem::isBuiltinType($type),
-            "isData" => is_string($type) && is_subclass_of($type, AsData::class),
-            "isCustom" => $type instanceof Type,
+            "isBuiltin" => $isBuiltin,
+            "isData" => $isData,
+            "isCustom" => $isCustom,
 
             "validations" => $type instanceof TypeWithValidations ? array_map(function (Validation $validation) {
-                return [
-                    "name" => invoke_get_class_name($validation::class),
-                    "string" => (string)$validation,
-                ];
+                return ValidationDocument::from([
+                    "name" => $validation::getName(),
+                    "description" => $validation->getDescription(),
+
+                    "class" => $validation::class,
+                ]);
             }, $type->getValidations()) : [],
 
             "tags" => [],
+
+            "class" => $isClass ? $type : null,
+
+            "params" => ParamDocument::many($paramsDocuments),
         ];
     }
 }
