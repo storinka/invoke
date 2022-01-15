@@ -5,6 +5,7 @@ namespace Invoke;
 use Closure;
 use Invoke\Exceptions\InvalidFunctionException;
 use Invoke\Utils\ReflectionUtils;
+use ReflectionClass;
 use ReflectionFunction;
 
 class Invoke
@@ -22,6 +23,7 @@ class Invoke
         ],
         "ioc" => [
             "makeFn" => null,
+            "callFn" => null,
         ],
         "typesystem" => [
             "strict" => true,
@@ -45,12 +47,21 @@ class Invoke
                 $params
             );
 
-            return call_user_func_array($method, $params);
+            return static::callMethod($method, $params);
         }
 
         $method = static::makeMethod($method);
 
         return $method($params);
+    }
+
+    public static function callMethod(mixed $method, array $params = [])
+    {
+        if (!empty($callFn = static::$config["ioc"]["callFn"])) {
+            return $callFn($method, $params);
+        }
+
+        return call_user_func_array($method, $params);
     }
 
     public static function makeMethod(string $method,
@@ -60,7 +71,7 @@ class Invoke
             return $makeFn($method, $dependencies);
         }
 
-        return (new \ReflectionClass($method))->newInstanceArgs($dependencies);
+        return (new ReflectionClass($method))->newInstanceArgs($dependencies);
     }
 
     public static function getMethods(): array
