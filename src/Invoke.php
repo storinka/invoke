@@ -10,6 +10,12 @@ use ReflectionFunction;
 
 class Invoke
 {
+    /**
+     * @var Extension[] $extensions
+     */
+    public static array $extensions = [
+    ];
+
     public static array $methods = [
     ];
 
@@ -162,5 +168,30 @@ class Invoke
         echo json_encode([
             "result" => $result,
         ]);
+    }
+
+    public static function registerExtension(Extension $extension)
+    {
+        if (!in_array($extension, static::$extensions)) {
+            static::$extensions[] = $extension;
+
+            $extension->registered();
+        }
+    }
+
+    public static function unregisterExtension(Extension $extension)
+    {
+        static::$extensions = array_filter(static::$extensions, function (Extension $e) use ($extension) {
+            return $e !== $extension;
+        });
+
+        $extension->unregistered();
+    }
+
+    public static function callExtensionsHook(string $method, array $params = [])
+    {
+        foreach (static::$extensions as $extension) {
+            $extension->{$method}(...$params);
+        }
     }
 }

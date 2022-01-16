@@ -25,7 +25,8 @@ abstract class Method
     {
         $this->registerExtensionTraits();
 
-        $this->callExtensionsMethod("init", [$params]);
+        $this->callExtensionsHook("init", [$params]);
+        Invoke::callExtensionsHook("methodInit", [$params]);
 
         $reflectionClass = new ReflectionClass($this);
 
@@ -56,11 +57,13 @@ abstract class Method
             $this->{$name} = $value;
         }
 
-        $this->callExtensionsMethod("beforeHandle", [$params]);
+        $this->callExtensionsHook("beforeHandle", [$params]);
+        Invoke::callExtensionsHook("methodBeforeHandle", [$params]);
 
         $result = $this->handle();
 
-        $this->callExtensionsMethod("afterHandle", [$result]);
+        $this->callExtensionsHook("afterHandle", [$result]);
+        Invoke::callExtensionsHook("methodAfterHandle", [$result]);
 
         return $result;
     }
@@ -80,7 +83,7 @@ abstract class Method
         }
     }
 
-    private function callExtensionsMethod(string $name, array $functionParams = [], Closure $handler = null)
+    private function callExtensionsHook(string $name, array $functionParams = [], Closure $handler = null)
     {
         foreach ($this->extensionTraits as $trait) {
             // method + traitClass
