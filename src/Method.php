@@ -3,21 +3,27 @@
 namespace Invoke;
 
 use Closure;
-use Invoke\Attributes\MethodExtension;
+use Invoke\Attributes\TraitExtension;
 use Invoke\Exceptions\InvalidParamTypeException;
 use Invoke\Exceptions\InvalidParamValueException;
 use Invoke\Utils\ReflectionUtils;
 use ReflectionClass;
-use RuntimeException;
 
 abstract class Method
 {
     /**
      * Extension traits
      *
-     * @var array $extensionTraits
+     * @var string[] $extensionTraits
      */
     private array $extensionTraits = [];
+
+    /**
+     * Method extensions
+     *
+     * @var MethodExtension[] $methodExtensions
+     */
+    private array $methodExtensions = [];
 
     protected abstract function handle(): AsData|float|int|string|null|array;
 
@@ -25,7 +31,7 @@ abstract class Method
     {
         $this->registerExtensionTraits();
 
-        $this->callExtensionsHook("init", []);
+        $this->callExtensionsHook("init", [$this]);
         Invoke::callExtensionsHook("methodInit", [$this]);
 
         $reflectionClass = new ReflectionClass($this);
@@ -77,13 +83,19 @@ abstract class Method
         foreach (class_uses_deep($this) as $trait) {
             $reflectionClass = new ReflectionClass($trait);
 
-            if ($reflectionClass->getAttributes(MethodExtension::class)) {
+            if ($reflectionClass->getAttributes(TraitExtension::class)) {
                 $this->extensionTraits[] = $trait;
+            }
+        }
+
+        foreach ((new ReflectionClass($this))->getAttributes() as $attribute) {
+            if (is_subclass_of($attribute->getName(), MethodExtension::class)) {
+                $this->methodExtensions[] = $attribute->newInstance();
             }
         }
     }
 
-    private function callExtensionsHook(string $name, array $functionParams = [], Closure $handler = null)
+    private function callExtensionsHook(string $name, array $params = [], Closure $handler = null)
     {
         foreach ($this->extensionTraits as $trait) {
             // method + traitClass
@@ -94,7 +106,17 @@ abstract class Method
             $methodName = $name . invoke_get_class_name($trait);
 
             if (method_exists($this, $methodName)) {
-                $result = $this->{$methodName}(...$functionParams);
+                $result = $this->{$methodName}(...$params);
+
+                if ($handler) {
+                    $handler($result);
+                }
+            }
+        }
+
+        foreach ($this->methodExtensions as $extension) {
+            if (method_exists($extension, $name)) {
+                $result = $extension->{$name}(...$params);
 
                 if ($handler) {
                     $handler($result);
