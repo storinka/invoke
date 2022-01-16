@@ -108,6 +108,7 @@ abstract class Type implements InvokeType
         return $this->getValidatedParams();
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         return $this->getValidatedParams()[$offset];
@@ -118,11 +119,13 @@ abstract class Type implements InvokeType
         return array_key_exists($offset, $this->getValidatedParams());
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
     {
         throw new RuntimeException("Unsupported!");
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetUnset($offset)
     {
         throw new RuntimeException("Unsupported!");
