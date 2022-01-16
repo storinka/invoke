@@ -70,7 +70,7 @@ class ReflectionUtils
 
         foreach ($parameters as $parameter) {
             if ($parameter instanceof ReflectionProperty) {
-                if (!$parameter->isPublic()) {
+                if (!$parameter->isPublic() || $parameter->isStatic()) {
                     continue;
                 }
             }
