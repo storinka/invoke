@@ -46,6 +46,8 @@ class Invoke
         }
 
         if (is_callable($method) || (is_string($method) && function_exists($method))) {
+            static::callExtensionsHook("methodInit", [$method]);
+
             $reflectionFunction = new ReflectionFunction($method);
 
             $params = Typesystem::validateParams(
@@ -53,7 +55,13 @@ class Invoke
                 $params
             );
 
-            return static::callMethod($method, $params);
+            static::callExtensionsHook("methodBeforeHandle", [$method, $params]);
+
+            $result = static::callMethod($method, $params);
+
+            static::callExtensionsHook("methodAfterHandle", [$method, $result]);
+
+            return $result;
         }
 
         $method = static::makeMethod($method);

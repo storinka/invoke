@@ -25,8 +25,8 @@ abstract class Method
     {
         $this->registerExtensionTraits();
 
-        $this->callExtensionsHook("init", [$params]);
-        Invoke::callExtensionsHook("methodInit", [$params]);
+        $this->callExtensionsHook("init", []);
+        Invoke::callExtensionsHook("methodInit", [$this]);
 
         $reflectionClass = new ReflectionClass($this);
 
@@ -58,12 +58,12 @@ abstract class Method
         }
 
         $this->callExtensionsHook("beforeHandle", [$params]);
-        Invoke::callExtensionsHook("methodBeforeHandle", [$params]);
+        Invoke::callExtensionsHook("methodBeforeHandle", [$this, $params]);
 
         $result = $this->handle();
 
         $this->callExtensionsHook("afterHandle", [$result]);
-        Invoke::callExtensionsHook("methodAfterHandle", [$result]);
+        Invoke::callExtensionsHook("methodAfterHandle", [$this, $result]);
 
         return $result;
     }

@@ -2,6 +2,8 @@
 
 namespace Invoke;
 
+use Closure;
+
 abstract class Extension
 {
     public function registered()
@@ -14,18 +16,15 @@ abstract class Extension
 
     }
 
-    public function methodInit(Method $method)
+    public function methodInit(Method|string|Closure $method)
     {
-
     }
 
-    public function methodBeforeHandle(Method $method, array $params = [])
+    public function methodBeforeHandle(Method|string|Closure $method, array $params = [])
     {
-
     }
 
-    public function methodAfterHandle(Method $method, mixed $result)
+    public function methodAfterHandle(Method|string|Closure $method, mixed $result)
     {
-
     }
 }
