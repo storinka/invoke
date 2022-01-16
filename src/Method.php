@@ -31,7 +31,7 @@ abstract class Method
     {
         $this->registerExtensionTraits();
 
-        $this->callExtensionsHook("init", [$this]);
+        $this->callExtensionsHook("init", []);
         Invoke::callExtensionsHook("methodInit", [$this]);
 
         $reflectionClass = new ReflectionClass($this);
@@ -116,7 +116,7 @@ abstract class Method
 
         foreach ($this->methodExtensions as $extension) {
             if (method_exists($extension, $name)) {
-                $result = $extension->{$name}(...$params);
+                $result = $extension->{$name}($this, ...$params);
 
                 if ($handler) {
                     $handler($result);
