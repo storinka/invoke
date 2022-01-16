@@ -51,9 +51,6 @@ abstract class Method
             );
         } catch (InvalidParamValueException $exception) {
             throw new InvalidParamValueException(
-                $exception->getParamName(),
-                $exception->getParamType(),
-                $exception->getValue(),
                 $exception->getMessage(),
                 400
             );

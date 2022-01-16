@@ -29,9 +29,6 @@ class Length extends Validation
         if (!is_null($this->min)) {
             if ($length < $this->min) {
                 throw new InvalidParamValueException(
-                    $paramName,
-                    $this,
-                    $value,
                     "Invalid \"{$paramName}\" length: min \"{$this->min}\", got \"{$length}\"."
                 );
             }
@@ -40,9 +37,6 @@ class Length extends Validation
         if (!is_null($this->max)) {
             if ($length > $this->max) {
                 throw new InvalidParamValueException(
-                    $paramName,
-                    $this,
-                    $value,
                     "Invalid \"{$paramName}\" length: max \"{$this->max}\", got \"{$length}\"."
                 );
             }
