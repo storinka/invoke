@@ -3,6 +3,7 @@
 namespace Invoke;
 
 use Closure;
+use Invoke\Attributes\MethodExtension;
 use Invoke\Exceptions\InvalidParamTypeException;
 use Invoke\Exceptions\InvalidParamValueException;
 use Invoke\Utils\ReflectionUtils;
@@ -70,8 +71,12 @@ abstract class Method
             throw new RuntimeException("BUG: extension traits were already registered.");
         }
 
-        foreach (class_uses($this) as $trait) {
-            $this->extensionTraits[] = $trait;
+        foreach (class_uses_deep($this) as $trait) {
+            $reflectionClass = new ReflectionClass($trait);
+
+            if ($reflectionClass->getAttributes(MethodExtension::class)) {
+                $this->extensionTraits[] = $trait;
+            }
         }
     }
 

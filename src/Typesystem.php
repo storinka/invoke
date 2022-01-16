@@ -5,7 +5,7 @@ namespace Invoke;
 use Invoke\Exceptions\InvalidParamTypeException;
 use Invoke\Exceptions\TypesystemValidationException;
 use Invoke\Utils\TypeUtils;
-use Invoke\Validations\TypeWithValidations;
+use Invoke\Validation\TypeWithValidations;
 
 class Typesystem
 {

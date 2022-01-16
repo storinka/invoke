@@ -8,8 +8,8 @@ use Invoke\Type;
 use Invoke\Types;
 use Invoke\Typesystem;
 use Invoke\Validation;
-use Invoke\Validations\ArrayOf;
-use Invoke\Validations\TypeWithValidations;
+use Invoke\Validation\ArrayOf;
+use Invoke\Validation\TypeWithValidations;
 
 class TypeDocument extends Data
 {

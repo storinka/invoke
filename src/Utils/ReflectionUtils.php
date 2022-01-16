@@ -2,11 +2,11 @@
 
 namespace Invoke\Utils;
 
-use Invoke\NotParameter;
+use Invoke\Attributes\NotParameter;
 use Invoke\Types;
 use Invoke\Validation;
-use Invoke\Validations\NullOrDefault;
-use Invoke\Validations\TypeWithValidations;
+use Invoke\Validation\NullOrDefault;
+use Invoke\Validation\TypeWithValidations;
 use phpDocumentor\Reflection\DocBlockFactory;
 use ReflectionNamedType;
 use ReflectionParameter;

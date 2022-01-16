@@ -1,6 +1,6 @@
 <?php
 
-namespace Invoke\Validations;
+namespace Invoke\Validation;
 
 use Attribute;
 use Invoke\Typesystem;
