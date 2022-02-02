@@ -1,6 +1,9 @@
 ![Invoke](https://user-images.githubusercontent.com/21020331/145628046-ca19dbdf-2935-49fe-934c-a171219566cc.png)
 
-PHP library for building fast and convenient web APIs.
+PHP library for building fast and modern web APIs.
+
+- #### [Explore](https://explore.invoke.red)
+- #### [Documentation](https://invoke.red/docs)
 
 ## Installation
 
@@ -12,19 +15,18 @@ composer require storinka/invoke:^2
 
 ## Basic example
 
-1. Create index.php
+1. Create `index.php`
 
 ```php
-// define some function
+use Invoke\Invoke;
+
 function add(float $a, float $b): float
 {
     return $a + $b;
 }
 
-// setup invoke providing map of functions
 Invoke::setup(["add"]);
 
-// run invoke to handle current http request
 Invoke::serve();
 ```
 
@@ -37,9 +39,9 @@ php -S localhost:8000 index.php
 3. Send a request
 
 ```shell
-curl -X POST 'localhost:8000/invoke/add' --data '{ "a": 2, "b": 2 }'
+curl 'localhost:8000/invoke/add?a=2&b=2'
 
-// result will be: { "result": 4 }
+# { "result": 4 }
 ```
 
 ## Complex example
@@ -60,6 +62,8 @@ class UserResult extends Data
 2. Create a method to get list of users
 
 ```php
+use Invoke\Method;
+
 class GetUsers extends Method
 {
     public int $page;
@@ -78,6 +82,8 @@ class GetUsers extends Method
 3. Setup Invoke
 
 ```php
+use Invoke\Invoke;
+
 Invoke::setup([
     "getUsers" => GetUsers::class,
 ]);
@@ -85,10 +91,10 @@ Invoke::setup([
 Invoke::serve();
 ```
 
-4. Run a server and try to invoke as above:
+4. Run a server and try to invoke:
 
 ```shell
-curl -X POST 'localhost:8000/invoke/getUsers' --data '{ "page": 1, "perPage": 10 }'
+curl 'localhost:8000/invoke/getUsers?page=1&perPage=10'
 
-// result will be: { "result": [] }
+# { "result": [ ... ] }
 ```
