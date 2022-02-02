@@ -2,6 +2,8 @@
 
 namespace Invoke\Utils;
 
+use Closure;
+use Ds\Set;
 use Invoke\AsData;
 use Invoke\Typesystem;
 
@@ -44,5 +46,30 @@ class TypeUtils
         }
 
         return $paramName;
+    }
+
+    public static function extractTypes($methodOrClass): array
+    {
+        $types = new Set();
+
+        $paramsOrProps = [];
+
+        if (is_string($methodOrClass) && class_exists($methodOrClass)) {
+            $ref = new \ReflectionClass($methodOrClass);
+            $paramsOrProps = $ref->getProperties();
+        } else if (is_string($methodOrClass) && function_exists($methodOrClass) || $methodOrClass instanceof Closure) {
+            $ref = new \ReflectionFunction($methodOrClass);
+            $paramsOrProps = $ref->getParameters();
+        }
+
+        $params = ReflectionUtils::reflectionParamsOrPropsToInvoke($paramsOrProps);
+
+        foreach (array_values($params) as $type) {
+            $types->add($type);
+
+            $types->add(...static::extractTypes($type));
+        }
+
+        return $types->toArray();
     }
 }

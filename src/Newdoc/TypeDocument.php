@@ -23,6 +23,11 @@ class TypeDocument extends Data
 
     public bool $isCustom;
 
+    public bool $isUnion;
+
+    #[ArrayOf(TypeDocument::class)]
+    public array $subtypes;
+
     #[ArrayOf(ParamDocument::class)]
     public array $params;
 
@@ -39,6 +44,7 @@ class TypeDocument extends Data
         $isBuiltin = Typesystem::isBuiltinType($type);
         $isData = $isClass && is_subclass_of($type, AsData::class);
         $isCustom = $type instanceof Type;
+        $isUnion = is_array($type);
 
         $paramsDocuments = [];
 
@@ -59,6 +65,9 @@ class TypeDocument extends Data
             "isBuiltin" => $isBuiltin,
             "isData" => $isData,
             "isCustom" => $isCustom,
+            "isUnion" => $isUnion,
+
+            "subtypes" => $isUnion ? TypeDocument::many($type) : [],
 
             "validations" => $type instanceof TypeWithValidations ? array_map(function (Validation $validation) {
                 return ValidationDocument::from([

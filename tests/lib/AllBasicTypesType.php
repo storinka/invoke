@@ -2,23 +2,21 @@
 
 namespace InvokeTests\Lib;
 
-use Invoke\Typesystemx\Type;
-use Invoke\Types;
+use Invoke\Data;
 
-class AllBasicTypesType extends Type
+class AllBasicTypesType extends Data
 {
-    public static function params(): array
-    {
-        return [
-            "T" => Types::T,
-            "bool" => Types::bool,
-            "int" => Types::int,
-            "float" => Types::float,
-            "string" => Types::string,
-            "null" => Types::null,
-            "array" => Types::array,
+    public $T;
 
-            "notType" => NotType::class,
-        ];
-    }
+    public bool $bool;
+
+    public int $int;
+
+    public float $float;
+
+    public string $string;
+
+    public array $array;
+
+//    public NotType $notType;
 }

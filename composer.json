@@ -15,7 +15,8 @@
         "php": "^8.0",
         "ext-json": "*",
         "ext-mbstring": "*",
-        "composer/semver": "^3.2"
+        "composer/semver": "^3.2",
+        "php-ds/php-ds": "^1.4"
     },
     "autoload": {
         "psr-4": {

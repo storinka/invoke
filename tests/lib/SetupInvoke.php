@@ -2,9 +2,8 @@
 
 namespace InvokeTests\Lib;
 
-use Invoke\InvokeMachine;
-use InvokeTests\Lib\Functions\Dec2HexFunction;
-use InvokeTests\Lib\Functions\Dec2HexFunctionV2;
+use Invoke\Invoke;
+use InvokeTests\Lib\Functions\Dec2Hex;
 
 trait SetupInvoke
 {
@@ -12,14 +11,9 @@ trait SetupInvoke
     {
         parent::setUp();
 
-        InvokeMachine::setup(
+        Invoke::setup(
             [
-                "1" => [
-                    "dec2hex" => Dec2HexFunction::class,
-                ],
-                "2" => [
-                    "dec2hex" => Dec2HexFunctionV2::class,
-                ],
+                "dec2hex" => Dec2Hex::class,
             ],
             [
                 "strict" => true,
