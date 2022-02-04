@@ -4,7 +4,7 @@ namespace Invoke\Validation;
 
 use Invoke\Validation;
 
-class NullOrDefault extends Validation
+class Optional extends Validation
 {
     public mixed $default;
 

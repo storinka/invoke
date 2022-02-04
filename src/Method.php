@@ -8,9 +8,12 @@ use Invoke\Exceptions\InvalidParamTypeException;
 use Invoke\Exceptions\InvalidParamValueException;
 use Invoke\Utils\ReflectionUtils;
 use ReflectionClass;
+use RuntimeException;
 
 abstract class Method
 {
+    protected ReflectionClass $reflectionClass;
+
     /**
      * Extension traits
      *
@@ -25,8 +28,19 @@ abstract class Method
      */
     private array $methodExtensions = [];
 
+    /**
+     * Method handler.
+     *
+     * @return AsData|float|int|string|array|null
+     */
     protected abstract function handle(): AsData|float|int|string|null|array;
 
+    /**
+     * Invoke the method.
+     *
+     * @param array $params
+     * @return AsData|float|int|string|array|null
+     */
     public function __invoke(array $params): AsData|float|int|string|null|array
     {
         $this->registerExtensionTraits();
@@ -34,11 +48,11 @@ abstract class Method
         $this->callExtensionsHook("init", []);
         Invoke::callExtensionsHook("methodInit", [$this]);
 
-        $reflectionClass = new ReflectionClass($this);
+        $this->reflectionClass = new ReflectionClass($this);
 
         try {
             $params = Typesystem::validateParams(
-                ReflectionUtils::reflectionParamsOrPropsToInvoke($reflectionClass->getProperties()),
+                ReflectionUtils::reflectionParamsOrPropsToInvoke($this->reflectionClass->getProperties()),
                 $params
             );
         } catch (InvalidParamTypeException $exception) {
@@ -78,9 +92,9 @@ abstract class Method
         }
 
         foreach (class_uses_deep($this) as $trait) {
-            $reflectionClass = new ReflectionClass($trait);
+            $reflectionTrait = new ReflectionClass($trait);
 
-            if ($reflectionClass->getAttributes(TraitExtension::class)) {
+            if ($reflectionTrait->getAttributes(TraitExtension::class)) {
                 $this->extensionTraits[] = $trait;
             }
         }
@@ -120,5 +134,14 @@ abstract class Method
                 }
             }
         }
+    }
+
+    public function set(string $name, mixed $value): void
+    {
+        $this->{$name} = Typesystem::validateParam(
+            $name,
+            ReflectionUtils::reflectionParamOrPropToInvoke($this->reflectionClass->getProperty($name)),
+            $value
+        );
     }
 }

@@ -5,8 +5,8 @@ namespace Invoke\Utils;
 use Invoke\Attributes\NotParameter;
 use Invoke\Types;
 use Invoke\Validation;
-use Invoke\Validation\NullOrDefault;
-use Invoke\Validation\TypeWithValidations;
+use Invoke\Validation\MultipleValidations;
+use Invoke\Validation\Optional;
 use phpDocumentor\Reflection\DocBlockFactory;
 use ReflectionNamedType;
 use ReflectionParameter;
@@ -61,6 +61,59 @@ class ReflectionUtils
     }
 
     /**
+     * @param ReflectionProperty|ReflectionParameter $parameter
+     * @return mixed
+     */
+    public static function reflectionParamOrPropToInvoke(ReflectionProperty|ReflectionParameter $parameter): mixed
+    {
+
+        if ($parameter instanceof ReflectionProperty) {
+            if (!$parameter->isPublic() || $parameter->isStatic()) {
+                return false;
+            }
+        }
+
+        $name = $parameter->getName();
+        $type = $parameter->getType();
+
+        $validations = [];
+        $notParameter = false;
+
+        if ($parameter instanceof ReflectionParameter) {
+            if ($parameter->allowsNull() && $parameter->isDefaultValueAvailable()) {
+                $validations[] = new Optional($parameter->getDefaultValue());
+            }
+        }
+
+        foreach ($parameter->getAttributes() as $attribute) {
+            if ($attribute->getName() === NotParameter::class || is_subclass_of($attribute->getName(), NotParameter::class)) {
+                $notParameter = true;
+                break;
+            }
+
+            if (is_subclass_of($attribute->getName(), Validation::class)) {
+                $validations[] = $attribute->newInstance();
+            }
+        }
+
+        if ($notParameter) {
+            return false;
+        }
+
+        if (!$type) {
+            $param = Types::T;
+        } else {
+            $param = static::reflectionTypeToInvoke($type);
+        }
+
+        if (!empty($validations)) {
+            $param = new MultipleValidations($param, $validations);
+        }
+
+        return $param;
+    }
+
+    /**
      * @param ReflectionProperty[]|ReflectionParameter[] $parameters
      * @return array
      */
@@ -69,47 +122,10 @@ class ReflectionUtils
         $params = [];
 
         foreach ($parameters as $parameter) {
-            if ($parameter instanceof ReflectionProperty) {
-                if (!$parameter->isPublic() || $parameter->isStatic()) {
-                    continue;
-                }
-            }
+            $param = static::reflectionParamOrPropToInvoke($parameter);
 
-            $name = $parameter->getName();
-            $type = $parameter->getType();
-
-            $validations = [];
-            $notParameter = false;
-
-            if ($parameter instanceof ReflectionParameter) {
-                if ($parameter->allowsNull() && $parameter->isDefaultValueAvailable()) {
-                    $validations[] = new NullOrDefault($parameter->getDefaultValue());
-                }
-            }
-
-            foreach ($parameter->getAttributes() as $attribute) {
-                if ($attribute->getName() === NotParameter::class || is_subclass_of($attribute->getName(), NotParameter::class)) {
-                    $notParameter = true;
-                    break;
-                }
-
-                if (is_subclass_of($attribute->getName(), Validation::class)) {
-                    $validations[] = $attribute->newInstance();
-                }
-            }
-
-            if ($notParameter) {
-                continue;
-            }
-
-            if (!$type) {
-                $params[$parameter->name] = Types::T;
-            }
-
-            $params[$name] = static::reflectionTypeToInvoke($type);
-
-            if (!empty($validations)) {
-                $params[$name] = new TypeWithValidations($params[$name], $validations);
+            if ($param) {
+                $params[$parameter->name] = $param;
             }
         }
 

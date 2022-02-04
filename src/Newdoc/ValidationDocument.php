@@ -11,4 +11,6 @@ class ValidationDocument extends Data
     public string $description;
 
     public string $class;
+
+    public array $data;
 }

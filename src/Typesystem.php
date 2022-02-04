@@ -5,7 +5,7 @@ namespace Invoke;
 use Invoke\Exceptions\InvalidParamTypeException;
 use Invoke\Exceptions\TypesystemValidationException;
 use Invoke\Utils\TypeUtils;
-use Invoke\Validation\TypeWithValidations;
+use Invoke\Validation\MultipleValidations;
 
 class Typesystem
 {
@@ -190,7 +190,7 @@ class Typesystem
 
     public static function getTypeName($type): string
     {
-        if ($type instanceof TypeWithValidations) {
+        if ($type instanceof MultipleValidations) {
             $type = $type->getType();
         }
 

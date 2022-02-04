@@ -5,7 +5,7 @@ namespace Invoke\Validation;
 use Invoke\Typesystem;
 use Invoke\Validation;
 
-class TypeWithValidations extends Validation
+class MultipleValidations extends Validation
 {
     protected mixed $type;
 
