@@ -2,70 +2,40 @@
 
 namespace Invoke;
 
-use Invoke\Utils\ReflectionUtils;
-use Invoke\Utils\TypeUtils;
-use JsonSerializable;
-use ReflectionClass;
+use Invoke\Pipes\ParamsPipe;
 
-class Data implements AsData, JsonSerializable
+class Data extends ParamsPipe
 {
     /**
-     * Creates an instance of the type.
-     *
-     * @param $data
+     * @param mixed $input
      * @return static
      */
-    public static function from($data): static
+    public static function from(mixed $input): static
     {
-        $type = new static();
+        $instance = Container::make(static::class);
 
-        TypeUtils::hydrate($type, $data);
-
-        return $type;
+        return $instance->pass($input);
     }
 
     /**
-     * Creates nullable instance of the type.
-     *
-     * @param $data
+     * @param mixed $input
      * @return ?static
      */
-    public static function nullable($data): ?static
+    public static function nullable(mixed $input): ?static
     {
-        if ($data === null) {
+        if ($input === null) {
             return null;
         }
 
-        return static::from($data);
+        return static::from($input);
     }
 
+    /**
+     * @param array $items
+     * @return static[]
+     */
     public static function many(array $items): array
     {
         return array_map(fn($item) => static::from($item), $items);
-    }
-
-    public function toDataArray(): array
-    {
-        return array_merge(
-            Invoke::$config["typesystem"]["typeNames"] ? ["@type" => invoke_get_class_name($this::class)] : [],
-            get_object_vars($this),
-        );
-    }
-
-    public function toArray(): array
-    {
-        return $this->toDataArray();
-    }
-
-    public function jsonSerialize(): array
-    {
-        return $this->toArray();
-    }
-
-    public function getDataParams(): array
-    {
-        $reflectionClass = new ReflectionClass($this);
-
-        return ReflectionUtils::reflectionParamsOrPropsToInvoke($reflectionClass->getProperties());
     }
 }

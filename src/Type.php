@@ -2,15 +2,7 @@
 
 namespace Invoke;
 
-class Type
+abstract class Type extends AbstractPipe
 {
-    protected string $paramName;
-    protected mixed $value;
 
-    public function __construct(string $paramName,
-                                mixed  $value)
-    {
-        $this->paramName = $paramName;
-        $this->value = $value;
-    }
 }

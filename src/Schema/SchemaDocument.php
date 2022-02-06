@@ -1,10 +1,10 @@
 <?php
 
-namespace Invoke\Newdoc;
+namespace Invoke\Schema;
 
 use Invoke\Data;
 use Invoke\Invoke;
-use Invoke\Validation\ArrayOf;
+use Invoke\Validations\ArrayOf;
 
 class SchemaDocument extends Data
 {
@@ -15,7 +15,7 @@ class SchemaDocument extends Data
     {
         $methods = [];
 
-        foreach (Invoke::$methods as $name => $method) {
+        foreach (Invoke::getMethods() as $name => $method) {
             $methods[] = [
                 "name" => $name,
                 "method" => $method,

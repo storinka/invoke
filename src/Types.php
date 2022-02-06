@@ -4,7 +4,7 @@ namespace Invoke;
 
 class Types
 {
-    public const T = "T";
+    public const T = null;
 
     public const null = "NULL";
 

@@ -3,44 +3,41 @@
 namespace Invoke\Utils;
 
 use Invoke\Attributes\NotParameter;
-use Invoke\Types;
+use Invoke\Pipe;
+use Invoke\Pipes\AnyPipe;
+use Invoke\Pipes\ArrayPipe;
+use Invoke\Pipes\BoolPipe;
+use Invoke\Pipes\ClassPipe;
+use Invoke\Pipes\FloatPipe;
+use Invoke\Pipes\IntPipe;
+use Invoke\Pipes\NullPipe;
+use Invoke\Pipes\StringPipe;
+use Invoke\Pipes\UnionPipe;
 use Invoke\Validation;
-use Invoke\Validation\MultipleValidations;
-use Invoke\Validation\Optional;
 use phpDocumentor\Reflection\DocBlockFactory;
+use ReflectionClass;
 use ReflectionNamedType;
-use ReflectionParameter;
 use ReflectionProperty;
 use ReflectionUnionType;
 use Reflector;
-use RuntimeException;
 
 class ReflectionUtils
 {
-    public static function normalizeBuiltinType(string $builtin): string
+    public static function typeToPipe(string $type): Pipe
     {
-        switch ($builtin) {
-            case "int":
-            case "integer":
-                return Types::int;
-            case "float":
-            case "double":
-                return Types::float;
-            case "bool":
-            case "boolean":
-                return Types::bool;
-            case "array":
-                return Types::array;
-            case "null":
-                return Types::null;
-            case "string":
-                return Types::string;
-        }
+        return match ($type) {
+            "int", "integer" => IntPipe::getInstance(),
+            "float", "double" => FloatPipe::getInstance(),
+            "bool", "boolean" => BoolPipe::getInstance(),
+            "array" => ArrayPipe::getInstance(),
+            "null", "NULL" => NullPipe::getInstance(),
+            "string" => StringPipe::getInstance(),
+            default => AnyPipe::getInstance(),
+        };
 
-        throw new RuntimeException("Unsupported built-in type: $builtin");
     }
 
-    public static function parseComment(Reflector $reflectionClass): array
+    public static function extractComment(Reflector $reflectionClass): array
     {
         $comment = [
             "summary" => null,
@@ -60,101 +57,89 @@ class ReflectionUtils
         return $comment;
     }
 
-    /**
-     * @param ReflectionProperty|ReflectionParameter $parameter
-     * @return mixed
-     */
-    public static function reflectionParamOrPropToInvoke(ReflectionProperty|ReflectionParameter $parameter): mixed
-    {
-
-        if ($parameter instanceof ReflectionProperty) {
-            if (!$parameter->isPublic() || $parameter->isStatic()) {
-                return false;
-            }
-        }
-
-        $name = $parameter->getName();
-        $type = $parameter->getType();
-
-        $validations = [];
-        $notParameter = false;
-
-        if ($parameter instanceof ReflectionParameter) {
-            if ($parameter->allowsNull() && $parameter->isDefaultValueAvailable()) {
-                $validations[] = new Optional($parameter->getDefaultValue());
-            }
-        }
-
-        foreach ($parameter->getAttributes() as $attribute) {
-            if ($attribute->getName() === NotParameter::class || is_subclass_of($attribute->getName(), NotParameter::class)) {
-                $notParameter = true;
-                break;
-            }
-
-            if (is_subclass_of($attribute->getName(), Validation::class)) {
-                $validations[] = $attribute->newInstance();
-            }
-        }
-
-        if ($notParameter) {
-            return false;
-        }
-
-        if (!$type) {
-            $param = Types::T;
-        } else {
-            $param = static::reflectionTypeToInvoke($type);
-        }
-
-        if (!empty($validations)) {
-            $param = new MultipleValidations($param, $validations);
-        }
-
-        return $param;
-    }
-
-    /**
-     * @param ReflectionProperty[]|ReflectionParameter[] $parameters
-     * @return array
-     */
-    public static function reflectionParamsOrPropsToInvoke(array $parameters): array
-    {
-        $params = [];
-
-        foreach ($parameters as $parameter) {
-            $param = static::reflectionParamOrPropToInvoke($parameter);
-
-            if ($param) {
-                $params[$parameter->name] = $param;
-            }
-        }
-
-        return $params;
-    }
-
-    public static function reflectionTypeToInvoke(ReflectionNamedType|ReflectionUnionType|null $reflectionType): array|string
+    public static function extractPipeFromReflectionType(ReflectionNamedType|ReflectionUnionType|null $reflectionType): Pipe
     {
         if ($reflectionType == null) {
-            return Types::T;
+            return AnyPipe::getInstance();
         } else if ($reflectionType instanceof ReflectionNamedType) {
             if ($reflectionType->isBuiltin()) {
-                $type = static::normalizeBuiltinType($reflectionType->getName());
+                $type = static::typeToPipe($reflectionType->getName());
             } else {
-                $type = $reflectionType->getName();
+                $type = new ClassPipe($reflectionType->getName());
             }
 
             if ($reflectionType->allowsNull()) {
-                return [Types::null, $type];
+                return new UnionPipe([NullPipe::getInstance(), $type]);
             }
 
             return $type;
         } else if ($reflectionType instanceof ReflectionUnionType) {
-            return array_map(
-                fn($t) => static::reflectionTypeToInvoke($t),
+            return new UnionPipe(array_map(
+                fn($t) => static::extractPipeFromReflectionType($t),
                 $reflectionType->getTypes()
-            );
+            ));
         }
 
-        return $reflectionType->getName();
+        return new ClassPipe($reflectionType->getName());
+    }
+
+    public static function isPropertyParam(ReflectionProperty $property): bool
+    {
+        if (!$property->isPublic() || $property->isStatic()) {
+            return false;
+        }
+
+        foreach ($property->getAttributes() as $attribute) {
+            if ($attribute->getName() === NotParameter::class || is_subclass_of($attribute->getName(), NotParameter::class)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static function extractParamsPipes(ReflectionClass $class): array
+    {
+        $params = [];
+
+        foreach ($class->getProperties() as $property) {
+            if (!static::isPropertyParam($property)) {
+                continue;
+            }
+
+            $name = $property->getName();
+            $pipe = ReflectionUtils::extractPipeFromReflectionType($property->getType());
+
+            $isOptional = false;
+            $defaultValue = null;
+
+            if ($property->hasDefaultValue()) {
+                $isOptional = true;
+                $defaultValue = $property->getDefaultValue();
+            }
+
+            $validations = [];
+
+            foreach ($property->getAttributes() as $attribute) {
+                if (is_subclass_of($attribute->getName(), Validation::class)) {
+                    $validationPipe = $attribute->newInstance();
+
+                    $validationPipe->parentPipe = $pipe;
+                    $validationPipe->paramName = $name;
+
+                    $validations[] = $validationPipe;
+                }
+            }
+
+            $params[] = [
+                "name" => $property->name,
+                "type" => $pipe,
+                "isOptional" => $isOptional,
+                "defaultValue" => $defaultValue,
+                "validations" => $validations,
+            ];
+        }
+
+        return $params;
     }
 }

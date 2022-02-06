@@ -2,204 +2,116 @@
 
 namespace Invoke;
 
-use Closure;
-use Invoke\Exceptions\InvalidFunctionException;
-use Invoke\Utils\ReflectionUtils;
-use ReflectionClass;
-use ReflectionFunction;
+use Invoke\Exceptions\PipeException;
+use Invoke\Pipes\FunctionPipe;
 
-class Invoke
+class Invoke extends AbstractSingletonPipe
 {
-    /**
-     * @var Extension[] $extensions
-     */
-    public static array $extensions = [
-    ];
+    protected static Invoke $instance;
 
-    public static array $methods = [
-    ];
-
-    public static array $config = [
+    protected array $methods = [];
+    protected array $config = [
         "server" => [
             "pathPrefix" => "invoke"
         ],
-        "docs" => [
-            "enableMethods" => true,
-            "enableUi" => true,
-        ],
-        "ioc" => [
-            "makeFn" => null,
-            "callFn" => null,
-        ],
-        "typesystem" => [
-            "strict" => true,
-            "typeNames" => true,
+        "inputMode" => [
+            "convertStrings" => true,
         ],
     ];
+    public bool $inputMode = false;
 
-    public static function invoke(string $name, array $params = []): AsData|int|string|null|bool|array
+    public function pass(mixed $value): mixed
     {
-        $method = static::$methods[$name] ?? null;
+        $name = $value["name"];
+        $params = $value["params"];
 
-        if ($method == null) {
-            throw new InvalidFunctionException($name);
+        return static::invoke(
+            $name,
+            $params
+        );
+    }
+
+    public static function config(string $property): mixed
+    {
+        $path = explode(".", $property);
+
+        $value = static::getInstance()->config;
+
+        foreach ($path as $key) {
+            $value = $value[$key];
         }
 
-        if (is_callable($method) || (is_string($method) && function_exists($method))) {
-            static::callExtensionsHook("methodInit", [$method]);
+        return $value;
+    }
 
-            $reflectionFunction = new ReflectionFunction($method);
+    public static function invoke(string $name, array $params = [])
+    {
+        $method = static::getInstance()->methods[$name];
 
-            $params = Typesystem::validateParams(
-                ReflectionUtils::reflectionParamsOrPropsToInvoke($reflectionFunction->getParameters()),
-                $params
-            );
-
-            static::callExtensionsHook("methodBeforeHandle", [$method, $params]);
-
-            $result = static::callMethod($method, $params);
-
-            static::callExtensionsHook("methodAfterHandle", [$method, $result]);
-
-            return $result;
+        if (is_callable($method)) {
+            $method = new FunctionPipe($method);
         }
 
-        $method = static::makeMethod($method);
-
-        return $method($params);
+        return Pipeline::make($method, $params);
     }
 
-    public static function callMethod(mixed $method, array $params = [])
-    {
-        if (!empty($callFn = static::$config["ioc"]["callFn"])) {
-            return $callFn($method, $params);
-        }
-
-        return call_user_func_array($method, $params);
-    }
-
-    public static function makeMethod(string $method,
-                                      array  $dependencies = []): Method
-    {
-        if (!empty($makeFn = static::$config["ioc"]["makeFn"])) {
-            return $makeFn($method, $dependencies);
-        }
-
-        return (new ReflectionClass($method))->newInstanceArgs($dependencies);
-    }
-
-    public static function getMethods(): array
-    {
-        return static::$methods;
-    }
-
-    public static function getMethod(string $name): string|callable|Closure
-    {
-        return static::$methods[$name];
-    }
-
-    public static function setMethods(array $methods): void
+    public static function setup(array $methods = [])
     {
         foreach ($methods as $name => $method) {
             if (is_numeric($name) && is_string($method)) {
                 unset($methods[$name]);
-                $methods[$method] = $method;
+
+                if (class_exists($method)) {
+                    $methods[Utils::getMethodNameFromClass($method)] = $method;
+                } else {
+                    $methods[$method] = $method;
+                }
             }
         }
 
-        static::$methods = $methods;
+        static::getInstance()->methods = $methods;
     }
 
-    public static function setConfig(array $config): void
+    public static function serve($modeOrPipe = HttpPipe::class)
     {
-        static::$config = array_merge_recursive2(static::$config, $config);
-    }
+        try {
+            $result = Pipeline::make($modeOrPipe, static::getInstance());
 
-    public static function setup(array $methods = [],
-                                 array $config = []): void
-    {
-        static::setMethods($methods);
-        static::setConfig($config);
-    }
+            echo json_encode([
+                "result" => $result,
+            ]);
+        } catch (PipeException $exception) {
+            http_response_code($exception->getHttpCode());
 
-    public static function serve(): void
-    {
-        $config = static::$config;
+            echo json_encode([
+                "code" => $exception->getHttpCode(),
+                "error" => $exception::getErrorName(),
+                "message" => $exception->getMessage(),
+            ]);
+        } catch (\Throwable $exception) {
+            http_response_code(500);
 
-        $url = $_SERVER["REQUEST_URI"];
-
-        // trim spaces and slashes from the url
-        $url = trim($url);
-        $url = trim($url, "/");
-
-        $urlParts = explode("?", $url);
-        if (count($urlParts) > 1) {
-            [$path, $queryString] = $urlParts;
-        } else {
-            [$path] = $urlParts;
-            $queryString = "";
-        }
-
-        if (!str_starts_with($path, $config["server"]["pathPrefix"])) {
-            http_response_code(404);
-            return;
-        }
-
-        if ($path == $config["server"]["pathPrefix"]) {
-            http_response_code(404);
-            return;
-        }
-
-        $pathParts = explode("/", $path);
-        $functionName = end($pathParts);
-
-        $params = [];
-
-        $headers = getallheaders();
-
-        if (array_key_exists("Content-Type", $headers)) {
-            $contentType = $headers["Content-Type"];
-
-            if (strpos($contentType, "application/json") > -1) {
-                $params = file_get_contents("php://input");
-
-                $params = json_decode($params, true);
-            }
-        } else {
-            parse_str($queryString, $params);
-        }
-
-        $result = static::invoke($functionName, $params);
-
-        header("Content-Type: application/json");
-
-        echo json_encode([
-            "result" => $result,
-        ]);
-    }
-
-    public static function registerExtension(Extension $extension)
-    {
-        if (!in_array($extension, static::$extensions)) {
-            static::$extensions[] = $extension;
-
-            $extension->registered();
+            echo json_encode([
+                "code" => $exception->getCode(),
+                "error" => "SERVER_ERROR",
+                "message" => $exception->getMessage(),
+                "trace" => $exception->getTrace(),
+            ]);
         }
     }
 
-    public static function unregisterExtension(Extension $extension)
+    public static function isInputMode(): bool
     {
-        static::$extensions = array_filter(static::$extensions, function (Extension $e) use ($extension) {
-            return $e !== $extension;
-        });
-
-        $extension->unregistered();
+        return static::getInstance()->inputMode;
     }
 
-    public static function callExtensionsHook(string $method, array $params = [])
+    public static function setInputMode(bool $inputMode): void
     {
-        foreach (static::$extensions as $extension) {
-            $extension->{$method}(...$params);
-        }
+        static::getInstance()->inputMode = $inputMode;
+    }
+
+    public static function getMethods(): array
+    {
+        return static::getInstance()->methods;
     }
 }

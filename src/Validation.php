@@ -2,17 +2,16 @@
 
 namespace Invoke;
 
-abstract class Validation
+use Attribute;
+
+#[Attribute]
+abstract class Validation extends AbstractPipe
 {
-    public abstract function validate(string $paramName, $value): mixed;
+    public Pipe $parentPipe;
+    public string $paramName;
 
-    public static function getName(): string
+    public function getValidationData(): array
     {
-        return invoke_get_class_name(static::class);
-    }
-
-    public function getDescription(): string
-    {
-        return "A validation.";
+        return [];
     }
 }
