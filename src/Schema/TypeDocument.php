@@ -7,7 +7,8 @@ use Invoke\Pipe;
 use Invoke\Pipes\ClassPipe;
 use Invoke\Utils;
 use Invoke\Utils\ReflectionUtils;
-use Invoke\Validations\ArrayOf;
+use Invoke\Validator;
+use Invoke\Validators\ArrayOf;
 use ReflectionClass;
 use ReflectionException;
 
@@ -27,11 +28,14 @@ class TypeDocument extends Data
 
     public bool $isFile;
 
-    #[ArrayOf(TypeDocument::class)]
+    #[ArrayOf("string")]
     public array $unionTypes;
 
     #[ArrayOf(ParamDocument::class)]
     public array $params;
+
+    #[ArrayOf(ValidatorDocument::class)]
+    public array $validators;
 
     /**
      * @throws ReflectionException
@@ -42,6 +46,12 @@ class TypeDocument extends Data
 
         if ($type instanceof ClassPipe) {
             $type = $type->class;
+        }
+
+        $validators = [];
+        if ($type instanceof Validator) {
+            $validators = [$type];
+            $type = $type->toType();
         }
 
         $isBuiltin = Utils::isPipeTypeBuiltin($type);
@@ -72,8 +82,9 @@ class TypeDocument extends Data
             "isUnion" => $isUnion,
             "isFile" => $isFile,
 
-            "unionTypes" => TypeDocument::many($unionTypes),
+            "unionTypes" => array_map(fn(Pipe $pipe) => $pipe->getTypeName(), $unionTypes),
             "params" => ParamDocument::many($params),
+            "validators" => ValidatorDocument::many($validators),
         ];
     }
 }

@@ -4,10 +4,6 @@ namespace Invoke;
 
 class HttpPipe extends AbstractPipe
 {
-    /**
-     * @param Invoke $value
-     * @return mixed
-     */
     public function pass(mixed $value): mixed
     {
         $url = $_SERVER["REQUEST_URI"];
@@ -24,12 +20,12 @@ class HttpPipe extends AbstractPipe
             $queryString = "";
         }
 
-        if (!str_starts_with($path, $value::config("server.pathPrefix"))) {
+        if (!str_starts_with($path, Invoke::config("server.pathPrefix"))) {
             http_response_code(404);
             return null;
         }
 
-        if ($path == $value::config("server.pathPrefix")) {
+        if ($path == Invoke::config("server.pathPrefix")) {
             http_response_code(404);
             return null;
         }
@@ -55,7 +51,7 @@ class HttpPipe extends AbstractPipe
 
         header("Content-Type: application/json");
 
-        $result = $value::invoke($method, $params);
+        $result = Invoke::invoke($method, $params);
 
         return $result;
     }

@@ -3,6 +3,8 @@
 namespace Invoke;
 
 use Invoke\Pipes\ParamsPipe;
+use Invoke\Utils\ReflectionUtils;
+use ReflectionClass;
 
 abstract class Method extends ParamsPipe
 {
@@ -22,5 +24,15 @@ abstract class Method extends ParamsPipe
     public function getTypeName(): string
     {
         return Utils::getMethodNameFromClass(static::class);
+    }
+
+    public function getUsedPipes(): array
+    {
+        $pipes = parent::getUsedPipes();
+
+        $reflectionClass = new ReflectionClass($this);
+        $reflectionMethod = $reflectionClass->getMethod("handle");
+
+        return [...$pipes, ReflectionUtils::extractPipeFromReturnType($reflectionMethod)];
     }
 }

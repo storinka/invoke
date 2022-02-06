@@ -3,13 +3,13 @@
 namespace Invoke\Pipes;
 
 use Invoke\AbstractPipe;
-use Invoke\AbstractSingletonPipe;
 use Invoke\Exceptions\RequiredParamNotProvidedException;
 use Invoke\Exceptions\TypeNameRequiredException;
 use Invoke\Exceptions\ValidationFailedException;
 use Invoke\Pipe;
 use Invoke\Pipeline;
-use Invoke\Utils\ReflectionUtils;
+use Invoke\PipeSingleton;
+use Invoke\Utils;
 
 class UnionPipe extends AbstractPipe
 {
@@ -36,13 +36,13 @@ class UnionPipe extends AbstractPipe
                         $this->paramsPipesCount++;
                     }
 
-                    if (is_subclass_of($pipe, AbstractSingletonPipe::class)) {
+                    if (is_subclass_of($pipe, PipeSingleton::class)) {
                         return $pipe::getInstance();
                     }
 
                     return new ClassPipe($pipe);
                 } else {
-                    return ReflectionUtils::typeToPipe($pipe);
+                    return Utils::typeToPipe($pipe);
                 }
             } else {
                 return $pipe;
@@ -54,14 +54,16 @@ class UnionPipe extends AbstractPipe
     {
         if ($this->paramsPipesCount > 1) {
             if (is_array($value)) {
-                if (!array_key_exists("@type", $value)) {
-                    throw new TypeNameRequiredException();
-                } else {
-                    $valueType = $value["@type"];
+                if (invoke_is_assoc($value)) {
+                    if (!array_key_exists("@type", $value)) {
+                        throw new TypeNameRequiredException();
+                    } else {
+                        $valueType = $value["@type"];
 
-                    foreach ($this->pipes as $pipe) {
-                        if ($pipe->getTypeName() === $valueType) {
-                            return Pipeline::make($pipe, $value);
+                        foreach ($this->pipes as $pipe) {
+                            if ($pipe->getTypeName() === $valueType) {
+                                return Pipeline::make($pipe, $value);
+                            }
                         }
                     }
                 }
@@ -85,5 +87,10 @@ class UnionPipe extends AbstractPipe
             " | ",
             array_map(fn(Pipe $pipe) => $pipe->getTypeName(), $this->pipes)
         );
+    }
+
+    public function getUsedPipes(): array
+    {
+        return $this->pipes;
     }
 }

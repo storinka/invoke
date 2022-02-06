@@ -12,4 +12,6 @@ interface Pipe
     public function getTypeName(): string;
 
     public function getValueTypeName(mixed $value): string;
+
+    public function getUsedPipes(): array;
 }

@@ -3,29 +3,29 @@
 namespace Invoke\Schema;
 
 use Invoke\Data;
-use Invoke\Validations\ArrayOf;
+use Invoke\Validators\ArrayOf;
 
 class ParamDocument extends Data
 {
     public string $name;
 
-    public TypeDocument $type;
+    public string $type;
 
     public bool $isOptional;
 
     public mixed $defaultValue;
 
-    #[ArrayOf(ValidationDocument::class)]
-    public array $validations;
+    #[ArrayOf(ValidatorDocument::class)]
+    public array $validators;
 
     public function render(array $data): array
     {
         $type = $data["type"];
-        $validations = $data["validations"];
+        $validators = $data["validators"];
 
         return [
-            "type" => TypeDocument::from($type),
-            "validations" => ValidationDocument::many($validations),
+            "type" => $type->getTypeName(),
+            "validators" => ValidatorDocument::many($validators),
         ];
     }
 }

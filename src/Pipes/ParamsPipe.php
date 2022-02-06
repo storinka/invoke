@@ -5,9 +5,9 @@ namespace Invoke\Pipes;
 use Invoke\AbstractPipe;
 use Invoke\Exceptions\RequiredParamNotProvidedException;
 use Invoke\Exceptions\ValidationFailedException;
+use Invoke\Pipe;
 use Invoke\Pipeline;
 use Invoke\Utils\ReflectionUtils;
-use Invoke\Validation;
 use ReflectionClass;
 
 class ParamsPipe extends AbstractPipe
@@ -74,20 +74,27 @@ class ParamsPipe extends AbstractPipe
                 "{$this->getTypeName()}::{$name}"
             );
 
-            foreach ($property->getAttributes() as $attribute) {
-                if (is_subclass_of($attribute->getName(), Validation::class)) {
-                    $validationPipe = $attribute->newInstance();
+            Pipeline::catcher(
+                function () use ($name, $property, &$value) {
+                    foreach ($property->getAttributes() as $attribute) {
+                        if (is_subclass_of($attribute->getName(), Pipe::class)) {
+                            $validationPipe = $attribute->newInstance();
 
-                    $validationPipe->parentPipe = $this;
-                    $validationPipe->paramName = $name;
-
-                    $value = $validationPipe->pass($value);
-                }
-            }
+                            $value = $validationPipe->pass($value);
+                        }
+                    }
+                },
+                "{$this->getTypeName()}::{$name}"
+            );
 
             $this->{$name} = $value;
         }
 
         return $this;
+    }
+
+    public function getUsedPipes(): array
+    {
+        return ReflectionUtils::extractPipesFromParamsPipe($this);
     }
 }

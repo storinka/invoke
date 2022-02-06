@@ -3,19 +3,18 @@
 namespace Invoke\Utils;
 
 use Invoke\Attributes\NotParameter;
+use Invoke\Method;
 use Invoke\Pipe;
 use Invoke\Pipes\AnyPipe;
-use Invoke\Pipes\ArrayPipe;
-use Invoke\Pipes\BoolPipe;
 use Invoke\Pipes\ClassPipe;
-use Invoke\Pipes\FloatPipe;
-use Invoke\Pipes\IntPipe;
 use Invoke\Pipes\NullPipe;
-use Invoke\Pipes\StringPipe;
+use Invoke\Pipes\ParamsPipe;
 use Invoke\Pipes\UnionPipe;
-use Invoke\Validation;
+use Invoke\Utils;
+use Invoke\Validator;
 use phpDocumentor\Reflection\DocBlockFactory;
 use ReflectionClass;
+use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionProperty;
 use ReflectionUnionType;
@@ -23,20 +22,6 @@ use Reflector;
 
 class ReflectionUtils
 {
-    public static function typeToPipe(string $type): Pipe
-    {
-        return match ($type) {
-            "int", "integer" => IntPipe::getInstance(),
-            "float", "double" => FloatPipe::getInstance(),
-            "bool", "boolean" => BoolPipe::getInstance(),
-            "array" => ArrayPipe::getInstance(),
-            "null", "NULL" => NullPipe::getInstance(),
-            "string" => StringPipe::getInstance(),
-            default => AnyPipe::getInstance(),
-        };
-
-    }
-
     public static function extractComment(Reflector $reflectionClass): array
     {
         $comment = [
@@ -63,7 +48,7 @@ class ReflectionUtils
             return AnyPipe::getInstance();
         } else if ($reflectionType instanceof ReflectionNamedType) {
             if ($reflectionType->isBuiltin()) {
-                $type = static::typeToPipe($reflectionType->getName());
+                $type = Utils::typeToPipe($reflectionType->getName());
             } else {
                 $type = new ClassPipe($reflectionType->getName());
             }
@@ -118,28 +103,56 @@ class ReflectionUtils
                 $defaultValue = $property->getDefaultValue();
             }
 
-            $validations = [];
+            $validators = [];
 
             foreach ($property->getAttributes() as $attribute) {
-                if (is_subclass_of($attribute->getName(), Validation::class)) {
+                if (is_subclass_of($attribute->getName(), Validator::class)) {
                     $validationPipe = $attribute->newInstance();
 
-                    $validationPipe->parentPipe = $pipe;
-                    $validationPipe->paramName = $name;
-
-                    $validations[] = $validationPipe;
+                    $validators[] = $validationPipe;
                 }
             }
 
             $params[] = [
-                "name" => $property->name,
+                "name" => $name,
                 "type" => $pipe,
                 "isOptional" => $isOptional,
                 "defaultValue" => $defaultValue,
-                "validations" => $validations,
+                "validators" => $validators,
             ];
         }
 
         return $params;
+    }
+
+    public static function extractPipeFromReturnType(ReflectionMethod $method): Pipe
+    {
+        $reflectionReturnType = $method->getReturnType();
+
+        return ReflectionUtils::extractPipeFromReflectionType($reflectionReturnType);
+    }
+
+    public static function extractPipesFromParamsPipe(ParamsPipe|string $pipe): array
+    {
+        $pipes = [];
+
+        $reflectionClass = new ReflectionClass($pipe);
+        $params = ReflectionUtils::extractParamsPipes($reflectionClass);
+        foreach ($params as $param) {
+            $pipes[] = $param["type"];
+
+            /** @var Validator $validator */
+            foreach ($param["validators"] as $validator) {
+                array_push($pipes, ...$validator->getUsedPipes());
+            }
+        }
+        
+        if ($reflectionClass->isSubclassOf(Method::class)) {
+            $reflectionMethod = $reflectionClass->getMethod("handle");
+
+            $pipes[] = ReflectionUtils::extractPipeFromReturnType($reflectionMethod);
+        }
+
+        return $pipes;
     }
 }

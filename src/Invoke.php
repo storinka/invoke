@@ -9,7 +9,8 @@ class Invoke extends AbstractSingletonPipe
 {
     protected static Invoke $instance;
 
-    protected array $methods = [];
+    protected array $methods = [
+    ];
     protected array $config = [
         "server" => [
             "pathPrefix" => "invoke"
@@ -72,10 +73,10 @@ class Invoke extends AbstractSingletonPipe
         static::getInstance()->methods = $methods;
     }
 
-    public static function serve($modeOrPipe = HttpPipe::class)
+    public static function serve($modeOrPipe = HttpPipe::class, mixed $params = null)
     {
         try {
-            $result = Pipeline::make($modeOrPipe, static::getInstance());
+            $result = Pipeline::make($modeOrPipe, $params);
 
             echo json_encode([
                 "result" => $result,

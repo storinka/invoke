@@ -17,6 +17,6 @@ class ValidationFailedException extends PipeException
         $this->pipe = $pipe;
         $this->value = $value;
 
-        parent::__construct("Expected {$pipeName}, got {$valueType}.");
+        parent::__construct("Expected \"{$pipeName}\", got \"{$valueType}\".");
     }
 }

@@ -13,6 +13,11 @@ abstract class AbstractPipe implements Pipe
 
     public function getValueTypeName(mixed $value): string
     {
-        return Pipeline::getValueTypeName($value);
+        return Utils::getValueTypeName($value);
+    }
+
+    public function getUsedPipes(): array
+    {
+        return [];
     }
 }

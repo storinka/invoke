@@ -11,7 +11,7 @@ use RuntimeException;
 
 class Pipeline
 {
-    public static function make(Pipe|string $pipe, mixed $value)
+    public static function make(Pipe|string $pipe, mixed $value = null)
     {
         if ($pipe instanceof Pipe) {
             return $pipe->pass($value);
@@ -26,15 +26,6 @@ class Pipeline
         }
 
         throw new RuntimeException();
-    }
-
-    public static function getValueTypeName(mixed $value): string
-    {
-        if ($value instanceof Pipe) {
-            return $value->getTypeName();
-        }
-
-        return gettype($value);
     }
 
     public static function catcher(callable $callback, string $prefix)

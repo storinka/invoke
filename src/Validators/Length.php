@@ -1,13 +1,13 @@
 <?php
 
-namespace Invoke\Validations;
+namespace Invoke\Validators;
 
 use Attribute;
-use Invoke\Exceptions\ParamValidationFailedException;
-use Invoke\Validation;
+use Invoke\Exceptions\ValidationFailedException;
+use Invoke\Validator;
 
 #[Attribute]
-class Length extends Validation
+class Length extends Validator
 {
     public ?int $min;
     public ?int $max;
@@ -24,8 +24,7 @@ class Length extends Validation
 
         if (!is_null($this->min)) {
             if ($length < $this->min) {
-                throw new ParamValidationFailedException(
-                    "{$this->parentPipe->getTypeName()}::{$this->paramName}",
+                throw new ValidationFailedException(
                     $this,
                     $value
                 );
@@ -34,8 +33,7 @@ class Length extends Validation
 
         if (!is_null($this->max)) {
             if ($length > $this->max) {
-                throw new ParamValidationFailedException(
-                    "{$this->parentPipe->getTypeName()}::{$this->paramName}",
+                throw new ValidationFailedException(
                     $this,
                     $value
                 );

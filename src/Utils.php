@@ -3,8 +3,10 @@
 namespace Invoke;
 
 use Exception;
+use Invoke\Pipes\AnyPipe;
 use Invoke\Pipes\ArrayPipe;
 use Invoke\Pipes\BoolPipe;
+use Invoke\Pipes\ClassPipe;
 use Invoke\Pipes\FloatPipe;
 use Invoke\Pipes\IntPipe;
 use Invoke\Pipes\NullPipe;
@@ -87,5 +89,70 @@ class Utils
         $class = is_string($pipe) ? $pipe : $pipe::class;
 
         return $class === File::class || is_subclass_of($class, File::class);
+    }
+
+    public static function isPipeTypeValidator(Pipe|string $pipe): bool
+    {
+        $class = is_string($pipe) ? $pipe : $pipe::class;
+
+        return $class === Validator::class || is_subclass_of($class, Validator::class);
+    }
+
+    public static function toPipe(Pipe|string|array $something): Pipe
+    {
+        if (is_array($something)) {
+            return new UnionPipe($something);
+        } else if (is_string($something)) {
+            if (class_exists($something)) {
+                if (is_subclass_of($something, PipeSingleton::class)) {
+                    return $something::getInstance();
+                }
+
+                return new ClassPipe($something);
+            } else {
+                return Utils::typeToPipe($something);
+            }
+        } else {
+            return $something;
+        }
+    }
+
+    public static function typeToPipe(string $type): Pipe
+    {
+        return match ($type) {
+            "int", "integer" => IntPipe::getInstance(),
+            "float", "double" => FloatPipe::getInstance(),
+            "bool", "boolean" => BoolPipe::getInstance(),
+            "array" => ArrayPipe::getInstance(),
+            "null", "NULL" => NullPipe::getInstance(),
+            "string" => StringPipe::getInstance(),
+            default => AnyPipe::getInstance(),
+        };
+    }
+
+    public static function getValueTypeName(mixed $value): string
+    {
+        if ($value instanceof Pipe) {
+            return $value->getTypeName();
+        }
+
+        return gettype($value);
+    }
+
+    public static function extractPipes(Pipe|string $pipe): array
+    {
+        $pipes = [];
+
+        if (is_string($pipe)) {
+            $pipe = new ClassPipe($pipe);
+        }
+
+        foreach ($pipe->getUsedPipes() as $usedPipe) {
+            $pipes[] = $usedPipe;
+
+            array_push($pipes, ...static::extractPipes($usedPipe));
+        }
+
+        return $pipes;
     }
 }

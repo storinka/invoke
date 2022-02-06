@@ -13,13 +13,13 @@ class MethodDocument extends Data
 
     public array $params;
 
-    public TypeDocument $resultType;
-//
-//    public ?string $summary;
-//
-//    public ?string $description;
-//
-//    public array $tags;
+    public string $resultType;
+
+    public ?string $summary;
+
+    public ?string $description;
+
+    public array $tags;
 
     /**
      * @throws ReflectionException
@@ -28,28 +28,24 @@ class MethodDocument extends Data
     {
         $method = $data["method"];
 
-        $summary = null;
-        $description = null;
         $tags = [];
 
         $reflectionClass = new ReflectionClass($method);
+
+        $comment = ReflectionUtils::extractComment($reflectionClass);
+        $summary = $comment["summary"];
+        $description = $comment["description"];
 
         $paramsDocuments = ReflectionUtils::extractParamsPipes($reflectionClass);
 
         $reflectionMethod = $reflectionClass->getMethod("handle");
         $reflectionReturnType = $reflectionMethod->getReturnType();
-
-        $comment = ReflectionUtils::extractComment($reflectionClass);
-
-        $summary = $comment["summary"];
-        $description = $comment["description"];
-
         $returnPipe = ReflectionUtils::extractPipeFromReflectionType($reflectionReturnType);
 
         return [
             "summary" => $summary,
             "description" => $description,
-            "resultType" => TypeDocument::from($returnPipe),
+            "resultType" => $returnPipe->getTypeName(),
             "tags" => $tags,
 
             "params" => ParamDocument::many($paramsDocuments),
