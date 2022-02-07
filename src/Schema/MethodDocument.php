@@ -4,6 +4,7 @@ namespace Invoke\Schema;
 
 use Invoke\Data;
 use Invoke\Utils\ReflectionUtils;
+use Invoke\Utils\Utils;
 use ReflectionClass;
 use ReflectionException;
 
@@ -39,13 +40,12 @@ class MethodDocument extends Data
         $paramsDocuments = ReflectionUtils::extractParamsPipes($reflectionClass);
 
         $reflectionMethod = $reflectionClass->getMethod("handle");
-        $reflectionReturnType = $reflectionMethod->getReturnType();
-        $returnPipe = ReflectionUtils::extractPipeFromReflectionType($reflectionReturnType);
+        $returnType = ReflectionUtils::extractPipeFromMethodReturnType($reflectionMethod);
 
         return [
             "summary" => $summary,
             "description" => $description,
-            "resultType" => $returnPipe->getTypeName(),
+            "resultType" => Utils::getSchemaTypeName($returnType),
             "tags" => $tags,
 
             "params" => ParamDocument::many($paramsDocuments),

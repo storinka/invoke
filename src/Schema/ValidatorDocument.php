@@ -3,6 +3,7 @@
 namespace Invoke\Schema;
 
 use Invoke\Data;
+use Invoke\Utils\Utils;
 use Invoke\Validator;
 use Invoke\Validators\ArrayOf;
 
@@ -19,12 +20,11 @@ class ValidatorDocument extends Data
         $data = [];
 
         if ($validator instanceof ArrayOf) {
-            $data["itemType"] = $validator->itemPipe->getTypeName();
+            $data["itemType"] = Utils::getSchemaTypeName($validator->itemPipe);
         }
 
         return [
-            "name" => $validator->getValidatorName(),
-            "typeName" => $validator->getTypeName(),
+            "name" => invoke_get_class_name($validator::class),
 
             "description" => "...",
             "data" => $data,

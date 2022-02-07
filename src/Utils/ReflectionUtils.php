@@ -3,14 +3,14 @@
 namespace Invoke\Utils;
 
 use Invoke\Attributes\NotParameter;
+use Invoke\HasUsedTypes;
 use Invoke\Method;
-use Invoke\Pipe;
-use Invoke\Pipes\AnyPipe;
-use Invoke\Pipes\ClassPipe;
-use Invoke\Pipes\NullPipe;
-use Invoke\Pipes\ParamsPipe;
-use Invoke\Pipes\UnionPipe;
-use Invoke\Utils;
+use Invoke\Type;
+use Invoke\Types\AnyType;
+use Invoke\Types\NullType;
+use Invoke\Types\TypeWithParams;
+use Invoke\Types\UnionType;
+use Invoke\Types\WrappedType;
 use Invoke\Validator;
 use phpDocumentor\Reflection\DocBlockFactory;
 use ReflectionClass;
@@ -20,6 +20,9 @@ use ReflectionProperty;
 use ReflectionUnionType;
 use Reflector;
 
+/**
+ * Common utils to work with reflection.
+ */
 class ReflectionUtils
 {
     public static function extractComment(Reflector $reflectionClass): array
@@ -42,30 +45,33 @@ class ReflectionUtils
         return $comment;
     }
 
-    public static function extractPipeFromReflectionType(ReflectionNamedType|ReflectionUnionType|null $reflectionType): Pipe
+    public static function extractPipeFromReflectionType(ReflectionNamedType|ReflectionUnionType|null $reflectionType): Type
     {
         if ($reflectionType == null) {
-            return AnyPipe::getInstance();
+            return AnyType::getInstance();
         } else if ($reflectionType instanceof ReflectionNamedType) {
             if ($reflectionType->isBuiltin()) {
-                $type = Utils::typeToPipe($reflectionType->getName());
+                $type = Utils::typeNameToPipe($reflectionType->getName());
             } else {
-                $type = new ClassPipe($reflectionType->getName());
+                if ($reflectionType->getName() === "static") {
+                    invoke_dd($reflectionType->getName());
+                }
+                $type = new WrappedType($reflectionType->getName());
             }
 
             if ($reflectionType->allowsNull()) {
-                return new UnionPipe([NullPipe::getInstance(), $type]);
+                return new UnionType([NullType::getInstance(), $type]);
             }
 
             return $type;
         } else if ($reflectionType instanceof ReflectionUnionType) {
-            return new UnionPipe(array_map(
+            return new UnionType(array_map(
                 fn($t) => static::extractPipeFromReflectionType($t),
                 $reflectionType->getTypes()
             ));
         }
 
-        return new ClassPipe($reflectionType->getName());
+        return new WrappedType($reflectionType->getName());
     }
 
     public static function isPropertyParam(ReflectionProperty $property): bool
@@ -125,14 +131,14 @@ class ReflectionUtils
         return $params;
     }
 
-    public static function extractPipeFromReturnType(ReflectionMethod $method): Pipe
+    public static function extractPipeFromMethodReturnType(ReflectionMethod $method): Type
     {
         $reflectionReturnType = $method->getReturnType();
 
         return ReflectionUtils::extractPipeFromReflectionType($reflectionReturnType);
     }
 
-    public static function extractPipesFromParamsPipe(ParamsPipe|string $pipe): array
+    public static function extractPipesFromParamsPipe(TypeWithParams|string $pipe): array
     {
         $pipes = [];
 
@@ -143,14 +149,16 @@ class ReflectionUtils
 
             /** @var Validator $validator */
             foreach ($param["validators"] as $validator) {
-                array_push($pipes, ...$validator->getUsedPipes());
+                if ($validator instanceof HasUsedTypes) {
+                    array_push($pipes, ...$validator->getUsedTypes());
+                }
             }
         }
-        
+
         if ($reflectionClass->isSubclassOf(Method::class)) {
             $reflectionMethod = $reflectionClass->getMethod("handle");
 
-            $pipes[] = ReflectionUtils::extractPipeFromReturnType($reflectionMethod);
+            $pipes[] = ReflectionUtils::extractPipeFromMethodReturnType($reflectionMethod);
         }
 
         return $pipes;

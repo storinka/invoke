@@ -2,9 +2,14 @@
 
 namespace Invoke;
 
-use Invoke\Pipes\ParamsPipe;
+use Invoke\Types\TypeWithParams;
 
-class Data extends ParamsPipe
+/**
+ * Abstract data type pipe.
+ *
+ * Used to define strictly typed structure.
+ */
+abstract class Data extends TypeWithParams
 {
     /**
      * @param mixed $input

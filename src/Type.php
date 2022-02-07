@@ -2,7 +2,15 @@
 
 namespace Invoke;
 
-abstract class Type extends AbstractPipe
+/**
+ * Type pipe.
+ */
+interface Type extends Pipe
 {
-
+    /**
+     * Unique type name.
+     *
+     * @return string
+     */
+    public static function getName(): string;
 }

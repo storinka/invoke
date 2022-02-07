@@ -1,19 +1,21 @@
 <?php
 
-namespace Invoke\Pipes;
+namespace Invoke\Types;
 
-use Invoke\AbstractSingletonPipe;
-use Invoke\Exceptions\ValidationFailedException;
+use Invoke\Container;
+use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Invoke;
+use Invoke\Singleton;
+use Invoke\Type;
 
 /**
  * Float type.
  *
  * Example: <code>3.14</code>
  */
-class FloatPipe extends AbstractSingletonPipe
+class FloatType implements Type, Singleton
 {
-    public static FloatPipe $instance;
+    public static FloatType $instance;
 
     public function pass(mixed $value): mixed
     {
@@ -32,13 +34,22 @@ class FloatPipe extends AbstractSingletonPipe
         }
 
         if ($type !== "double") {
-            throw new ValidationFailedException($this, $value);
+            throw new InvalidTypeException($this, $value);
         }
 
         return $value;
     }
 
-    public function getTypeName(): string
+    public static function getInstance(): static
+    {
+        if (empty(static::$instance)) {
+            static::$instance = Container::make(static::class);
+        }
+
+        return static::$instance;
+    }
+
+    public static function getName(): string
     {
         return "float";
     }

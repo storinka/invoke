@@ -2,7 +2,10 @@
 
 namespace Invoke;
 
-interface PipeSingleton
+/**
+ * Says that class has single instance.
+ */
+interface Singleton
 {
     public static function getInstance();
 }

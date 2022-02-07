@@ -3,7 +3,7 @@
 namespace Invoke\Exceptions;
 
 use Invoke\Invoke;
-use Invoke\Utils;
+use Invoke\Utils\Utils;
 use RuntimeException;
 
 class PipeException extends RuntimeException

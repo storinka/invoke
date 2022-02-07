@@ -3,6 +3,7 @@
 namespace Invoke\Schema;
 
 use Invoke\Data;
+use Invoke\Utils\Utils;
 use Invoke\Validators\ArrayOf;
 
 class ParamDocument extends Data
@@ -24,7 +25,7 @@ class ParamDocument extends Data
         $validators = $data["validators"];
 
         return [
-            "type" => $type->getTypeName(),
+            "type" => Utils::getSchemaTypeName($type),
             "validators" => ValidatorDocument::many($validators),
         ];
     }

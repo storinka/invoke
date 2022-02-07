@@ -4,7 +4,7 @@ namespace Invoke\Schema;
 
 use Invoke\Data;
 use Invoke\Invoke;
-use Invoke\Utils;
+use Invoke\Utils\Utils;
 use Invoke\Validators\ArrayOf;
 use ReflectionException;
 
@@ -30,12 +30,16 @@ class SchemaDocument extends Data
                 "method" => $method,
             ];
 
-            array_push($pipes, ...Utils::extractPipes($method));
+            array_push($pipes, ...Utils::extractUsedTypes($method));
         }
+
+        $pipes = TypeDocument::many($pipes);
+
+        $pipes = invoke_array_unique_by_key($pipes, "schemaTypeName");
 
         return static::from([
             "methods" => MethodDocument::many($methods),
-            "types" => TypeDocument::many($pipes),
+            "types" => $pipes,
         ]);
     }
 }

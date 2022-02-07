@@ -2,7 +2,10 @@
 
 namespace Invoke;
 
-class HttpPipe extends AbstractPipe
+/**
+ * HTTP request handler pipe.
+ */
+class HttpPipe implements Pipe
 {
     public function pass(mixed $value): mixed
     {

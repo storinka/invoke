@@ -1,19 +1,21 @@
 <?php
 
-namespace Invoke\Pipes;
+namespace Invoke\Types;
 
-use Invoke\AbstractSingletonPipe;
-use Invoke\Exceptions\ValidationFailedException;
+use Invoke\Container;
+use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Invoke;
+use Invoke\Singleton;
+use Invoke\Type;
 
 /**
  * Boolean type.
  *
  * Example: <code>true</code>
  */
-class BoolPipe extends AbstractSingletonPipe
+class BoolType implements Type, Singleton
 {
-    public static BoolPipe $instance;
+    public static BoolType $instance;
 
     public function pass(mixed $value): mixed
     {
@@ -32,13 +34,22 @@ class BoolPipe extends AbstractSingletonPipe
         }
 
         if ($type !== "boolean") {
-            throw new ValidationFailedException($this, $value);
+            throw new InvalidTypeException($this, $value);
         }
 
         return $value;
     }
 
-    public function getTypeName(): string
+    public static function getInstance(): static
+    {
+        if (empty(static::$instance)) {
+            static::$instance = Container::make(static::class);
+        }
+
+        return static::$instance;
+    }
+
+    public static function getName(): string
     {
         return "bool";
     }

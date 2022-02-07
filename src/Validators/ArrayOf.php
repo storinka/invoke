@@ -3,23 +3,32 @@
 namespace Invoke\Validators;
 
 use Attribute;
-use Invoke\Pipe;
-use Invoke\Pipes\ArrayPipe;
-use Invoke\Utils;
+use Invoke\HasDynamicName;
+use Invoke\HasUsedTypes;
+use Invoke\Type;
+use Invoke\Types\ArrayType;
+use Invoke\Utils\Utils;
 use Invoke\Validator;
 
+/**
+ * Array item type validator.
+ *
+ * Can be used as type to validate nested arrays.
+ */
 #[Attribute]
-class ArrayOf extends Validator
+class ArrayOf implements Validator, Type, HasDynamicName, HasUsedTypes
 {
-    public Pipe $itemPipe;
+    public Type $itemPipe;
 
-    public function __construct(mixed $itemPipe)
+    public function __construct(Type|string|array $itemPipe)
     {
-        $this->itemPipe = Utils::toPipe($itemPipe);
+        $this->itemPipe = Utils::toType($itemPipe);
     }
 
     public function pass(mixed $value): mixed
     {
+        $value = ArrayType::getInstance()->pass($value);
+
         foreach ($value as $index => $item) {
             $value[$index] = $this->itemPipe->pass($item);
         }
@@ -27,21 +36,21 @@ class ArrayOf extends Validator
         return $value;
     }
 
-    public function getTypeName(): string
-    {
-        $arrayTypeName = ArrayPipe::getInstance()->getTypeName();
-        $itemPipeName = $this->itemPipe->getTypeName();
-
-        return "{$arrayTypeName}<{$itemPipeName}>";
-    }
-
-    public function getUsedPipes(): array
+    public function getUsedTypes(): array
     {
         return [$this->itemPipe];
     }
 
-    public function toType(): Pipe
+    public static function getName(): string
     {
-        return ArrayPipe::getInstance();
+        return "array";
+    }
+
+    public function getDynamicName(): string
+    {
+        $arrayTypeName = ArrayType::getName();
+        $itemPipeName = Utils::getPipeTypeName($this->itemPipe);
+
+        return "{$arrayTypeName}<{$itemPipeName}>";
     }
 }

@@ -4,8 +4,12 @@ namespace Invoke;
 
 use Invoke\Exceptions\PipeException;
 use Invoke\Pipes\FunctionPipe;
+use Invoke\Utils\Utils;
 
-class Invoke extends AbstractSingletonPipe
+/**
+ * Invoke pipe itself.
+ */
+class Invoke implements Pipe, Singleton
 {
     protected static Invoke $instance;
 
@@ -53,7 +57,7 @@ class Invoke extends AbstractSingletonPipe
             $method = new FunctionPipe($method);
         }
 
-        return Pipeline::make($method, $params);
+        return Pipeline::pass($method, $params);
     }
 
     public static function setup(array $methods = [])
@@ -76,7 +80,7 @@ class Invoke extends AbstractSingletonPipe
     public static function serve($modeOrPipe = HttpPipe::class, mixed $params = null)
     {
         try {
-            $result = Pipeline::make($modeOrPipe, $params);
+            $result = Pipeline::pass($modeOrPipe, $params);
 
             echo json_encode([
                 "result" => $result,
@@ -90,6 +94,7 @@ class Invoke extends AbstractSingletonPipe
                 "message" => $exception->getMessage(),
             ]);
         } catch (\Throwable $exception) {
+            invoke_dd($exception);
             http_response_code(500);
 
             echo json_encode([
@@ -114,5 +119,14 @@ class Invoke extends AbstractSingletonPipe
     public static function getMethods(): array
     {
         return static::getInstance()->methods;
+    }
+
+    public static function getInstance(): static
+    {
+        if (empty(static::$instance)) {
+            static::$instance = Container::make(static::class);
+        }
+
+        return static::$instance;
     }
 }

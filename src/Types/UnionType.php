@@ -1,17 +1,20 @@
 <?php
 
-namespace Invoke\Pipes;
+namespace Invoke\Types;
 
-use Invoke\AbstractPipe;
+use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Exceptions\RequiredParamNotProvidedException;
 use Invoke\Exceptions\TypeNameRequiredException;
-use Invoke\Exceptions\ValidationFailedException;
+use Invoke\HasDynamicName;
+use Invoke\HasUsedTypes;
 use Invoke\Pipe;
 use Invoke\Pipeline;
-use Invoke\PipeSingleton;
-use Invoke\Utils;
+use Invoke\Singleton;
+use Invoke\Type;
+use Invoke\Utils\Utils;
+use function invoke_is_assoc;
 
-class UnionPipe extends AbstractPipe
+class UnionType implements Type, HasDynamicName, HasUsedTypes
 {
     public array $pipes;
 
@@ -20,29 +23,29 @@ class UnionPipe extends AbstractPipe
     public function __construct(array $pipes)
     {
         $this->pipes = array_map(function ($pipe) {
-            if ($pipe instanceof ParamsPipe) {
+            if ($pipe instanceof TypeWithParams) {
                 $this->paramsPipesCount++;
             }
 
-            if ($pipe instanceof ClassPipe) {
-                if (is_subclass_of($pipe->class, ParamsPipe::class)) {
+            if ($pipe instanceof WrappedType) {
+                if (is_subclass_of($pipe->typeClass, TypeWithParams::class)) {
                     $this->paramsPipesCount++;
                 }
             }
 
             if (is_string($pipe)) {
                 if (class_exists($pipe)) {
-                    if (is_subclass_of($pipe, ParamsPipe::class)) {
+                    if (is_subclass_of($pipe, TypeWithParams::class)) {
                         $this->paramsPipesCount++;
                     }
 
-                    if (is_subclass_of($pipe, PipeSingleton::class)) {
+                    if (is_subclass_of($pipe, Singleton::class)) {
                         return $pipe::getInstance();
                     }
 
-                    return new ClassPipe($pipe);
+                    return new WrappedType($pipe);
                 } else {
-                    return Utils::typeToPipe($pipe);
+                    return Utils::typeNameToPipe($pipe);
                 }
             } else {
                 return $pipe;
@@ -61,8 +64,8 @@ class UnionPipe extends AbstractPipe
                         $valueType = $value["@type"];
 
                         foreach ($this->pipes as $pipe) {
-                            if ($pipe->getTypeName() === $valueType) {
-                                return Pipeline::make($pipe, $value);
+                            if (Utils::getPipeTypeName($pipe) === $valueType) {
+                                return Pipeline::pass($pipe, $value);
                             }
                         }
                     }
@@ -72,24 +75,31 @@ class UnionPipe extends AbstractPipe
 
         foreach ($this->pipes as $pipe) {
             try {
-                return Pipeline::make($pipe, $value);
-            } catch (RequiredParamNotProvidedException|ValidationFailedException) {
-                // ignore
+                return Pipeline::pass($pipe, $value);
+            } catch (RequiredParamNotProvidedException|InvalidTypeException $exception) {
+//                if ($exception->expectedType !== $pipe) {
+//                    throw new InvalidTypeException($pipe, $value);
+//                }
             }
         }
 
-        throw new ValidationFailedException($this, $value);
+        throw new InvalidTypeException($this, $value);
     }
 
-    public function getTypeName(): string
+    public function getDynamicName(): string
     {
         return implode(
             " | ",
-            array_map(fn(Pipe $pipe) => $pipe->getTypeName(), $this->pipes)
+            array_map(fn(Pipe $pipe) => Utils::getPipeTypeName($pipe), $this->pipes)
         );
     }
 
-    public function getUsedPipes(): array
+    public static function getName(): string
+    {
+        return "union";
+    }
+
+    public function getUsedTypes(): array
     {
         return $this->pipes;
     }

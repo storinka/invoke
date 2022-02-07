@@ -2,20 +2,21 @@
 
 namespace Invoke\Exceptions;
 
-use Invoke\Pipe;
+use Invoke\Type;
+use Invoke\Utils\Utils;
 
-class ParamValidationFailedException extends ValidationFailedException
+class ParamInvalidTypeException extends InvalidTypeException
 {
     public string $path;
 
     public function __construct(string $path,
-                                Pipe   $pipe,
+                                Type   $pipe,
                                 mixed  $value)
     {
         parent::__construct($pipe, $value);
 
-        $pipeName = $pipe->getTypeName();
-        $valueType = $pipe->getValueTypeName($value);
+        $pipeName = Utils::getPipeTypeName($pipe);
+        $valueType = Utils::getValueTypeName($value);
 
         $this->message = "Invalid \"{$path}\": expected \"{$pipeName}\", got \"{$valueType}\".";
         $this->path = $path;

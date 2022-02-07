@@ -84,3 +84,10 @@ if (!function_exists("class_uses_deep")) {
         return array_unique($traits);
     }
 }
+
+function invoke_array_unique_by_key($array, $property): array
+{
+    $tempArray = array_unique(array_column($array, $property));
+    $moreUniqueArray = array_values(array_intersect_key($array, $tempArray));
+    return $moreUniqueArray;
+}

@@ -2,46 +2,53 @@
 
 namespace Invoke;
 
+use Invoke\Exceptions\InvalidTypeException;
+use Invoke\Exceptions\ParamInvalidTypeException;
 use Invoke\Exceptions\ParamTypeNameRequiredException;
-use Invoke\Exceptions\ParamValidationFailedException;
 use Invoke\Exceptions\TypeNameRequiredException;
-use Invoke\Exceptions\ValidationFailedException;
-use Invoke\Pipes\ClassPipe;
+use Invoke\Types\WrappedType;
 use RuntimeException;
 
+/**
+ * TODO: describe it
+ */
 class Pipeline
 {
-    public static function make(Pipe|string $pipe, mixed $value = null)
+    public static function pass(Pipe|string $pipe, mixed $value = null)
     {
         if ($pipe instanceof Pipe) {
             return $pipe->pass($value);
         }
 
         if (class_exists($pipe)) {
-            if (is_subclass_of($pipe, PipeSingleton::class)) {
+            if (is_subclass_of($pipe, Singleton::class)) {
                 return $pipe::getInstance()->pass($value);
             }
 
-            return (new ClassPipe($pipe))->pass($value);
+            if (is_subclass_of($pipe, Type::class)) {
+                return (new WrappedType($pipe))->pass($value);
+            }
+
+            return Container::make($pipe)->pass($value);
         }
 
-        throw new RuntimeException();
+        throw new RuntimeException("Invalid pipe: $pipe");
     }
 
     public static function catcher(callable $callback, string $prefix)
     {
         try {
             return $callback();
-        } catch (ParamValidationFailedException $exception) {
-            throw new ParamValidationFailedException(
+        } catch (ParamInvalidTypeException $exception) {
+            throw new ParamInvalidTypeException(
                 "{$prefix}::{$exception->path}",
-                $exception->pipe,
+                $exception->expectedType,
                 $exception->value,
             );
-        } catch (ValidationFailedException $exception) {
-            throw new ParamValidationFailedException(
+        } catch (InvalidTypeException $exception) {
+            throw new ParamInvalidTypeException(
                 "{$prefix}",
-                $exception->pipe,
+                $exception->expectedType,
                 $exception->value,
             );
         } catch (ParamTypeNameRequiredException $exception) {

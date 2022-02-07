@@ -4,9 +4,10 @@ namespace Invoke\Schema;
 
 use Invoke\Data;
 use Invoke\Pipe;
-use Invoke\Pipes\ClassPipe;
-use Invoke\Utils;
+use Invoke\Type;
+use Invoke\Types\WrappedType;
 use Invoke\Utils\ReflectionUtils;
+use Invoke\Utils\Utils;
 use Invoke\Validator;
 use Invoke\Validators\ArrayOf;
 use ReflectionClass;
@@ -15,6 +16,8 @@ use ReflectionException;
 class TypeDocument extends Data
 {
     public string $name;
+
+    public string $schemaTypeName;
 
     public ?string $summary;
 
@@ -40,18 +43,18 @@ class TypeDocument extends Data
     /**
      * @throws ReflectionException
      */
-    public function render(Pipe $type): array
+    public function render(Type $type): array
     {
-        $name = $type->getTypeName();
+        $name = Utils::getPipeTypeName($type);
+        $schemaTypeName = Utils::getSchemaTypeName($type);
 
-        if ($type instanceof ClassPipe) {
-            $type = $type->class;
+        if ($type instanceof WrappedType) {
+            $type = $type->typeClass;
         }
 
         $validators = [];
         if ($type instanceof Validator) {
             $validators = [$type];
-            $type = $type->toType();
         }
 
         $isBuiltin = Utils::isPipeTypeBuiltin($type);
@@ -74,6 +77,7 @@ class TypeDocument extends Data
 
         return [
             "name" => $name,
+            "schemaTypeName" => $schemaTypeName,
             "summary" => $summary,
             "description" => $description,
 
@@ -82,7 +86,7 @@ class TypeDocument extends Data
             "isUnion" => $isUnion,
             "isFile" => $isFile,
 
-            "unionTypes" => array_map(fn(Pipe $pipe) => $pipe->getTypeName(), $unionTypes),
+            "unionTypes" => array_map(fn(Pipe $pipe) => Utils::getSchemaTypeName($pipe), $unionTypes),
             "params" => ParamDocument::many($params),
             "validators" => ValidatorDocument::many($validators),
         ];
