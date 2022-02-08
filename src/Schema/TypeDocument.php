@@ -2,6 +2,7 @@
 
 namespace Invoke\Schema;
 
+use BackedEnum;
 use Invoke\Data;
 use Invoke\Pipe;
 use Invoke\Type;
@@ -31,8 +32,13 @@ class TypeDocument extends Data
 
     public bool $isFile;
 
+    public bool $isEnum;
+
     #[ArrayOf("string")]
     public array $unionTypes;
+
+    #[ArrayOf(["string", "int"])]
+    public array $enumValues;
 
     #[ArrayOf(ParamDocument::class)]
     public array $params;
@@ -61,6 +67,7 @@ class TypeDocument extends Data
         $isData = Utils::isPipeTypeData($type);
         $isUnion = Utils::isPipeTypeUnion($type);
         $isFile = Utils::isPipeTypeFile($type);
+        $isEnum = Utils::isPipeTypeEnum($type);
 
         $reflectionClass = new ReflectionClass($type);
 
@@ -85,8 +92,10 @@ class TypeDocument extends Data
             "isData" => $isData,
             "isUnion" => $isUnion,
             "isFile" => $isFile,
+            "isEnum" => $isEnum,
 
             "unionTypes" => array_map(fn(Pipe $pipe) => Utils::getSchemaTypeName($pipe), $unionTypes),
+            "enumValues" => $isEnum ? array_map(fn(BackedEnum $pipe) => $pipe->value, $type->enumClass::cases()) : [],
             "params" => ParamDocument::many($params),
             "validators" => ValidatorDocument::many($validators),
         ];

@@ -33,4 +33,11 @@ abstract class Method extends TypeWithParams
 
         return [...$pipes, ReflectionUtils::extractPipeFromMethodReturnType($reflectionMethod)];
     }
+
+    public static function invoke(array $params = []): mixed
+    {
+        $method = Container::getInstance()->get(static::class);
+
+        return $method->pass($params);
+    }
 }

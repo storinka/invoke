@@ -28,7 +28,7 @@ class ArrayType implements Type, Singleton
     public static function getInstance(): static
     {
         if (empty(static::$instance)) {
-            static::$instance = Container::make(static::class);
+            static::$instance = Container::getInstance()->get(static::class);
         }
 
         return static::$instance;

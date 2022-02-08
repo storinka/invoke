@@ -29,7 +29,7 @@ class Pipeline
                 return (new WrappedType($pipe))->pass($value);
             }
 
-            return Container::make($pipe)->pass($value);
+            return Container::getInstance()->get($pipe)->pass($value);
         }
 
         throw new RuntimeException("Invalid pipe: $pipe");

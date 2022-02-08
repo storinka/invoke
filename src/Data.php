@@ -17,7 +17,7 @@ abstract class Data extends TypeWithParams
      */
     public static function from(mixed $input): static
     {
-        $instance = Container::make(static::class);
+        $instance = Container::getInstance()->get(static::class);
 
         return $instance->pass($input);
     }

@@ -7,6 +7,7 @@ use Invoke\HasUsedTypes;
 use Invoke\Method;
 use Invoke\Type;
 use Invoke\Types\AnyType;
+use Invoke\Types\EnumType;
 use Invoke\Types\NullType;
 use Invoke\Types\TypeWithParams;
 use Invoke\Types\UnionType;
@@ -50,13 +51,14 @@ class ReflectionUtils
         if ($reflectionType == null) {
             return AnyType::getInstance();
         } else if ($reflectionType instanceof ReflectionNamedType) {
+            $name = $reflectionType->getName();
+
             if ($reflectionType->isBuiltin()) {
-                $type = Utils::typeNameToPipe($reflectionType->getName());
+                $type = Utils::typeNameToPipe($name);
+            } else if (enum_exists($name) && !is_subclass_of($name, Type::class)) {
+                return new EnumType($name);
             } else {
-                if ($reflectionType->getName() === "static") {
-                    invoke_dd($reflectionType->getName());
-                }
-                $type = new WrappedType($reflectionType->getName());
+                $type = new WrappedType($name);
             }
 
             if ($reflectionType->allowsNull()) {

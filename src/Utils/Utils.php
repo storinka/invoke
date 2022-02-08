@@ -12,6 +12,7 @@ use Invoke\Type;
 use Invoke\Types\AnyType;
 use Invoke\Types\ArrayType;
 use Invoke\Types\BoolType;
+use Invoke\Types\EnumType;
 use Invoke\Types\FloatType;
 use Invoke\Types\IntType;
 use Invoke\Types\NullType;
@@ -98,6 +99,13 @@ class Utils
         $class = is_string($pipe) ? $pipe : $pipe::class;
 
         return $class === Binary::class || is_subclass_of($class, Binary::class);
+    }
+
+    public static function isPipeTypeEnum(Pipe|string $pipe): bool
+    {
+        $class = is_string($pipe) ? $pipe : $pipe::class;
+
+        return $class === EnumType::class || is_subclass_of($class, EnumType::class);
     }
 
     public static function isPipeTypeValidator(Pipe|string $pipe): bool
@@ -230,6 +238,8 @@ class Utils
     {
         if ($type instanceof WrappedType) {
             $class = $type->typeClass;
+        } else if ($type instanceof EnumType) {
+            $class = $type->enumClass;
         } else {
             $class = $type::class;
         }
@@ -240,6 +250,6 @@ class Utils
             $typeName = $type->getDynamicName();
         }
 
-        return "{$class}:{$typeName}";
+        return "{$class}:[{$typeName}]";
     }
 }
