@@ -2,7 +2,6 @@
 
 namespace Invoke;
 
-use Invoke\Exceptions\PipeException;
 use Invoke\Pipes\FunctionPipe;
 use Invoke\Utils\Utils;
 
@@ -79,31 +78,7 @@ class Invoke implements Pipe, Singleton
 
     public static function serve($modeOrPipe = HttpPipe::class, mixed $params = null)
     {
-        try {
-            $result = Pipeline::pass($modeOrPipe, $params);
-
-            echo json_encode([
-                "result" => $result,
-            ]);
-        } catch (PipeException $exception) {
-            http_response_code($exception->getHttpCode());
-
-            echo json_encode([
-                "code" => $exception->getHttpCode(),
-                "error" => $exception::getErrorName(),
-                "message" => $exception->getMessage(),
-            ]);
-        } catch (\Throwable $exception) {
-            invoke_dd($exception);
-            http_response_code(500);
-
-            echo json_encode([
-                "code" => $exception->getCode(),
-                "error" => "SERVER_ERROR",
-                "message" => $exception->getMessage(),
-                "trace" => $exception->getTrace(),
-            ]);
-        }
+        return Pipeline::pass($modeOrPipe, $params);
     }
 
     public static function isInputMode(): bool

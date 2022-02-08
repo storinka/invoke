@@ -27,7 +27,7 @@ function add(float $a, float $b): float
 
 Invoke::setup(["add"]);
 
-Invoke::serve();
+echo Invoke::serve();
 ```
 
 2. Run a server
@@ -88,7 +88,7 @@ Invoke::setup([
     "getUsers" => GetUsers::class,
 ]);
 
-Invoke::serve();
+echo Invoke::serve();
 ```
 
 4. Run a server and try to invoke:
