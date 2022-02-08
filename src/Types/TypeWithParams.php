@@ -108,7 +108,7 @@ class TypeWithParams implements Type, HasUsedTypes
                 "{$class->name}::{$name}"
             );
 
-            $this->{$name} = $value;
+            $this->setParamValue($name, $value);
         }
 
         return $this;
@@ -122,5 +122,10 @@ class TypeWithParams implements Type, HasUsedTypes
     public function getUsedTypes(): array
     {
         return ReflectionUtils::extractPipesFromParamsPipe($this);
+    }
+
+    protected function setParamValue(string $name, $value)
+    {
+        $this->{$name} = $value;
     }
 }

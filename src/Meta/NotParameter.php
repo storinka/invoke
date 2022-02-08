@@ -1,6 +1,6 @@
 <?php
 
-namespace Invoke\Attributes;
+namespace Invoke\Meta;
 
 use Attribute;
 

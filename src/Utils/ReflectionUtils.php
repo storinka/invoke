@@ -2,7 +2,7 @@
 
 namespace Invoke\Utils;
 
-use Invoke\Attributes\NotParameter;
+use Invoke\Meta\NotParameter;
 use Invoke\HasUsedTypes;
 use Invoke\Method;
 use Invoke\Type;
