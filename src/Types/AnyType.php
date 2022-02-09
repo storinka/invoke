@@ -2,8 +2,8 @@
 
 namespace Invoke\Types;
 
-use Invoke\Container;
-use Invoke\Singleton;
+use Invoke\Container\Container;
+use Invoke\Support\Singleton;
 use Invoke\Type;
 
 /**

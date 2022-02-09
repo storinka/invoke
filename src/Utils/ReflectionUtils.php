@@ -2,9 +2,10 @@
 
 namespace Invoke\Utils;
 
+use Invoke\Meta\Inject;
 use Invoke\Meta\NotParameter;
-use Invoke\HasUsedTypes;
 use Invoke\Method;
+use Invoke\Support\HasUsedTypes;
 use Invoke\Type;
 use Invoke\Types\AnyType;
 use Invoke\Types\EnumType;
@@ -89,6 +90,17 @@ class ReflectionUtils
         }
 
         return true;
+    }
+
+    public static function isPropertyDependency(ReflectionProperty $property): bool
+    {
+        foreach ($property->getAttributes() as $attribute) {
+            if ($attribute->getName() === Inject::class) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static function extractParamsPipes(ReflectionClass $class): array

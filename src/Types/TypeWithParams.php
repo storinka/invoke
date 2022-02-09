@@ -2,11 +2,12 @@
 
 namespace Invoke\Types;
 
+use Invoke\Container\Container;
 use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Exceptions\RequiredParamNotProvidedException;
-use Invoke\HasUsedTypes;
 use Invoke\Pipe;
 use Invoke\Pipeline;
+use Invoke\Support\HasUsedTypes;
 use Invoke\Type;
 use Invoke\Utils\ReflectionUtils;
 use Invoke\Utils\Utils;
@@ -41,7 +42,20 @@ class TypeWithParams implements Type, HasUsedTypes
         $class = new ReflectionClass($this);
         $properties = $class->getProperties();
 
+        $validators = [];
+
         foreach ($properties as $property) {
+            if (!ReflectionUtils::isPropertyDependency($property)) {
+                $name = $property->getName();
+                $type = $property->getType()->getName();
+
+                $value = Container::getInstance()->get($type);
+
+                $this->setParamValue($name, $value);
+
+                continue;
+            }
+
             if (!ReflectionUtils::isPropertyParam($property)) {
                 continue;
             }
@@ -80,7 +94,9 @@ class TypeWithParams implements Type, HasUsedTypes
                 } else if (is_object($input)) {
                     // if input is an object,
                     // check if param exist or try to use default value
-                    if (!property_exists($input, $name)) {
+                    if (property_exists($input, $name)) {
+                        $value = $input->{$name};
+                    } else {
                         if ($property->hasDefaultValue()) {
                             continue;
                         } else {
@@ -99,9 +115,9 @@ class TypeWithParams implements Type, HasUsedTypes
                 function () use ($name, $property, &$value) {
                     foreach ($property->getAttributes() as $attribute) {
                         if (is_subclass_of($attribute->getName(), Pipe::class)) {
-                            $validationPipe = $attribute->newInstance();
+                            $attributePipe = $attribute->newInstance();
 
-                            $value = $validationPipe->pass($value);
+                            $value = $attributePipe->pass($value);
                         }
                     }
                 },

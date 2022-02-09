@@ -2,10 +2,10 @@
 
 namespace Invoke\Types;
 
-use Invoke\Container;
+use Invoke\Container\Container;
 use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Invoke;
-use Invoke\Singleton;
+use Invoke\Support\Singleton;
 use Invoke\Type;
 
 /**

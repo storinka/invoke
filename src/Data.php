@@ -2,6 +2,7 @@
 
 namespace Invoke;
 
+use Invoke\Container\Container;
 use Invoke\Types\TypeWithParams;
 
 /**
@@ -17,7 +18,7 @@ abstract class Data extends TypeWithParams
      */
     public static function from(mixed $input): static
     {
-        $instance = Container::getInstance()->get(static::class);
+        $instance = Container::getInstance()->make(static::class);
 
         return $instance->pass($input);
     }

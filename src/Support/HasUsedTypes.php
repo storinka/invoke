@@ -1,6 +1,8 @@
 <?php
 
-namespace Invoke;
+namespace Invoke\Support;
+
+use Invoke\Type;
 
 /**
  * Says that class has types which should be shown in documentation.

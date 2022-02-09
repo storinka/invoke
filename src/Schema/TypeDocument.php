@@ -66,7 +66,7 @@ class TypeDocument extends Data
         $isBuiltin = Utils::isPipeTypeBuiltin($type);
         $isData = Utils::isPipeTypeData($type);
         $isUnion = Utils::isPipeTypeUnion($type);
-        $isFile = Utils::isPipeTypeFile($type);
+        $isFile = Utils::isPipeTypeBinary($type);
         $isEnum = Utils::isPipeTypeEnum($type);
 
         $reflectionClass = new ReflectionClass($type);

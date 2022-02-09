@@ -1,6 +1,6 @@
 <?php
 
-namespace Invoke;
+namespace Invoke\Support;
 
 use Invoke\Validators\ArrayOf;
 

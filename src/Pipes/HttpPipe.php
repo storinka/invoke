@@ -1,8 +1,11 @@
 <?php
 
-namespace Invoke;
+namespace Invoke\Pipes;
 
 use Invoke\Exceptions\PipeException;
+use Invoke\Invoke;
+use Invoke\Pipe;
+use Invoke\Pipeline;
 
 /**
  * HTTP request handler pipe.
@@ -57,7 +60,31 @@ class HttpPipe implements Pipe
 
             header("Content-Type: application/json");
 
+            if (!empty($value)) {
+                if (!empty($beforeInvoke = $value["beforeInvoke"])) {
+                    if (is_array($beforeInvoke)) {
+                        foreach ($beforeInvoke as $pipe) {
+                            $value = Pipeline::pass($pipe, $value);
+                        }
+                    } else {
+                        $value = Pipeline::pass($beforeInvoke, $value);
+                    }
+                }
+            }
+
             $result = Invoke::invoke($method, $params);
+
+            if (!empty($value)) {
+                if (!empty($afterInvoke = $value["afterInvoke"])) {
+                    if (is_array($afterInvoke)) {
+                        foreach ($afterInvoke as $pipe) {
+                            $result = Pipeline::pass($pipe, $result);
+                        }
+                    } else {
+                        $result = Pipeline::pass($afterInvoke, $result);
+                    }
+                }
+            }
 
             return json_encode([
                 "result" => $result,

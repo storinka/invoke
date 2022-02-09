@@ -2,6 +2,7 @@
 
 namespace Invoke;
 
+use Invoke\Container\Container;
 use Invoke\Types\TypeWithParams;
 use Invoke\Utils\ReflectionUtils;
 use ReflectionClass;

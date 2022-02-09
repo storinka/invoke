@@ -4,8 +4,8 @@ namespace Invoke\Types;
 
 use BackedEnum;
 use Invoke\Exceptions\InvalidTypeException;
-use Invoke\HasDynamicName;
 use Invoke\Pipeline;
+use Invoke\Support\HasDynamicName;
 use Invoke\Type;
 
 class EnumType implements Type, HasDynamicName

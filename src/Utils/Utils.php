@@ -3,14 +3,15 @@
 namespace Invoke\Utils;
 
 use Exception;
-use Invoke\Binary;
 use Invoke\Data;
-use Invoke\HasDynamicName;
-use Invoke\HasUsedTypes;
 use Invoke\Pipe;
+use Invoke\Support\HasDynamicName;
+use Invoke\Support\HasUsedTypes;
+use Invoke\Support\Singleton;
 use Invoke\Type;
 use Invoke\Types\AnyType;
 use Invoke\Types\ArrayType;
+use Invoke\Types\BinaryType;
 use Invoke\Types\BoolType;
 use Invoke\Types\EnumType;
 use Invoke\Types\FloatType;
@@ -94,11 +95,11 @@ class Utils
         return $class === UnionType::class || is_subclass_of($class, UnionType::class);
     }
 
-    public static function isPipeTypeFile(Pipe|string $pipe): bool
+    public static function isPipeTypeBinary(Pipe|string $pipe): bool
     {
         $class = is_string($pipe) ? $pipe : $pipe::class;
 
-        return $class === Binary::class || is_subclass_of($class, Binary::class);
+        return $class === BinaryType::class || is_subclass_of($class, BinaryType::class);
     }
 
     public static function isPipeTypeEnum(Pipe|string $pipe): bool
@@ -217,14 +218,8 @@ class Utils
 
     public static function getPipeTypeName(Type|string $pipe): string
     {
-        if (is_string($pipe)) {
-            if (class_exists($pipe)) {
-                if (is_subclass_of($pipe, Type::class)) {
-                    return $pipe::getName();
-                }
-            }
-
-            return $pipe;
+        if (is_string($pipe) && class_exists($pipe) && is_subclass_of($pipe, Type::class)) {
+            return $pipe::getName();
         }
 
         if ($pipe instanceof HasDynamicName) {

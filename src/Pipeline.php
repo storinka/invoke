@@ -2,10 +2,14 @@
 
 namespace Invoke;
 
+use Invoke\Container\Container;
 use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Exceptions\ParamInvalidTypeException;
 use Invoke\Exceptions\ParamTypeNameRequiredException;
+use Invoke\Exceptions\ParamValidationFailedException;
 use Invoke\Exceptions\TypeNameRequiredException;
+use Invoke\Exceptions\ValidationFailedException;
+use Invoke\Support\Singleton;
 use Invoke\Types\WrappedType;
 use RuntimeException;
 
@@ -58,6 +62,16 @@ class Pipeline
         } catch (TypeNameRequiredException $exception) {
             throw new ParamTypeNameRequiredException(
                 "{$prefix}",
+            );
+        } catch (ParamValidationFailedException $exception) {
+            throw new ParamValidationFailedException(
+                "{$prefix}::{$exception->path}",
+                $exception->getMessage()
+            );
+        } catch (ValidationFailedException $exception) {
+            throw new ParamValidationFailedException(
+                "{$prefix}",
+                $exception->getMessage()
             );
         }
     }

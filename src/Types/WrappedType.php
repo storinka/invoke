@@ -2,11 +2,11 @@
 
 namespace Invoke\Types;
 
-use Invoke\Container;
+use Invoke\Container\Container;
 use Invoke\Exceptions\InvalidTypeException;
-use Invoke\HasDynamicName;
-use Invoke\HasUsedTypes;
 use Invoke\Pipe;
+use Invoke\Support\HasDynamicName;
+use Invoke\Support\HasUsedTypes;
 use Invoke\Type;
 use Invoke\Utils\ReflectionUtils;
 use Invoke\Utils\Utils;

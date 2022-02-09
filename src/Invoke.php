@@ -2,8 +2,13 @@
 
 namespace Invoke;
 
+use Invoke\Container\Container;
+use Invoke\Container\InvokeContainerInterface;
 use Invoke\Pipes\FunctionPipe;
+use Invoke\Pipes\HttpPipe;
+use Invoke\Support\Singleton;
 use Invoke\Utils\Utils;
+use Psr\Container\ContainerInterface;
 
 /**
  * Invoke pipe itself.
@@ -61,6 +66,12 @@ class Invoke implements Pipe, Singleton
 
     public static function setup(array $methods = [])
     {
+        $container = Container::getInstance();
+
+        $container->singleton(Invoke::class, Invoke::getInstance());
+        $container->singleton(ContainerInterface::class, $container);
+        $container->singleton(InvokeContainerInterface::class, $container);
+
         foreach ($methods as $name => $method) {
             if (is_numeric($name) && is_string($method)) {
                 unset($methods[$name]);
@@ -99,7 +110,7 @@ class Invoke implements Pipe, Singleton
     public static function getInstance(): static
     {
         if (empty(static::$instance)) {
-            static::$instance = Container::getInstance()->get(static::class);
+            static::$instance = Container::getInstance()->make(static::class);
         }
 
         return static::$instance;

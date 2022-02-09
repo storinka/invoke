@@ -3,8 +3,10 @@
 namespace Invoke\Validators;
 
 use Attribute;
-use Invoke\HasDynamicName;
-use Invoke\HasUsedTypes;
+use Invoke\Exceptions\InvalidTypeException;
+use Invoke\Exceptions\ValidationFailedException;
+use Invoke\Support\HasDynamicName;
+use Invoke\Support\HasUsedTypes;
 use Invoke\Type;
 use Invoke\Types\ArrayType;
 use Invoke\Utils\Utils;
@@ -30,7 +32,11 @@ class ArrayOf implements Validator, Type, HasDynamicName, HasUsedTypes
         $value = ArrayType::getInstance()->pass($value);
 
         foreach ($value as $index => $item) {
-            $value[$index] = $this->itemPipe->pass($item);
+            try {
+                $value[$index] = $this->itemPipe->pass($item);
+            } catch (InvalidTypeException|ValidationFailedException) {
+                // ignore
+            }
         }
 
         return $value;
