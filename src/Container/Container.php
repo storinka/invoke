@@ -28,6 +28,10 @@ class Container implements Singleton, InvokeContainerInterface
         if (isset($this->singletons[$id])) {
             $singleton = $this->singletons[$id];
 
+            if (is_object($singleton)) {
+                return $singleton;
+            }
+
             return $this->singletons[$id] = $this->make($singleton);
         }
 
