@@ -37,11 +37,21 @@ abstract class Data extends TypeWithParams
     }
 
     /**
-     * @param array $items
+     * @param iterable $items
      * @return static[]
      */
-    public static function many(array $items): array
+    public static function many(iterable $items): array
     {
-        return array_map(fn($item) => static::from($item), $items);
+        if (is_array($items)) {
+            return array_map(fn($item) => static::from($item), $items);
+        }
+
+        $result = [];
+
+        foreach ($items as $item) {
+            $result[] = static::from($item);
+        }
+
+        return $result;
     }
 }
