@@ -3,9 +3,10 @@
 namespace Invoke\Pipes;
 
 use Closure;
-use Invoke\AbstractPipe;
+use Invoke\Container\Container;
+use Invoke\Pipe;
 
-class FunctionPipe extends AbstractPipe
+class FunctionPipe implements Pipe
 {
     public Closure|string $function;
 
@@ -16,9 +17,6 @@ class FunctionPipe extends AbstractPipe
 
     public function pass(mixed $value): mixed
     {
-        return call_user_func_array(
-            $this->function,
-            $value
-        );
+        return Container::getInstance()->resolveFunction([$this->function], $value);
     }
 }
