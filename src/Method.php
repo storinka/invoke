@@ -18,6 +18,10 @@ abstract class Method extends TypeWithParams
 {
     public function pass(mixed $input): mixed
     {
+        if ($input instanceof Stop) {
+            return $input;
+        }
+
         Invoke::setInputMode(true);
 
         parent::pass($input);

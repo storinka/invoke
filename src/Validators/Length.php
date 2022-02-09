@@ -4,6 +4,7 @@ namespace Invoke\Validators;
 
 use Attribute;
 use Invoke\Exceptions\ValidationFailedException;
+use Invoke\Stop;
 use Invoke\Validator;
 
 /**
@@ -23,6 +24,10 @@ class Length implements Validator
 
     public function pass(mixed $value): mixed
     {
+        if ($value instanceof Stop) {
+            return $value;
+        }
+
         $length = mb_strlen($value);
 
         if (!is_null($this->min)) {

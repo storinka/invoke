@@ -5,6 +5,7 @@ namespace Invoke\Types;
 use BackedEnum;
 use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Pipeline;
+use Invoke\Stop;
 use Invoke\Support\HasDynamicName;
 use Invoke\Type;
 
@@ -21,6 +22,10 @@ class EnumType implements Type, HasDynamicName
 
     public function pass(mixed $value): mixed
     {
+        if ($value instanceof Stop) {
+            return $value;
+        }
+        
         if (is_object($value)) {
             if ($value::class === $this->enumClass) {
                 return $value;

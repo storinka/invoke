@@ -6,6 +6,7 @@ use Invoke\Exceptions\PipeException;
 use Invoke\Invoke;
 use Invoke\Pipe;
 use Invoke\Pipeline;
+use Invoke\Stop;
 
 /**
  * HTTP request handler pipe.
@@ -14,6 +15,10 @@ class HttpPipe implements Pipe
 {
     public function pass(mixed $value): mixed
     {
+        if ($value instanceof Stop) {
+            return $value;
+        }
+        
         try {
             $url = $_SERVER["REQUEST_URI"];
 

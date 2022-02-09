@@ -2,8 +2,8 @@
 
 namespace Invoke\Types;
 
-use Invoke\Container\Container;
 use Invoke\Exceptions\InvalidTypeException;
+use Invoke\Stop;
 use Invoke\Support\Singleton;
 use Invoke\Type;
 
@@ -18,6 +18,10 @@ class StringType implements Type, Singleton
 
     public function pass(mixed $value): mixed
     {
+        if ($value instanceof Stop) {
+            return $value;
+        }
+
         if (gettype($value) !== "string") {
             throw new InvalidTypeException($this, $value);
         }

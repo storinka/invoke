@@ -31,6 +31,10 @@ class Invoke implements Pipe, Singleton
 
     public function pass(mixed $value): mixed
     {
+        if ($value instanceof Stop) {
+            return $value;
+        }
+
         $name = $value["name"];
         $params = $value["params"];
 

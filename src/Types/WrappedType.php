@@ -5,6 +5,7 @@ namespace Invoke\Types;
 use Invoke\Container\Container;
 use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Pipe;
+use Invoke\Stop;
 use Invoke\Support\HasDynamicName;
 use Invoke\Support\HasUsedTypes;
 use Invoke\Type;
@@ -29,6 +30,10 @@ class WrappedType implements Type, HasDynamicName, HasUsedTypes
 
     public function pass(mixed $value): mixed
     {
+        if ($value instanceof Stop) {
+            return $value;
+        }
+        
         if (is_object($value)) {
             if ($value::class === $this->typeClass) {
                 return $value;

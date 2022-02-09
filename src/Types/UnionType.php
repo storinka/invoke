@@ -7,6 +7,7 @@ use Invoke\Exceptions\RequiredParamNotProvidedException;
 use Invoke\Exceptions\TypeNameRequiredException;
 use Invoke\Pipe;
 use Invoke\Pipeline;
+use Invoke\Stop;
 use Invoke\Support\HasDynamicName;
 use Invoke\Support\HasUsedTypes;
 use Invoke\Support\Singleton;
@@ -55,6 +56,10 @@ class UnionType implements Type, HasDynamicName, HasUsedTypes
 
     public function pass(mixed $value): mixed
     {
+        if ($value instanceof Stop) {
+            return $value;
+        }
+        
         if ($this->paramsPipesCount > 1) {
             if (is_array($value)) {
                 if (invoke_is_assoc($value)) {

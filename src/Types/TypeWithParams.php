@@ -7,6 +7,7 @@ use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Exceptions\RequiredParamNotProvidedException;
 use Invoke\Pipe;
 use Invoke\Pipeline;
+use Invoke\Stop;
 use Invoke\Support\HasUsedTypes;
 use Invoke\Type;
 use Invoke\Utils\ReflectionUtils;
@@ -24,6 +25,10 @@ class TypeWithParams implements Type, HasUsedTypes
      */
     public function pass(mixed $input): mixed
     {
+        if ($value instanceof Stop) {
+            return $value;
+        }
+
         $reflectionClass = ReflectionUtils::getClass($this::class);
 
         $parameters = $this->_validateParameters(

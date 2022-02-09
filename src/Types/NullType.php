@@ -2,9 +2,9 @@
 
 namespace Invoke\Types;
 
-use Invoke\Container\Container;
 use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Invoke;
+use Invoke\Stop;
 use Invoke\Support\Singleton;
 use Invoke\Type;
 
@@ -19,6 +19,10 @@ class NullType implements Type, Singleton
 
     public function pass(mixed $value): mixed
     {
+        if ($value instanceof Stop) {
+            return $value;
+        }
+
         $type = gettype($value);
 
         if (Invoke::isInputMode() && Invoke::config("inputMode.convertStrings")) {
