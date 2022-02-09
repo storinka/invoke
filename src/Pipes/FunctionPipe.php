@@ -17,6 +17,6 @@ class FunctionPipe implements Pipe
 
     public function pass(mixed $value): mixed
     {
-        return Container::getInstance()->resolveFunction([$this->function], $value);
+        return Container::getInstance()->resolveFunction($this->function, $value);
     }
 }
