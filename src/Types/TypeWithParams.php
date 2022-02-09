@@ -42,10 +42,8 @@ class TypeWithParams implements Type, HasUsedTypes
         $class = new ReflectionClass($this);
         $properties = $class->getProperties();
 
-        $validators = [];
-
         foreach ($properties as $property) {
-            if (!ReflectionUtils::isPropertyDependency($property)) {
+            if (ReflectionUtils::isPropertyDependency($property)) {
                 $name = $property->getName();
                 $type = $property->getType()->getName();
 
