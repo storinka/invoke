@@ -18,6 +18,7 @@ use phpDocumentor\Reflection\DocBlockFactory;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionNamedType;
+use ReflectionParameter;
 use ReflectionProperty;
 use ReflectionUnionType;
 use Reflector;
@@ -27,6 +28,17 @@ use Reflector;
  */
 class ReflectionUtils
 {
+    protected static array $cachedClasses;
+
+    public static function getClass(string $class): ReflectionClass
+    {
+        if (empty(static::$cachedClasses[$class])) {
+            static::$cachedClasses[$class] = new ReflectionClass($class);
+        }
+
+        return static::$cachedClasses[$class];
+    }
+
     public static function extractComment(Reflector $reflectionClass): array
     {
         $comment = [
@@ -77,10 +89,12 @@ class ReflectionUtils
         return new WrappedType($reflectionType->getName());
     }
 
-    public static function isPropertyParam(ReflectionProperty $property): bool
+    public static function isPropertyParam(ReflectionProperty|ReflectionParameter $property): bool
     {
-        if (!$property->isPublic() || $property->isStatic()) {
-            return false;
+        if ($property instanceof ReflectionProperty) {
+            if (!$property->isPublic() || $property->isStatic()) {
+                return false;
+            }
         }
 
         foreach ($property->getAttributes() as $attribute) {
@@ -92,7 +106,7 @@ class ReflectionUtils
         return true;
     }
 
-    public static function isPropertyDependency(ReflectionProperty $property): bool
+    public static function isPropertyDependency(ReflectionProperty|ReflectionParameter $property): bool
     {
         foreach ($property->getAttributes() as $attribute) {
             if ($attribute->getName() === Inject::class) {
