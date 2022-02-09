@@ -3,6 +3,7 @@
 namespace Invoke\Types;
 
 use Invoke\Stop;
+use Psr\Http\Message\StreamInterface;
 
 class HttpFile implements BinaryType
 {
@@ -18,5 +19,15 @@ class HttpFile implements BinaryType
     public static function getName(): string
     {
         return "file";
+    }
+
+    public function getType(): string
+    {
+        // TODO: Implement getType() method.
+    }
+
+    public function getStream(): StreamInterface
+    {
+        // TODO: Implement getStream() method.
     }
 }

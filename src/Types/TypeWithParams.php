@@ -25,8 +25,8 @@ class TypeWithParams implements Type, HasUsedTypes
      */
     public function pass(mixed $input): mixed
     {
-        if ($value instanceof Stop) {
-            return $value;
+        if ($input instanceof Stop) {
+            return $input;
         }
 
         $reflectionClass = ReflectionUtils::getClass($this::class);

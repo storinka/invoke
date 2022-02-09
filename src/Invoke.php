@@ -5,7 +5,9 @@ namespace Invoke;
 use Invoke\Container\Container;
 use Invoke\Container\InvokeContainerInterface;
 use Invoke\Pipes\FunctionPipe;
-use Invoke\Pipes\HttpPipe;
+use Invoke\Pipes\HandleRequest;
+use Invoke\Pipes\ParseRequest;
+use Invoke\Pipes\EmitResponse;
 use Invoke\Support\Singleton;
 use Invoke\Utils\Utils;
 use Psr\Container\ContainerInterface;
@@ -21,7 +23,7 @@ class Invoke implements Pipe, Singleton
     ];
     protected array $config = [
         "server" => [
-            "pathPrefix" => "invoke"
+            "pathPrefix" => "/"
         ],
         "inputMode" => [
             "convertStrings" => true,
@@ -68,8 +70,14 @@ class Invoke implements Pipe, Singleton
         return Pipeline::pass($method, $params);
     }
 
-    public static function setup(array $methods = [])
+    public static function hasMethod(string $name): bool
     {
+        return in_array($name, array_keys(static::getMethods()));
+    }
+
+    public static function setup(array $methods = [], array $config = [])
+    {
+        $instance = Invoke::getInstance();
         $container = Container::getInstance();
 
         $container->singleton(Invoke::class, Invoke::getInstance());
@@ -88,12 +96,32 @@ class Invoke implements Pipe, Singleton
             }
         }
 
-        static::getInstance()->methods = $methods;
+
+        $instance->methods = $methods;
+        $instance->config = array_merge_recursive2($instance->config, $config);;
     }
 
-    public static function serve($modeOrPipe = HttpPipe::class, mixed $params = null)
+    public static function serve($pipe = null, mixed $params = null)
     {
-        return Pipeline::pass($modeOrPipe, $params);
+        if (!$pipe) {
+            $pipe = [
+                ParseRequest::class,
+                HandleRequest::class,
+                EmitResponse::class,
+            ];
+        }
+
+        $value = $params;
+
+        if (is_array($pipe)) {
+            foreach ($pipe as $p) {
+                $value = Pipeline::pass($p, $value);
+            }
+        } else {
+            $value = Pipeline::pass($pipe, $value);
+        }
+
+        return $value;
     }
 
     public static function isInputMode(): bool
