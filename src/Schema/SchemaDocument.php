@@ -25,12 +25,14 @@ class SchemaDocument extends Data
         $pipes = [];
 
         foreach (Invoke::getMethods() as $name => $method) {
-            $methods[] = [
-                "name" => $name,
-                "method" => $method,
-            ];
+            if (is_string($method) && class_exists($method)) {
+                $methods[] = [
+                    "name" => $name,
+                    "method" => $method,
+                ];
 
-            array_push($pipes, ...Utils::extractUsedTypes($method));
+                array_push($pipes, ...Utils::extractUsedTypes($method));
+            }
         }
 
         $pipes = TypeDocument::many($pipes);
