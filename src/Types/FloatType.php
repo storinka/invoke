@@ -43,7 +43,7 @@ class FloatType implements Type, Singleton
     public static function getInstance(): static
     {
         if (empty(static::$instance)) {
-            static::$instance = Container::getInstance()->get(static::class);
+            static::$instance = new static;
         }
 
         return static::$instance;

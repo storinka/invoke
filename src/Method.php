@@ -37,7 +37,7 @@ abstract class Method extends TypeWithParams
 
     public static function invoke(array $params = []): mixed
     {
-        $method = Container::getInstance()->get(static::class);
+        $method = Container::getInstance()->make(static::class);
 
         return $method->pass($params);
     }

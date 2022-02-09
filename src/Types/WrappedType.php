@@ -36,7 +36,7 @@ class WrappedType implements Type, HasDynamicName, HasUsedTypes
         }
 
         if (is_subclass_of($this->typeClass, Pipe::class)) {
-            $newPipe = Container::getInstance()->get($this->typeClass);
+            $newPipe = Container::getInstance()->make($this->typeClass);
 
             return $newPipe->pass($value);
         }

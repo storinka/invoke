@@ -2,7 +2,6 @@
 
 namespace Invoke\Types;
 
-use Invoke\Container\Container;
 use Invoke\Support\Singleton;
 use Invoke\Type;
 
@@ -23,7 +22,7 @@ class AnyType implements Type, Singleton
     public static function getInstance(): static
     {
         if (empty(static::$instance)) {
-            static::$instance = Container::getInstance()->get(static::class);
+            static::$instance = new static;
         }
 
         return static::$instance;
