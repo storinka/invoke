@@ -4,7 +4,7 @@ namespace Invoke\Container;
 
 use InvalidArgumentException;
 use Invoke\Support\Singleton;
-use ReflectionClass;
+use Invoke\Utils\ReflectionUtils;
 use ReflectionFunction;
 
 class Container implements Singleton, InvokeContainerInterface
@@ -99,7 +99,7 @@ class Container implements Singleton, InvokeContainerInterface
 
     public function resolveMethod(object $object, string $method)
     {
-        $reflectionClass = new ReflectionClass($object);
+        $reflectionClass = ReflectionUtils::getClass($object);
         $reflectionMethod = $reflectionClass->getMethod($method);
 
         $params = $this->resolveParameters($reflectionMethod->getParameters());
@@ -109,7 +109,7 @@ class Container implements Singleton, InvokeContainerInterface
 
     public function resolveStaticMethod(string $class, string $method)
     {
-        $reflectionClass = new ReflectionClass($class);
+        $reflectionClass = ReflectionUtils::getClass($class);
         $reflectionMethod = $reflectionClass->getMethod($method);
 
         $params = $this->resolveParameters($reflectionMethod->getParameters());
@@ -119,7 +119,7 @@ class Container implements Singleton, InvokeContainerInterface
 
     public function resolveClass(string $class, array $parameters = [])
     {
-        $reflectionClass = new ReflectionClass($class);
+        $reflectionClass = ReflectionUtils::getClass($class);
 
         if ($reflectionClass->isInstantiable()) {
             $reflectionConstructor = $reflectionClass->getConstructor();
@@ -130,7 +130,20 @@ class Container implements Singleton, InvokeContainerInterface
                 $params = [];
             }
 
-            return new $class(...$params);
+            $instance = new $class(...$params);
+
+            foreach ($reflectionClass->getProperties() as $reflectionProperty) {
+                if (ReflectionUtils::isPropertyDependency($reflectionProperty)) {
+                    $name = $reflectionProperty->getName();
+                    $type = $reflectionProperty->getType()->getName();
+
+                    $value = Container::getInstance()->get($type);
+
+                    $this->{$name} = $value;
+                }
+            }
+
+            return $instance;
         }
 
         throw new InvalidArgumentException("The class is not instantiable.");

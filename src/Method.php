@@ -43,7 +43,7 @@ abstract class Method extends TypeWithParams
     {
         $pipes = parent::getUsedTypes();
 
-        $reflectionClass = new ReflectionClass($this);
+        $reflectionClass = ReflectionUtils::getClass($this::classs);
         $reflectionMethod = $reflectionClass->getMethod("handle");
 
         return [...$pipes, ReflectionUtils::extractPipeFromMethodReturnType($reflectionMethod)];

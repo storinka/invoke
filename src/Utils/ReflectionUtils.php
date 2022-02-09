@@ -170,7 +170,7 @@ class ReflectionUtils
     {
         $pipes = [];
 
-        $reflectionClass = new ReflectionClass($pipe);
+        $reflectionClass = ReflectionUtils::getClass($pipe);
         $params = ReflectionUtils::extractParamsPipes($reflectionClass);
         foreach ($params as $param) {
             $pipes[] = $param["type"];
