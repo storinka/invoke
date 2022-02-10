@@ -3,8 +3,9 @@
 namespace Invoke\Pipes;
 
 use Invoke\Pipe;
-use Invoke\Streams\JsonStream;
+use Invoke\Streams\JsonStreamDecorator;
 use Invoke\Types\BinaryType;
+use Nyholm\Psr7\Stream;
 
 class ResultToStream implements Pipe
 {
@@ -17,7 +18,7 @@ class ResultToStream implements Pipe
         $array = $this->toArray($result);
         $json = $this->toJson($array);
 
-        return JsonStream::create($json);
+        return new JsonStreamDecorator(Stream::create($json));
     }
 
     protected function toArray(mixed $result): array

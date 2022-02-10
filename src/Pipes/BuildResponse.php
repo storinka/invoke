@@ -5,8 +5,9 @@ namespace Invoke\Pipes;
 use Invoke\Container;
 use Invoke\Pipe;
 use Invoke\Stop;
-use Invoke\Streams\JsonStream;
-use Invoke\Streams\TextStream;
+use Invoke\Streams\JsonStreamDecorator;
+use Invoke\Streams\StreamDecorator;
+use Invoke\Streams\TextStreamDecorator;
 use Invoke\Types\BinaryType;
 use Nyholm\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
@@ -38,11 +39,15 @@ class BuildResponse implements Pipe
         }
 
         if (!$response->hasHeader("Content-Type")) {
-            if ($stream instanceof JsonStream) {
+            if ($stream instanceof JsonStreamDecorator) {
                 $response = $response->withHeader("Content-Type", "application/json");
-            } else if ($stream instanceof TextStream) {
+            } else if ($stream instanceof TextStreamDecorator) {
                 $response = $response->withHeader("Content-Type", "text/html");
             }
+        }
+
+        if ($stream instanceof StreamDecorator) {
+            $stream = $stream->getStream();
         }
 
         return $response->withBody($stream);
