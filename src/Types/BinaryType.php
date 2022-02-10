@@ -2,17 +2,15 @@
 
 namespace Invoke\Types;
 
+use Invoke\Streams\StreamDecorator;
 use Invoke\Type;
-use Psr\Http\Message\StreamInterface;
 
 /**
  * Binary data type.
  *
  * @see HttpFile
  */
-interface BinaryType extends Type
+interface BinaryType extends Type, StreamDecorator
 {
     public function getType(): string;
-
-    public function getStream(): StreamInterface;
 }

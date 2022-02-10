@@ -8,7 +8,6 @@ use Invoke\Stop;
 use Invoke\Streams\JsonStreamDecorator;
 use Invoke\Streams\StreamDecorator;
 use Invoke\Streams\TextStreamDecorator;
-use Invoke\Types\BinaryType;
 use Nyholm\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -26,17 +25,13 @@ class BuildResponse implements Pipe
             return $stream;
         }
 
-        if (!($stream instanceof StreamInterface)) {
+        if (!($stream instanceof StreamInterface) && !($stream instanceof StreamDecorator)) {
             throw new RuntimeException("The value for BuildResponse pipe must be a StreamInterface.");
         }
 
         $response = new Response();
 
         Container::singleton(ResponseInterface::class, $response);
-
-        if ($stream instanceof BinaryType) {
-            $stream = $stream->getStream();
-        }
 
         if (!$response->hasHeader("Content-Type")) {
             if ($stream instanceof JsonStreamDecorator) {
