@@ -3,6 +3,7 @@
 namespace Invoke;
 
 use Invoke\Container\InvokeContainerInterface;
+use Invoke\Meta\MethodExtension;
 use Invoke\Pipelines\DefaultErrorPipeline;
 use Invoke\Pipelines\DefaultPipeline;
 use Invoke\Pipes\FunctionPipe;
@@ -18,6 +19,8 @@ final class Invoke implements Pipe, Singleton
 {
     protected static Invoke $instance;
 
+    protected static array $methodExtensions = [
+    ];
     protected array $methods = [
     ];
     protected array $config = [
@@ -133,5 +136,29 @@ final class Invoke implements Pipe, Singleton
         }
 
         return static::$instance;
+    }
+
+    /**
+     * @template T of \Invoke\Meta\MethodExtension
+     *
+     * @param class-string<T> $extensionClass
+     * @param array $parameters
+     * @return T
+     */
+    public static function registerMethodExtension(string $extensionClass, array $parameters = []): mixed
+    {
+        $extension = Container::make($extensionClass, $parameters);
+
+        Invoke::$methodExtensions[] = $extension;
+
+        return $extension;
+    }
+
+    /**
+     * @return MethodExtension[]
+     */
+    public static function getMethodExtensions(): array
+    {
+        return Invoke::$methodExtensions;
     }
 }

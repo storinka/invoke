@@ -1,5 +1,7 @@
 <?php
 
+use Invoke\Invoke;
+
 /**
  * Get class name without namespace.
  *
@@ -90,4 +92,11 @@ function invoke_array_unique_by_key($array, $property): array
     $tempArray = array_unique(array_column($array, $property));
     $moreUniqueArray = array_values(array_intersect_key($array, $tempArray));
     return $moreUniqueArray;
+}
+
+function invoke(string $method,
+                array  $params = [],
+                string $version = null)
+{
+    return Invoke::invoke($method, $params);
 }

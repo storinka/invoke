@@ -5,6 +5,6 @@ namespace Invoke\Meta;
 use Attribute;
 
 #[Attribute]
-interface Extension
+interface MethodTraitExtension
 {
 }

@@ -2,7 +2,10 @@
 
 namespace Invoke\Utils;
 
+use Invoke\Invoke;
 use Invoke\Meta\Inject;
+use Invoke\Meta\MethodExtension;
+use Invoke\Meta\MethodTraitExtension;
 use Invoke\Meta\NotParameter;
 use Invoke\Method;
 use Invoke\Support\HasUsedTypes;
@@ -26,9 +29,11 @@ use Reflector;
 /**
  * Common utils to work with reflection.
  */
-class ReflectionUtils
+final class ReflectionUtils
 {
     protected static array $cachedClasses;
+    protected static array $cachedMethodTraitExtensions;
+    protected static array $cachedMethodAttributeExtensions;
 
     public static function getClass(string $class): ReflectionClass
     {
@@ -37,6 +42,91 @@ class ReflectionUtils
         }
 
         return static::$cachedClasses[$class];
+    }
+
+    /**
+     * @param string $methodClass
+     * @return array
+     */
+    public static function extractMethodTraitExtensions(string $methodClass): array
+    {
+        if (isset(static::$cachedMethodTraitExtensions[$methodClass])) {
+            return static::$cachedMethodTraitExtensions[$methodClass];
+        }
+
+        static::$cachedMethodTraitExtensions[$methodClass] = [];
+
+        foreach (class_uses_deep($methodClass) as $trait) {
+            $reflectionTrait = ReflectionUtils::getClass($trait);
+
+            if ($reflectionTrait->getAttributes(MethodTraitExtension::class)) {
+                static::$cachedMethodTraitExtensions[$methodClass][] = $trait;
+            }
+        }
+
+        return static::$cachedMethodTraitExtensions[$methodClass];
+    }
+
+    /**
+     * @param string $methodClass
+     * @return MethodExtension[]
+     */
+    public static function extractMethodAttributeExtensions(string $methodClass): array
+    {
+        if (isset(ReflectionUtils::$cachedMethodAttributeExtensions[$methodClass])) {
+            return ReflectionUtils::$cachedMethodAttributeExtensions[$methodClass];
+        }
+
+        ReflectionUtils::$cachedMethodAttributeExtensions[$methodClass] = [];
+
+        $reflectionClass = ReflectionUtils::getClass($methodClass);
+        foreach ($reflectionClass->getAttributes() as $attribute) {
+            if (is_subclass_of($attribute->getName(), MethodExtension::class)) {
+                ReflectionUtils::$cachedMethodAttributeExtensions[$methodClass][] = $attribute->newInstance();
+            }
+        }
+
+        $classTraits = $reflectionClass->getTraits();
+        foreach ($classTraits as $classTrait) {
+            foreach ($classTrait->getAttributes() as $attribute) {
+                if (is_subclass_of($attribute->getName(), MethodExtension::class)) {
+                    ReflectionUtils::$cachedMethodAttributeExtensions[$methodClass][] = $attribute->newInstance();
+                }
+            }
+        }
+
+        return ReflectionUtils::$cachedMethodAttributeExtensions[$methodClass];
+    }
+
+    public static function callMethodExtensionsHook(Method $method, string $hook, array $params = [])
+    {
+        $methodReflectionClass = ReflectionUtils::getClass($method::class);
+
+        $traitExtensions = ReflectionUtils::extractMethodTraitExtensions($method::class);
+
+        foreach ($traitExtensions as $trait) {
+            $traitName = invoke_get_class_name($trait);
+            $methodName = "{$hook}{$traitName}";
+
+            if (method_exists($method, $methodName)) {
+                $traitMethod = $methodReflectionClass->getMethod($methodName);
+
+                $traitMethod->invokeArgs($method, $params);
+            }
+        }
+
+        $attributeExtensions = ReflectionUtils::extractMethodAttributeExtensions($method::class);
+        $attributeExtensions = [...$attributeExtensions, ...Invoke::getMethodExtensions()];
+
+        foreach ($attributeExtensions as $extension) {
+            $extensionReflectionClass = ReflectionUtils::getClass($extension::class);
+
+            if (method_exists($extension, $hook)) {
+                $extensionHookMethod = $extensionReflectionClass->getMethod($hook);
+
+                $extensionHookMethod->invokeArgs($extension, [$method, ...$params]);
+            }
+        }
     }
 
     public static function extractComment(Reflector $reflectionClass): array

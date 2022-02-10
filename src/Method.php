@@ -14,6 +14,8 @@ use RuntimeException;
  */
 abstract class Method extends TypeWithParams
 {
+    protected static array $extensionTraits;
+
     public function pass(mixed $input): mixed
     {
         if ($input instanceof Stop) {
@@ -40,7 +42,13 @@ abstract class Method extends TypeWithParams
 
         Invoke::setInputMode(false);
 
-        return $this->handle(...array_values($methodParameters));
+        ReflectionUtils::callMethodExtensionsHook($this, "beforeHandle");
+
+        $result = $this->handle(...array_values($methodParameters));
+
+        ReflectionUtils::callMethodExtensionsHook($this, "afterHandle", [$result]);
+
+        return $result;
     }
 
     public function invoke_getUsedTypes(): array

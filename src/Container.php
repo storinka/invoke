@@ -12,7 +12,6 @@ use Invoke\Container\InvokeContainerInterface;
  * @method static void factory(string $id, callable|string|null $factory = null)
  * @method static void singleton(string $id, callable|object|string|null $singleton = null)
  * @method static void delete(string $id)
- * @method static mixed make(callable|string $idOrCallable, array $parameters = [])
  */
 final class Container
 {
@@ -41,6 +40,18 @@ final class Container
     public static function get(string $id): mixed
     {
         return Container::current()->get($id);
+    }
+
+    /**
+     * @template T
+     *
+     * @param callable|class-string<T> $classOrCallable
+     * @param array $parameters
+     * @return mixed|T
+     */
+    public static function make(callable|string $classOrCallable, array $parameters = []): mixed
+    {
+        return Container::current()->make($classOrCallable, $parameters);
     }
 
     public static function __callStatic(string $name, array $arguments)

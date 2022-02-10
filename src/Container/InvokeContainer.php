@@ -82,14 +82,14 @@ class InvokeContainer implements InvokeContainerInterface
     /**
      * @inheritDoc
      */
-    public function make(callable|string $idOrCallable, array $parameters = []): mixed
+    public function make(callable|string $classOrCallable, array $parameters = []): mixed
     {
-        if (is_callable($idOrCallable)) {
-            return $this->resolveFunction($idOrCallable, $parameters);
+        if (is_callable($classOrCallable)) {
+            return $this->resolveFunction($classOrCallable, $parameters);
         }
 
-        if (is_string($idOrCallable) && class_exists($idOrCallable)) {
-            return $this->resolveClass($idOrCallable, $parameters);
+        if (is_string($classOrCallable) && class_exists($classOrCallable)) {
+            return $this->resolveClass($classOrCallable, $parameters);
         }
 
         return null;

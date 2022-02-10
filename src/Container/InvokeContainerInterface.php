@@ -29,9 +29,11 @@ interface InvokeContainerInterface extends ContainerInterface
     public function delete(string $id): void;
 
     /**
-     * @param callable|class-string $idOrCallable
+     * @template T
+     *
+     * @param callable|class-string<T> $classOrCallable
      * @param array $parameters
-     * @return mixed
+     * @return mixed|T
      */
-    public function make(callable|string $idOrCallable, array $parameters = []): mixed;
+    public function make(callable|string $classOrCallable, array $parameters = []): mixed;
 }
