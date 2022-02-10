@@ -91,7 +91,7 @@ class UnionType implements Type, HasDynamicName, HasUsedTypes
         throw new InvalidTypeException($this, $value);
     }
 
-    public function getDynamicName(): string
+    public function invoke_getDynamicName(): string
     {
         return implode(
             " | ",
@@ -99,12 +99,12 @@ class UnionType implements Type, HasDynamicName, HasUsedTypes
         );
     }
 
-    public static function getName(): string
+    public static function invoke_getName(): string
     {
         return "union";
     }
 
-    public function getUsedTypes(): array
+    public function invoke_getUsedTypes(): array
     {
         return $this->pipes;
     }

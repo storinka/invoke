@@ -204,7 +204,7 @@ class Utils
         }
 
         if ($pipe instanceof HasUsedTypes) {
-            foreach ($pipe->getUsedTypes() as $usedType) {
+            foreach ($pipe->invoke_getUsedTypes() as $usedType) {
                 $pipes[] = $usedType;
 
                 if ($usedType instanceof HasUsedTypes) {
@@ -219,14 +219,14 @@ class Utils
     public static function getPipeTypeName(Type|string $pipe): string
     {
         if (is_string($pipe) && class_exists($pipe) && is_subclass_of($pipe, Type::class)) {
-            return $pipe::getName();
+            return $pipe::invoke_getName();
         }
 
         if ($pipe instanceof HasDynamicName) {
-            return $pipe->getDynamicName();
+            return $pipe->invoke_getDynamicName();
         }
 
-        return $pipe::getName();
+        return $pipe::invoke_getName();
     }
 
     public static function getSchemaTypeName(Type $type): string
@@ -239,12 +239,38 @@ class Utils
             $class = $type::class;
         }
 
-        $typeName = $type::getName();
+        $typeName = $type::invoke_getName();
 
         if ($type instanceof HasDynamicName) {
-            $typeName = $type->getDynamicName();
+            $typeName = $type->invoke_getDynamicName();
         }
 
         return "{$class}:[{$typeName}]";
+    }
+
+    public static function isNullable(Pipe|string $pipe): bool
+    {
+        if ($pipe instanceof UnionType) {
+            foreach ($pipe->pipes as $uPipe) {
+                if (static::isNullable($uPipe)) {
+                    return true;
+                }
+            }
+        }
+
+        if ($pipe instanceof WrappedType) {
+            $pipe = $pipe->typeClass;
+        } elseif (!is_string($pipe)) {
+            $pipe = $pipe::class;
+        }
+
+        if (is_string($pipe)) {
+            return is_subclass_of($pipe, NullType::class)
+                || is_subclass_of($pipe, AnyType::class)
+                || $pipe === NullType::class
+                || $pipe === AnyType::class;
+        }
+
+        return false;
     }
 }

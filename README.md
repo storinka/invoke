@@ -36,10 +36,10 @@ Invoke::serve();
 php -S localhost:8000 index.php 
 ```
 
-3. Send a request
+3. Make a request
 
 ```shell
-curl 'localhost:8000/invoke/add?a=2&b=2'
+curl 'localhost:8000/add?a=2&b=2'
 
 # { "result": 4 }
 ```
@@ -94,7 +94,7 @@ Invoke::serve();
 4. Run a server and try to invoke:
 
 ```shell
-curl 'localhost:8000/invoke/getUsers?page=1&perPage=10'
+curl 'localhost:8000/getUsers?page=1&perPage=10'
 
 # { "result": [ ... ] }
 ```

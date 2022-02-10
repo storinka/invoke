@@ -12,5 +12,5 @@ interface HasUsedTypes
     /**
      * @return Type[]
      */
-    public function getUsedTypes(): array;
+    public function invoke_getUsedTypes(): array;
 }

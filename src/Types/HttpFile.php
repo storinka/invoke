@@ -16,7 +16,7 @@ class HttpFile implements BinaryType
         return $value;
     }
 
-    public static function getName(): string
+    public static function invoke_getName(): string
     {
         return "file";
     }

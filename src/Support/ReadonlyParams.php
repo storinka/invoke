@@ -9,7 +9,7 @@ use Invoke\Types\TypeWithParams;
  */
 trait ReadonlyParams
 {
-    protected function setParamValue($name, $value)
+    protected function invoke_setParamValue($name, $value)
     {
         $this->{$name} = $value;
     }

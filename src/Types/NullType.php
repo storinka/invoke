@@ -40,7 +40,7 @@ class NullType implements Type, Singleton
         return $value;
     }
 
-    public static function getName(): string
+    public static function invoke_getName(): string
     {
         return "null";
     }

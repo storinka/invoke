@@ -3,14 +3,12 @@
 namespace Invoke\Container;
 
 use InvalidArgumentException;
-use Invoke\Support\Singleton;
+use Invoke\Container;
 use Invoke\Utils\ReflectionUtils;
 use ReflectionFunction;
 
-class Container implements Singleton, InvokeContainerInterface
+class InvokeContainer implements InvokeContainerInterface
 {
-    protected static InvokeContainerInterface $instance;
-
     protected array $factories = [];
     protected array $singletons = [];
 
@@ -50,7 +48,7 @@ class Container implements Singleton, InvokeContainerInterface
     /**
      * @inheritDoc
      */
-    public function factory(string $id, callable|string|null $factory = null)
+    public function factory(string $id, callable|string|null $factory = null): void
     {
         $this->factories[$id] = $factory;
     }
@@ -58,7 +56,7 @@ class Container implements Singleton, InvokeContainerInterface
     /**
      * @inheritDoc
      */
-    public function singleton(string $id, callable|object|string|null $singleton = null)
+    public function singleton(string $id, callable|object|string|null $singleton = null): void
     {
         $this->singletons[$id] = $singleton ?? $id;
 
@@ -97,7 +95,7 @@ class Container implements Singleton, InvokeContainerInterface
         return null;
     }
 
-    public function resolveMethod(object $object, string $method)
+    protected function resolveMethod(object $object, string $method)
     {
         $reflectionClass = ReflectionUtils::getClass($object);
         $reflectionMethod = $reflectionClass->getMethod($method);
@@ -107,7 +105,7 @@ class Container implements Singleton, InvokeContainerInterface
         return $object->{$method}(...$params);
     }
 
-    public function resolveStaticMethod(string $class, string $method)
+    protected function resolveStaticMethod(string $class, string $method)
     {
         $reflectionClass = ReflectionUtils::getClass($class);
         $reflectionMethod = $reflectionClass->getMethod($method);
@@ -117,7 +115,7 @@ class Container implements Singleton, InvokeContainerInterface
         return $class::{$method}(...$params);
     }
 
-    public function resolveClass(string $class, array $parameters = [])
+    protected function resolveClass(string $class, array $parameters = [])
     {
         $reflectionClass = ReflectionUtils::getClass($class);
 
@@ -137,7 +135,7 @@ class Container implements Singleton, InvokeContainerInterface
                     $name = $reflectionProperty->getName();
                     $type = $reflectionProperty->getType()->getName();
 
-                    $value = Container::getInstance()->get($type);
+                    $value = Container::get($type);
 
                     $this->{$name} = $value;
                 }
@@ -149,7 +147,7 @@ class Container implements Singleton, InvokeContainerInterface
         throw new InvalidArgumentException("The class is not instantiable.");
     }
 
-    public function resolveFunction($function, array $parameters = [])
+    protected function resolveFunction($function, array $parameters = [])
     {
         $reflectionFunction = new ReflectionFunction($function);
         $params = $this->resolveParameters($reflectionFunction->getParameters(), $parameters);
@@ -157,13 +155,6 @@ class Container implements Singleton, InvokeContainerInterface
         return $function(...$params);
     }
 
-    /**
-     * @param array $parameters
-     * @param array $customParameters
-     * @return array
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     */
     protected function resolveParameters(array $parameters, array $customParameters = []): array
     {
         $params = [];
@@ -185,19 +176,5 @@ class Container implements Singleton, InvokeContainerInterface
         }
 
         return $params;
-    }
-
-    public static function setInstance(Container $container): void
-    {
-        static::$instance = $container;
-    }
-
-    public static function getInstance(): Container
-    {
-        if (empty(static::$instance)) {
-            static::setInstance(new Container());
-        }
-
-        return static::$instance;
     }
 }

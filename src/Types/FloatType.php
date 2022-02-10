@@ -53,7 +53,7 @@ class FloatType implements Type, Singleton
         return static::$instance;
     }
 
-    public static function getName(): string
+    public static function invoke_getName(): string
     {
         return "float";
     }

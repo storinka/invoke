@@ -13,14 +13,14 @@ interface InvokeContainerInterface extends ContainerInterface
      * @param callable|class-string|null $factory
      * @return void
      */
-    public function factory(string $id, callable|string|null $factory = null);
+    public function factory(string $id, callable|string|null $factory = null): void;
 
     /**
      * @param string $id
      * @param callable|object|string|null $singleton
      * @return void
      */
-    public function singleton(string $id, callable|object|string|null $singleton = null);
+    public function singleton(string $id, callable|object|string|null $singleton = null): void;
 
     /**
      * @param string $id

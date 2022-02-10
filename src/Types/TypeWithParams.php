@@ -2,7 +2,7 @@
 
 namespace Invoke\Types;
 
-use Invoke\Container\Container;
+use Invoke\Container;
 use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Exceptions\RequiredParamNotProvidedException;
 use Invoke\Pipe;
@@ -37,23 +37,23 @@ class TypeWithParams implements Type, HasUsedTypes
         );
 
         foreach ($parameters as $name => $value) {
-            $this->{$name} = $value;
+            $this->invoke_setParamValue($name, $value);
         }
 
         return $this;
     }
 
-    public static function getName(): string
+    public static function invoke_getName(): string
     {
         return invoke_get_class_name(static::class);
     }
 
-    public function getUsedTypes(): array
+    public function invoke_getUsedTypes(): array
     {
         return ReflectionUtils::extractPipesFromParamsPipe($this);
     }
 
-    protected function setParamValue(string $name, $value)
+    protected function invoke_setParamValue(string $name, $value)
     {
         $this->{$name} = $value;
     }
@@ -87,9 +87,9 @@ class TypeWithParams implements Type, HasUsedTypes
                 $name = $parameter->getName();
                 $type = $parameter->getType()->getName();
 
-                $value = Container::getInstance()->get($type);
+                $value = Container::get($type);
 
-                $this->setParamValue($name, $value);
+                $this->invoke_setParamValue($name, $value);
 
                 continue;
             }
@@ -129,8 +129,9 @@ class TypeWithParams implements Type, HasUsedTypes
                             // if default value is provided, then just check next param
                             continue;
                         } else {
-                            // if default value is not provided, throw an error
-                            throw new RequiredParamNotProvidedException($this, $name);
+                            if (!Utils::isNullable($pipe)) {
+                                throw new RequiredParamNotProvidedException($this, $name);
+                            }
                         }
                     }
                 } else if (is_object($input)) {
@@ -142,16 +143,18 @@ class TypeWithParams implements Type, HasUsedTypes
                         if ($hasDefaultValue) {
                             continue;
                         } else {
-                            throw new RequiredParamNotProvidedException($this, $name);
+                            if (!Utils::isNullable($pipe)) {
+                                throw new RequiredParamNotProvidedException($this, $name);
+                            }
                         }
                     }
                 }
             }
 
-            $className = static::getName();
+            $className = static::invoke_getName();
 
             $value = Pipeline::catcher(
-                fn() => $pipe->pass($value),
+                fn() => Pipeline::pass($pipe, $value),
                 "{$className}::{$name}"
             );
 
@@ -161,7 +164,7 @@ class TypeWithParams implements Type, HasUsedTypes
                         if (is_subclass_of($attribute->getName(), Pipe::class)) {
                             $attributePipe = $attribute->newInstance();
 
-                            $value = $attributePipe->pass($value);
+                            $value = Pipeline::pass($attributePipe, $value);
                         }
                     }
                 },

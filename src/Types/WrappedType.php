@@ -2,9 +2,10 @@
 
 namespace Invoke\Types;
 
-use Invoke\Container\Container;
+use Invoke\Container;
 use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Pipe;
+use Invoke\Pipeline;
 use Invoke\Stop;
 use Invoke\Support\HasDynamicName;
 use Invoke\Support\HasUsedTypes;
@@ -33,7 +34,7 @@ class WrappedType implements Type, HasDynamicName, HasUsedTypes
         if ($value instanceof Stop) {
             return $value;
         }
-        
+
         if (is_object($value)) {
             if ($value::class === $this->typeClass) {
                 return $value;
@@ -41,25 +42,25 @@ class WrappedType implements Type, HasDynamicName, HasUsedTypes
         }
 
         if (is_subclass_of($this->typeClass, Pipe::class)) {
-            $newPipe = Container::getInstance()->make($this->typeClass);
+            $newPipe = Container::make($this->typeClass);
 
-            return $newPipe->pass($value);
+            return Pipeline::pass($newPipe, $value);
         }
 
         throw new InvalidTypeException($this, $value);
     }
 
-    public static function getName(): string
+    public static function invoke_getName(): string
     {
         return "wrapped";
     }
 
-    public function getDynamicName(): string
+    public function invoke_getDynamicName(): string
     {
         return $this->typeClass::getName();
     }
 
-    public function getUsedTypes(): array
+    public function invoke_getUsedTypes(): array
     {
         $pipes = [];
 

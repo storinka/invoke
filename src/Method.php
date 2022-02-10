@@ -2,11 +2,9 @@
 
 namespace Invoke;
 
-use Invoke\Container\Container;
 use Invoke\Types\TypeWithParams;
 use Invoke\Utils\ReflectionUtils;
 use Invoke\Utils\Utils;
-use ReflectionClass;
 use RuntimeException;
 
 /**
@@ -24,6 +22,7 @@ abstract class Method extends TypeWithParams
 
         Invoke::setInputMode(true);
 
+        // validate class parameters
         parent::pass($input);
 
         $reflectionClass = ReflectionUtils::getClass($this::class);
@@ -33,21 +32,22 @@ abstract class Method extends TypeWithParams
             throw new RuntimeException("{$reflectionClass->name} \"handle\" method cannot be public.");
         }
 
-        $parameters = $this->_validateParameters(
+        // validate "handle" method parameters
+        $methodParameters = $this->_validateParameters(
             $handleMethod->getParameters(),
             $input
         );
 
         Invoke::setInputMode(false);
 
-        return $this->handle(...array_values($parameters));
+        return $this->handle(...array_values($methodParameters));
     }
 
-    public function getUsedTypes(): array
+    public function invoke_getUsedTypes(): array
     {
-        $pipes = parent::getUsedTypes();
+        $pipes = parent::invoke_getUsedTypes();
 
-        $reflectionClass = ReflectionUtils::getClass($this::classs);
+        $reflectionClass = ReflectionUtils::getClass($this::class);
         $reflectionMethod = $reflectionClass->getMethod("handle");
 
         return [...$pipes, ReflectionUtils::extractPipeFromMethodReturnType($reflectionMethod)];
@@ -55,12 +55,12 @@ abstract class Method extends TypeWithParams
 
     public static function invoke(array $params = []): mixed
     {
-        $method = Container::getInstance()->make(static::class);
+        $method = Container::make(static::class);
 
-        return $method->pass($params);
+        return Pipeline::pass($method, $params);
     }
 
-    public static function getName(): string
+    public static function invoke_getName(): string
     {
         return Utils::getMethodNameFromClass(static::class);
     }

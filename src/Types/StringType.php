@@ -29,7 +29,7 @@ class StringType implements Type, Singleton
         return $value;
     }
 
-    public static function getName(): string
+    public static function invoke_getName(): string
     {
         return "string";
     }

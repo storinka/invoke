@@ -11,5 +11,10 @@ use Invoke\Validators\ArrayOf;
  */
 interface HasDynamicName
 {
-    public function getDynamicName(): string;
+    /**
+     * Dynamically generated type name.
+     *
+     * @return string
+     */
+    public function invoke_getDynamicName(): string;
 }

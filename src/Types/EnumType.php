@@ -45,12 +45,12 @@ class EnumType implements Type, HasDynamicName
         throw new InvalidTypeException($this, $value);
     }
 
-    public static function getName(): string
+    public static function invoke_getName(): string
     {
         return "enum";
     }
 
-    public function getDynamicName(): string
+    public function invoke_getDynamicName(): string
     {
         $className = invoke_get_class_name($this->enumClass);
 

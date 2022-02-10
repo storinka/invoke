@@ -12,5 +12,5 @@ interface Type extends Pipe
      *
      * @return string
      */
-    public static function getName(): string;
+    public static function invoke_getName(): string;
 }

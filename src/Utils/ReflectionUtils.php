@@ -75,7 +75,11 @@ class ReflectionUtils
             }
 
             if ($reflectionType->allowsNull()) {
-                return new UnionType([NullType::getInstance(), $type]);
+                if ($name === "mixed") {
+                    return AnyType::getInstance();
+                } else {
+                    return new UnionType([NullType::getInstance(), $type]);
+                }
             }
 
             return $type;
@@ -178,7 +182,7 @@ class ReflectionUtils
             /** @var Validator $validator */
             foreach ($param["validators"] as $validator) {
                 if ($validator instanceof HasUsedTypes) {
-                    array_push($pipes, ...$validator->getUsedTypes());
+                    array_push($pipes, ...$validator->invoke_getUsedTypes());
                 }
             }
         }
@@ -190,5 +194,12 @@ class ReflectionUtils
         }
 
         return $pipes;
+    }
+
+    public static function validateReflectionParameters(array $reflectionParameters,
+                                                        array $inputParameters,
+                                                        array $renderedParameters)
+    {
+
     }
 }

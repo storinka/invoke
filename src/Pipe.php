@@ -3,7 +3,7 @@
 namespace Invoke;
 
 /**
- * Basic component of Invoke.
+ * Basic component of Invoke. Works as a filter.
  */
 interface Pipe
 {
