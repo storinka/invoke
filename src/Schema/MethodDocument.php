@@ -6,7 +6,6 @@ use Invoke\Data;
 use Invoke\Utils\ReflectionUtils;
 use Invoke\Utils\Utils;
 use ReflectionClass;
-use ReflectionException;
 
 class MethodDocument extends Data
 {
@@ -22,12 +21,9 @@ class MethodDocument extends Data
 
     public array $tags;
 
-    /**
-     * @throws ReflectionException
-     */
     public function render(array $data): array
     {
-        $method = $data["method"];
+        $method = $data["class"];
 
         $tags = [];
 

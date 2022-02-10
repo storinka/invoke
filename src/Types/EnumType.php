@@ -25,7 +25,7 @@ class EnumType implements Type, HasDynamicName
         if ($value instanceof Stop) {
             return $value;
         }
-        
+
         if (is_object($value)) {
             if ($value::class === $this->enumClass) {
                 return $value;
@@ -55,7 +55,7 @@ class EnumType implements Type, HasDynamicName
         $className = invoke_get_class_name($this->enumClass);
 
         if (!is_subclass_of($this->enumClass, BackedEnum::class)) {
-            return "enum<$className>";
+            return "$className";
         }
 
         $values = array_map(
@@ -65,6 +65,6 @@ class EnumType implements Type, HasDynamicName
 
         $values = implode("|", $values);
 
-        return "enum<$className>({$values})";
+        return "$className = {$values}";
     }
 }

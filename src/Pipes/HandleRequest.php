@@ -2,12 +2,10 @@
 
 namespace Invoke\Pipes;
 
-use Invoke\Container;
 use Invoke\Exceptions\NotFoundException;
 use Invoke\Invoke;
 use Invoke\Pipe;
 use Invoke\Stop;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 
@@ -62,6 +60,10 @@ class HandleRequest implements Pipe
 
     protected function extractMethodParameters(ServerRequestInterface $request): array
     {
+        if ($request->getHeaderLine('Content-Type') === 'application/json') {
+            return json_decode($request->getBody(), true);
+        }
+
         return array_merge(
             $request->getUploadedFiles(),
             $request->getParsedBody() ?? [],

@@ -16,6 +16,10 @@ class ParamDocument extends Data
 
     public mixed $defaultValue;
 
+    public ?string $summary;
+
+    public ?string $description;
+
     #[ArrayOf(ValidatorDocument::class)]
     public array $validators;
 

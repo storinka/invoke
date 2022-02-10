@@ -17,6 +17,8 @@ use Throwable;
  */
 final class Invoke implements Pipe, Singleton
 {
+    public static string $libraryVersion = "2.0.0-ALPHA";
+
     protected static Invoke $instance;
 
     protected static array $methodExtensions = [

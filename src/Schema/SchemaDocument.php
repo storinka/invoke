@@ -4,9 +4,9 @@ namespace Invoke\Schema;
 
 use Invoke\Data;
 use Invoke\Invoke;
+use Invoke\Meta\Parameter;
 use Invoke\Utils\Utils;
 use Invoke\Validators\ArrayOf;
-use ReflectionException;
 
 class SchemaDocument extends Data
 {
@@ -16,32 +16,34 @@ class SchemaDocument extends Data
     #[ArrayOf(TypeDocument::class)]
     public array $types;
 
-    /**
-     * @throws ReflectionException
-     */
+    #[Parameter]
+    public string $libraryVersion;
+
     public static function current(): static
     {
         $methods = [];
-        $pipes = [];
+        $types = [];
 
         foreach (Invoke::getMethods() as $name => $method) {
             if (is_string($method) && class_exists($method)) {
                 $methods[] = [
                     "name" => $name,
-                    "method" => $method,
+                    "class" => $method,
                 ];
 
-                array_push($pipes, ...Utils::extractUsedTypes($method));
+                array_push($types, ...Utils::extractUsedTypes($method));
             }
         }
 
-        $pipes = TypeDocument::many($pipes);
+        $types = TypeDocument::many($types);
+        $types = invoke_array_unique_by_key($types, "schemaTypeName");
 
-        $pipes = invoke_array_unique_by_key($pipes, "schemaTypeName");
+        $methods = MethodDocument::many($methods);
 
         return static::from([
-            "methods" => MethodDocument::many($methods),
-            "types" => $pipes,
+            "methods" => $methods,
+            "types" => $types,
+            "libraryVersion" => Invoke::$libraryVersion,
         ]);
     }
 }
