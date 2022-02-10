@@ -57,7 +57,7 @@ class WrappedType implements Type, HasDynamicName, HasUsedTypes
 
     public function invoke_getDynamicName(): string
     {
-        return $this->typeClass::getName();
+        return $this->typeClass::invoke_getName();
     }
 
     public function invoke_getUsedTypes(): array
