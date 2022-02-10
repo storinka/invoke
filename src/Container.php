@@ -8,8 +8,6 @@ use Invoke\Container\InvokeContainerInterface;
 /**
  * Container facade.
  *
- * @template G
- *
  * @method static bool has(string $id)
  * @method static void factory(string $id, callable|string|null $factory = null)
  * @method static void singleton(string $id, callable|object|string|null $singleton = null)
