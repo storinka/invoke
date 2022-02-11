@@ -106,7 +106,7 @@ final class ReflectionUtils
         $traitExtensions = ReflectionUtils::extractMethodTraitExtensions($method::class);
 
         foreach ($traitExtensions as $trait) {
-            $traitName = $trait->getName();
+            $traitName = $trait->getShortName();
             $methodName = "{$hook}{$traitName}";
 
             if (method_exists($method, $methodName)) {
