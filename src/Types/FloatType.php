@@ -23,7 +23,7 @@ class FloatType implements Type, Singleton
         if ($value instanceof Stop) {
             return $value;
         }
-        
+
         $type = gettype($value);
 
         $invoke = Container::get(Invoke::class);
@@ -50,7 +50,7 @@ class FloatType implements Type, Singleton
     public static function getInstance(): static
     {
         if (empty(static::$instance)) {
-            static::$instance = new static;
+            static::$instance = new static();
         }
 
         return static::$instance;

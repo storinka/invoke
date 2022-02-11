@@ -9,6 +9,13 @@
             "email": "expexes@gmail.com"
         }
     ],
+    "scripts": {
+        "test": "phpunit --testdox",
+        "test:coverage-html": [
+            "@putenv XDEBUG_MODE=coverage",
+            "phpunit --color=always --coverage-html=\"output/code-coverage\""
+        ]
+    },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
@@ -32,10 +39,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "InvokeTests\\": "tests",
-            "InvokeTests\\Lib\\": "tests/lib",
-            "InvokeTests\\Typesystem\\": "tests/typesystem",
-            "InvokeTests\\Invoke\\": "tests/invoke"
+            "InvokeTests\\": "tests\\src"
         }
     },
     "require-dev": {

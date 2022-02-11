@@ -9,6 +9,8 @@ use Invoke\Meta\Parameter;
 use Invoke\Utils\Utils;
 use Invoke\Validators\ArrayOf;
 
+use function Invoke\Utils\array_unique_by_key;
+
 class SchemaDocument extends Data
 {
     #[ArrayOf(MethodDocument::class)]
@@ -37,7 +39,7 @@ class SchemaDocument extends Data
         }
 
         $types = TypeDocument::many($types);
-        $types = invoke_array_unique_by_key($types, "schemaTypeName");
+        $types = array_unique_by_key($types, "schemaTypeName");
 
         $methods = MethodDocument::many($methods);
 

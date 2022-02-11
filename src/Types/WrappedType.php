@@ -71,6 +71,5 @@ class WrappedType implements Type, HasDynamicName, HasUsedTypes
         // todo: extract from other types
 
         return $pipes;
-
     }
 }

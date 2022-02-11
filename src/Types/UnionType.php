@@ -13,7 +13,8 @@ use Invoke\Support\HasUsedTypes;
 use Invoke\Support\Singleton;
 use Invoke\Type;
 use Invoke\Utils\Utils;
-use function invoke_is_assoc;
+
+use function Invoke\Utils\is_assoc;
 
 class UnionType implements Type, HasDynamicName, HasUsedTypes
 {
@@ -59,10 +60,10 @@ class UnionType implements Type, HasDynamicName, HasUsedTypes
         if ($value instanceof Stop) {
             return $value;
         }
-        
+
         if ($this->paramsPipesCount > 1) {
             if (is_array($value)) {
-                if (invoke_is_assoc($value)) {
+                if (is_assoc($value)) {
                     if (!array_key_exists("@type", $value)) {
                         throw new TypeNameRequiredException();
                     } else {
@@ -81,7 +82,7 @@ class UnionType implements Type, HasDynamicName, HasUsedTypes
         foreach ($this->pipes as $pipe) {
             try {
                 return Pipeline::pass($pipe, $value);
-            } catch (RequiredParamNotProvidedException|InvalidTypeException $exception) {
+            } catch (RequiredParamNotProvidedException | InvalidTypeException $exception) {
 //                if ($exception->expectedType !== $pipe) {
 //                    throw new InvalidTypeException($pipe, $value);
 //                }

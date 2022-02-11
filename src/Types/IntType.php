@@ -9,6 +9,8 @@ use Invoke\Stop;
 use Invoke\Support\Singleton;
 use Invoke\Type;
 
+use function var_dump;
+
 /**
  * Integer value.
  *
@@ -46,7 +48,7 @@ class IntType implements Type, Singleton
     public static function getInstance(): static
     {
         if (empty(static::$instance)) {
-            static::$instance = new static;
+            static::$instance = new static();
         }
 
         return static::$instance;

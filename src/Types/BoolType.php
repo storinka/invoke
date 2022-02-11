@@ -50,7 +50,7 @@ class BoolType implements Type, Singleton
     public static function getInstance(): static
     {
         if (empty(static::$instance)) {
-            static::$instance = new static;
+            static::$instance = new static();
         }
 
         return static::$instance;

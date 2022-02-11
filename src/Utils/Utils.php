@@ -21,7 +21,6 @@ use Invoke\Types\StringType;
 use Invoke\Types\UnionType;
 use Invoke\Types\WrappedType;
 use Invoke\Validator;
-use function invoke_get_class_name;
 
 /**
  * Common utils.
@@ -30,7 +29,7 @@ class Utils
 {
     public static function getMethodNameFromClass(string $class): string
     {
-        $name = invoke_get_class_name($class);
+        $name = get_class_name($class);
 
         $first = mb_strtolower($name[0]);
         $rest = substr($name, 1);
@@ -46,7 +45,7 @@ class Utils
             $className = $exception::class;
         }
 
-        $className = invoke_get_class_name($className);
+        $className = get_class_name($className);
 
         if (str_ends_with($className, "Exception")) {
             $className = substr($className, 0, strlen($className) - 9);
@@ -60,7 +59,10 @@ class Utils
     public static function camelToUnderscore($string, $us = "-"): string
     {
         return strtolower(preg_replace(
-            '/(?<=\d)(?=[A-Za-z])|(?<=[A-Za-z])(?=\d)|(?<=[a-z])(?=[A-Z])/', $us, $string));
+            '/(?<=\d)(?=[A-Za-z])|(?<=[A-Za-z])(?=\d)|(?<=[a-z])(?=[A-Z])/',
+            $us,
+            $string
+        ));
     }
 
     public static function isPipeTypeBuiltin(Pipe|string $pipe): bool
@@ -120,7 +122,7 @@ class Utils
     {
         if (is_array($something)) {
             return new UnionType($something);
-        } else if (is_string($something)) {
+        } elseif (is_string($something)) {
             if (class_exists($something)) {
                 if (is_subclass_of($something, Singleton::class)) {
                     return $something::getInstance();
@@ -233,7 +235,7 @@ class Utils
     {
         if ($type instanceof WrappedType) {
             $class = $type->typeClass;
-        } else if ($type instanceof EnumType) {
+        } elseif ($type instanceof EnumType) {
             $class = $type->enumClass;
         } else {
             $class = $type::class;

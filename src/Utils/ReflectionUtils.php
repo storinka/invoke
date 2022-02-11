@@ -25,7 +25,8 @@ use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionProperty;
 use ReflectionUnionType;
-use Reflector;
+use ReflectionFunctionAbstract;
+use ReflectionClassConstant;
 
 /**
  * Common utils to work with reflection.
@@ -47,7 +48,7 @@ final class ReflectionUtils
 
     /**
      * @param string $methodClass
-     * @return array
+     * @return class-string[]
      */
     public static function extractMethodTraitExtensions(string $methodClass): array
     {
@@ -106,7 +107,7 @@ final class ReflectionUtils
         $traitExtensions = ReflectionUtils::extractMethodTraitExtensions($method::class);
 
         foreach ($traitExtensions as $trait) {
-            $traitName = invoke_get_class_name($trait);
+            $traitName = get_class_name($trait);
             $methodName = "{$hook}{$traitName}";
 
             if (method_exists($method, $methodName)) {
@@ -132,7 +133,7 @@ final class ReflectionUtils
         }
     }
 
-    public static function extractComment(Reflector $reflectionClass): array
+    public static function extractComment(ReflectionFunctionAbstract|ReflectionProperty|ReflectionClass|ReflectionClassConstant $reflectionClass): array
     {
         $comment = [
             "summary" => null,
@@ -156,12 +157,12 @@ final class ReflectionUtils
     {
         if ($reflectionType == null) {
             return AnyType::getInstance();
-        } else if ($reflectionType instanceof ReflectionNamedType) {
+        } elseif ($reflectionType instanceof ReflectionNamedType) {
             $name = $reflectionType->getName();
 
             if ($reflectionType->isBuiltin()) {
                 $type = Utils::typeNameToPipe($name);
-            } else if (enum_exists($name) && !is_subclass_of($name, Type::class)) {
+            } elseif (enum_exists($name) && !is_subclass_of($name, Type::class)) {
                 return new EnumType($name);
             } else {
                 $type = new WrappedType($name);
@@ -176,7 +177,7 @@ final class ReflectionUtils
             }
 
             return $type;
-        } else if ($reflectionType instanceof ReflectionUnionType) {
+        } elseif ($reflectionType instanceof ReflectionUnionType) {
             return new UnionType(array_map(
                 fn($t) => static::extractPipeFromReflectionType($t),
                 $reflectionType->getTypes()
@@ -293,6 +294,5 @@ final class ReflectionUtils
                                                         array $inputParameters,
                                                         array $renderedParameters)
     {
-
     }
 }

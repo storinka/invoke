@@ -36,7 +36,7 @@ class BuildResponse implements Pipe
         if (!$response->hasHeader("Content-Type")) {
             if ($stream instanceof JsonStreamDecorator) {
                 $response = $response->withHeader("Content-Type", "application/json");
-            } else if ($stream instanceof TextStreamDecorator) {
+            } elseif ($stream instanceof TextStreamDecorator) {
                 $response = $response->withHeader("Content-Type", "text/html");
             }
         }
