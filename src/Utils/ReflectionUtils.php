@@ -47,7 +47,7 @@ final class ReflectionUtils
 
     /**
      * @param string $methodClass
-     * @return ReflectionClass[]
+     * @return class-string[]
      */
     public static function extractMethodTraitExtensions(string $methodClass): array
     {
@@ -106,7 +106,7 @@ final class ReflectionUtils
         $traitExtensions = ReflectionUtils::extractMethodTraitExtensions($method::class);
 
         foreach ($traitExtensions as $trait) {
-            $traitName = $trait->getShortName();
+            $traitName = get_class_name($trait);
             $methodName = "{$hook}{$traitName}";
 
             if (method_exists($method, $methodName)) {
