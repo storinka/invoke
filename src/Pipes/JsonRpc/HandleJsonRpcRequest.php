@@ -21,11 +21,13 @@ class HandleJsonRpcRequest implements Pipe
             throw new RuntimeException("The value for HandleRequest pipe must be a ServerRequestInterface.");
         }
 
-        Invoke::setInputMode(true);
+        $invoke = Container::get(Invoke::class);
+
+        $invoke->setInputMode(true);
 
         $data = JsonRpcRequest::from($request->getParsedBody());
 
-        Invoke::setInputMode(false);
+        $invoke->setInputMode(false);
 
         Container::singleton(JsonRpcRequest::class, $data);
 

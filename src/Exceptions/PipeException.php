@@ -2,6 +2,7 @@
 
 namespace Invoke\Exceptions;
 
+use Invoke\Container;
 use Invoke\Invoke;
 use Invoke\Utils\Utils;
 use RuntimeException;
@@ -15,6 +16,8 @@ class PipeException extends RuntimeException
 
     public function getHttpCode(): int
     {
-        return Invoke::isInputMode() ? 400 : 500;
+        $invoke = Container::get(Invoke::class);
+
+        return $invoke->isInputMode() ? 400 : 500;
     }
 }

@@ -52,19 +52,6 @@ class EnumType implements Type, HasDynamicName
 
     public function invoke_getDynamicName(): string
     {
-        $className = invoke_get_class_name($this->enumClass);
-
-        if (!is_subclass_of($this->enumClass, BackedEnum::class)) {
-            return "$className";
-        }
-
-        $values = array_map(
-            fn(BackedEnum $enum) => $enum->value,
-            $this->enumClass::cases()
-        );
-
-        $values = implode("|", $values);
-
-        return "$className = {$values}";
+        return invoke_get_class_name($this->enumClass);
     }
 }

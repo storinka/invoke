@@ -1,5 +1,6 @@
 <?php
 
+use Invoke\Container;
 use Invoke\Invoke;
 
 /**
@@ -98,5 +99,7 @@ function invoke(string $method,
                 array  $params = [],
                 string $version = null)
 {
-    return Invoke::invoke($method, $params);
+    $invoke = Container::get(Invoke::class);
+
+    return $invoke->invoke($method, $params);
 }

@@ -2,6 +2,7 @@
 
 namespace Invoke\Utils;
 
+use Invoke\Container;
 use Invoke\Invoke;
 use Invoke\Meta\Inject;
 use Invoke\Meta\MethodExtension;
@@ -115,8 +116,10 @@ final class ReflectionUtils
             }
         }
 
+        $invoke = Container::get(Invoke::class);
+
         $attributeExtensions = ReflectionUtils::extractMethodAttributeExtensions($method::class);
-        $attributeExtensions = [...$attributeExtensions, ...Invoke::getMethodExtensions()];
+        $attributeExtensions = [...$attributeExtensions, ...$invoke->getMethodExtensions()];
 
         foreach ($attributeExtensions as $extension) {
             $extensionReflectionClass = ReflectionUtils::getClass($extension::class);
