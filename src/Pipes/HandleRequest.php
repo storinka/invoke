@@ -2,6 +2,7 @@
 
 namespace Invoke\Pipes;
 
+use Invoke\Container;
 use Invoke\Exceptions\NotFoundException;
 use Invoke\Invoke;
 use Invoke\Pipe;
@@ -39,7 +40,9 @@ class HandleRequest implements Pipe
 
     protected function extractMethodName(ServerRequestInterface $request): string
     {
-        $pathPrefix = Invoke::config("server.pathPrefix");
+        $invoke = Container::get(Invoke::class);
+
+        $pathPrefix = $invoke->getConfig("server.pathPrefix");
         $pathPrefix = trim($pathPrefix, "/");
 
         $path = $request->getUri()->getPath();

@@ -25,9 +25,9 @@ function add(float $a, float $b): float
     return $a + $b;
 }
 
-Invoke::setup(["add"]);
-
-Invoke::serve();
+Invoke::create([
+    "add"
+])->serve();
 ```
 
 2. Run a server
@@ -84,11 +84,9 @@ class GetUsers extends Method
 ```php
 use Invoke\Invoke;
 
-Invoke::setup([
-    "getUsers" => GetUsers::class,
-]);
-
-Invoke::serve();
+Invoke::create([
+    "getUsers" => GetUsers::class
+])->serve();
 ```
 
 4. Run a server and try to invoke:

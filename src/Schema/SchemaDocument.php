@@ -2,6 +2,7 @@
 
 namespace Invoke\Schema;
 
+use Invoke\Container;
 use Invoke\Data;
 use Invoke\Invoke;
 use Invoke\Meta\Parameter;
@@ -26,7 +27,7 @@ class SchemaDocument extends Data
         $methods = [];
         $types = [];
 
-        foreach (Invoke::getMethods() as $name => $method) {
+        foreach (Container::get(Invoke::class)->getMethods() as $name => $method) {
             if (is_string($method) && class_exists($method)) {
                 $methods[] = [
                     "name" => $name,
@@ -45,7 +46,7 @@ class SchemaDocument extends Data
         return static::from([
             "methods" => $methods,
             "types" => $types,
-            "libraryVersion" => Invoke::$libraryVersion,
+            "libraryVersion" => Invoke::$version,
         ]);
     }
 }

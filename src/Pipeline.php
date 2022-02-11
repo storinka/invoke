@@ -21,7 +21,7 @@ final class Pipeline
 {
     protected static Map $before;
     protected static Map $after;
-    public static Map $override;
+    protected static Map $override;
 
     public static function override(Pipe|string $oldPipe, Pipe|string $newPipe): void
     {

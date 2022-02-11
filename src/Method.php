@@ -22,7 +22,9 @@ abstract class Method extends TypeWithParams
             return $input;
         }
 
-        Invoke::setInputMode(true);
+        $invoke = Container::get(Invoke::class);
+
+        $invoke->setInputMode(true);
 
         // validate class parameters
         parent::pass($input);
@@ -40,7 +42,7 @@ abstract class Method extends TypeWithParams
             $input
         );
 
-        Invoke::setInputMode(false);
+        $invoke->setInputMode(false);
 
         ReflectionUtils::callMethodExtensionsHook($this, "beforeHandle");
 

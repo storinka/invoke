@@ -2,31 +2,50 @@
 
 namespace Invoke;
 
-use Invoke\Container\InvokeContainerInterface;
 use Invoke\Meta\MethodExtension;
 use Invoke\Pipelines\DefaultErrorPipeline;
 use Invoke\Pipelines\DefaultPipeline;
 use Invoke\Pipes\FunctionPipe;
-use Invoke\Support\Singleton;
 use Invoke\Utils\Utils;
-use Psr\Container\ContainerInterface;
 use Throwable;
 
 use function Invoke\Utils\array_merge_recursive2;
 
 /**
  * Invoke pipe itself.
+ *
+ * @final
  */
-final class Invoke implements Pipe, Singleton
+class Invoke implements InvokeInterface
 {
-    public static string $libraryVersion = "2.0.0-ALPHA";
+    /**
+     * Invoke version.
+     *
+     * @var string $version
+     */
+    public static string $version = "2.0.0-ALPHA";
 
-    protected static Invoke $instance;
-
-    protected static array $methodExtensions = [
+    /**
+     * Method extensions.
+     *
+     * @var MethodExtension[] $methodExtensions
+     */
+    protected array $methodExtensions = [
     ];
+
+    /**
+     * Methods map.
+     *
+     * @var array $methods
+     */
     protected array $methods = [
     ];
+
+    /**
+     * Invoke configuration.
+     *
+     * @var array $config
+     */
     protected array $config = [
         "server" => [
             "pathPrefix" => "/"
@@ -34,9 +53,29 @@ final class Invoke implements Pipe, Singleton
         "inputMode" => [
             "convertStrings" => true,
         ],
+        "types" => [
+            "alwaysRequireName" => false,
+            "alwaysReturnName" => false,
+        ],
+        "serve" => [
+            "defaultPipeline" => DefaultPipeline::class,
+            "defaultErrorPipeline" => DefaultErrorPipeline::class,
+        ]
     ];
+
+    /**
+     * Is input mode enabled.
+     *
+     * @var bool $inputMode
+     */
     public bool $inputMode = false;
 
+    /**
+     * Pipe filter function.
+     *
+     * @param mixed $value
+     * @return mixed
+     */
     public function pass(mixed $value): mixed
     {
         if ($value instanceof Stop) {
@@ -46,28 +85,18 @@ final class Invoke implements Pipe, Singleton
         $name = $value["name"];
         $params = $value["params"];
 
-        return static::invoke(
+        return $this->invoke(
             $name,
             $params
         );
     }
 
-    public static function config(string $property): mixed
+    /**
+     * @inheritDoc
+     */
+    public function invoke(string $name, array $params = []): mixed
     {
-        $path = explode(".", $property);
-
-        $value = static::getInstance()->config;
-
-        foreach ($path as $key) {
-            $value = $value[$key];
-        }
-
-        return $value;
-    }
-
-    public static function invoke(string $name, array $params = [])
-    {
-        $method = static::getInstance()->methods[$name];
+        $method = $this->methods[$name];
 
         if (is_callable($method)) {
             $method = new FunctionPipe($method);
@@ -76,19 +105,27 @@ final class Invoke implements Pipe, Singleton
         return Pipeline::pass($method, $params);
     }
 
-    public static function hasMethod(string $name): bool
+    /**
+     * @inheritDoc
+     */
+    public function getConfig(string $property): mixed
     {
-        return in_array($name, array_keys(static::getMethods()));
+        $path = explode(".", $property);
+
+        $value = $this->config;
+
+        foreach ($path as $key) {
+            $value = $value[$key];
+        }
+
+        return $value;
     }
 
-    public static function setup(array $methods = [], array $config = [])
+    /**
+     * @inheritDoc
+     */
+    public function setMethods(array $methods): static
     {
-        $invoke = Invoke::getInstance();
-
-        Container::singleton(Invoke::class, $invoke);
-        Container::singleton(ContainerInterface::class, Container::current());
-        Container::singleton(InvokeContainerInterface::class, Container::current());
-
         foreach ($methods as $name => $method) {
             if (is_numeric($name) && is_string($method)) {
                 unset($methods[$name]);
@@ -101,68 +138,143 @@ final class Invoke implements Pipe, Singleton
             }
         }
 
-        $invoke->methods = $methods;
-        $invoke->config = array_merge_recursive2($invoke->config, $config);
-    }
+        $this->methods = $methods;
 
-    public static function serve($pipeline = null, mixed $params = null)
-    {
-        if (!$pipeline) {
-            $pipeline = DefaultPipeline::class;
-        }
-
-        try {
-            return Pipeline::pass($pipeline, $params);
-        } catch (Throwable $exception) {
-            return Pipeline::pass(DefaultErrorPipeline::class, $exception);
-        }
-    }
-
-    public static function isInputMode(): bool
-    {
-        return static::getInstance()->inputMode;
-    }
-
-    public static function setInputMode(bool $inputMode): void
-    {
-        static::getInstance()->inputMode = $inputMode;
-    }
-
-    public static function getMethods(): array
-    {
-        return static::getInstance()->methods;
-    }
-
-    public static function getInstance(): static
-    {
-        if (empty(static::$instance)) {
-            static::$instance = Container::make(static::class);
-        }
-
-        return static::$instance;
+        return $this;
     }
 
     /**
-     * @template T of \Invoke\Meta\MethodExtension
-     *
-     * @param class-string<T> $extensionClass
-     * @param array $parameters
-     * @return T
+     * @inheritDoc
      */
-    public static function registerMethodExtension(string $extensionClass, array $parameters = []): mixed
+    public function getMethods(): array
+    {
+        return $this->methods;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getMethod(string $name): string|callable|null
+    {
+        if ($this->hasMethod($name)) {
+            return $this->methods[$name];
+        }
+
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function hasMethod(string $name): bool
+    {
+        return in_array($name, array_keys($this->getMethods()));
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteMethod(string $name): void
+    {
+        $newMethods = [];
+
+        foreach ($this->methods as $methodName => $method) {
+            if ($methodName === $name) {
+                continue;
+            }
+
+            $newMethods[$methodName] = $method;
+        }
+
+        $this->methods = $newMethods;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setConfig(array $config): static
+    {
+        $this->config = array_merge_recursive2($this->config, $config);
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isInputMode(): bool
+    {
+        return $this->inputMode;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setInputMode(bool $inputMode): void
+    {
+        $this->inputMode = $inputMode;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function registerMethodExtension(string $extensionClass, array $parameters = []): mixed
     {
         $extension = Container::make($extensionClass, $parameters);
 
-        Invoke::$methodExtensions[] = $extension;
+        $this->methodExtensions[] = $extension;
 
         return $extension;
     }
 
     /**
-     * @return MethodExtension[]
+     * @inheritDoc
      */
-    public static function getMethodExtensions(): array
+    public function getMethodExtensions(): array
     {
-        return Invoke::$methodExtensions;
+        return $this->methodExtensions;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function serve(array|Pipe|string|null $pipeline = null,
+                          mixed                  $input = null): mixed
+    {
+        if (!$pipeline) {
+            $pipeline = $this->getConfig("serve.defaultPipeline");
+        }
+
+        try {
+            return Pipeline::pass($pipeline, $input);
+        } catch (Throwable $exception) {
+            $errorPipeline = $this->getConfig("serve.defaultErrorPipeline");
+
+            return Pipeline::pass($errorPipeline, $exception);
+        }
+    }
+
+    /**
+     * Create new instance of Invoke.
+     *
+     * @param array $methods
+     * @param array $config
+     * @param bool $setContainer
+     * @return static
+     */
+    public static function create(array $methods = [],
+                                  array $config = [],
+                                  bool  $setContainer = true): static
+    {
+        $invoke = new Invoke();
+
+        $invoke->setMethods($methods);
+        $invoke->setConfig($config);
+
+        if ($setContainer) {
+            Container::singleton(Invoke::class, $invoke);
+        }
+
+        return $invoke;
     }
 }

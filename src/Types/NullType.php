@@ -2,6 +2,7 @@
 
 namespace Invoke\Types;
 
+use Invoke\Container;
 use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Invoke;
 use Invoke\Stop;
@@ -25,7 +26,9 @@ class NullType implements Type, Singleton
 
         $type = gettype($value);
 
-        if (Invoke::isInputMode() && Invoke::config("inputMode.convertStrings")) {
+        $invoke = Container::get(Invoke::class);
+
+        if ($invoke->isInputMode() && $invoke->getConfig("inputMode.convertStrings")) {
             if ($type === "string") {
                 if ($value === "NULL") {
                     return null;

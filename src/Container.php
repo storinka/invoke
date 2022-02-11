@@ -4,6 +4,7 @@ namespace Invoke;
 
 use Invoke\Container\InvokeContainer;
 use Invoke\Container\InvokeContainerInterface;
+use Psr\Container\ContainerInterface;
 
 /**
  * Container facade.
@@ -20,6 +21,9 @@ final class Container
     public static function setCurrent(InvokeContainerInterface $container): void
     {
         Container::$instance = $container;
+
+        Container::singleton(ContainerInterface::class, $container);
+        Container::singleton(InvokeContainerInterface::class, $container);
     }
 
     public static function current(): InvokeContainerInterface
