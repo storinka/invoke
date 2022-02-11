@@ -15,6 +15,7 @@ use Invoke\Utils\Utils;
 use ReflectionParameter;
 use ReflectionProperty;
 use RuntimeException;
+
 use function invoke_get_class_name;
 
 class TypeWithParams implements Type, HasUsedTypes
@@ -134,7 +135,7 @@ class TypeWithParams implements Type, HasUsedTypes
                             }
                         }
                     }
-                } else if (is_object($input)) {
+                } elseif (is_object($input)) {
                     // if input is an object,
                     // check if param exist or try to use default value
                     if (property_exists($input, $name)) {

@@ -21,6 +21,7 @@ use Invoke\Types\StringType;
 use Invoke\Types\UnionType;
 use Invoke\Types\WrappedType;
 use Invoke\Validator;
+
 use function invoke_get_class_name;
 
 /**
@@ -60,7 +61,10 @@ class Utils
     public static function camelToUnderscore($string, $us = "-"): string
     {
         return strtolower(preg_replace(
-            '/(?<=\d)(?=[A-Za-z])|(?<=[A-Za-z])(?=\d)|(?<=[a-z])(?=[A-Z])/', $us, $string));
+            '/(?<=\d)(?=[A-Za-z])|(?<=[A-Za-z])(?=\d)|(?<=[a-z])(?=[A-Z])/',
+            $us,
+            $string
+        ));
     }
 
     public static function isPipeTypeBuiltin(Pipe|string $pipe): bool
@@ -120,7 +124,7 @@ class Utils
     {
         if (is_array($something)) {
             return new UnionType($something);
-        } else if (is_string($something)) {
+        } elseif (is_string($something)) {
             if (class_exists($something)) {
                 if (is_subclass_of($something, Singleton::class)) {
                     return $something::getInstance();
@@ -233,7 +237,7 @@ class Utils
     {
         if ($type instanceof WrappedType) {
             $class = $type->typeClass;
-        } else if ($type instanceof EnumType) {
+        } elseif ($type instanceof EnumType) {
             $class = $type->enumClass;
         } else {
             $class = $type::class;

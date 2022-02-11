@@ -21,7 +21,7 @@ class ArrayType implements Type, Singleton
         if ($value instanceof Stop) {
             return $value;
         }
-        
+
         if (gettype($value) !== "array") {
             throw new InvalidTypeException($this, $value);
         }
@@ -32,7 +32,7 @@ class ArrayType implements Type, Singleton
     public static function getInstance(): static
     {
         if (empty(static::$instance)) {
-            static::$instance = new static;
+            static::$instance = new static();
         }
 
         return static::$instance;

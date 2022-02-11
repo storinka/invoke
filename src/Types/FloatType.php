@@ -22,7 +22,7 @@ class FloatType implements Type, Singleton
         if ($value instanceof Stop) {
             return $value;
         }
-        
+
         $type = gettype($value);
 
         if (Invoke::isInputMode() && Invoke::config("inputMode.convertStrings")) {
@@ -47,7 +47,7 @@ class FloatType implements Type, Singleton
     public static function getInstance(): static
     {
         if (empty(static::$instance)) {
-            static::$instance = new static;
+            static::$instance = new static();
         }
 
         return static::$instance;

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Invoke Code Style Ruleset">
+    <rule ref="PSR12">
+        <exclude name="Squiz.Functions.MultiLineFunctionDeclaration"/>
+        <exclude name="Squiz.Functions.FunctionDeclarationArgumentSpacing"/>
+        <exclude name="Squiz.Functions.FunctionDeclaration"/>
+    </rule>
+
+    <arg name="colors"/>
+
+    <file>./src</file>
+    <file>./tests</file>
+</ruleset>

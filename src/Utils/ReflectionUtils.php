@@ -153,12 +153,12 @@ final class ReflectionUtils
     {
         if ($reflectionType == null) {
             return AnyType::getInstance();
-        } else if ($reflectionType instanceof ReflectionNamedType) {
+        } elseif ($reflectionType instanceof ReflectionNamedType) {
             $name = $reflectionType->getName();
 
             if ($reflectionType->isBuiltin()) {
                 $type = Utils::typeNameToPipe($name);
-            } else if (enum_exists($name) && !is_subclass_of($name, Type::class)) {
+            } elseif (enum_exists($name) && !is_subclass_of($name, Type::class)) {
                 return new EnumType($name);
             } else {
                 $type = new WrappedType($name);
@@ -173,7 +173,7 @@ final class ReflectionUtils
             }
 
             return $type;
-        } else if ($reflectionType instanceof ReflectionUnionType) {
+        } elseif ($reflectionType instanceof ReflectionUnionType) {
             return new UnionType(array_map(
                 fn($t) => static::extractPipeFromReflectionType($t),
                 $reflectionType->getTypes()
@@ -290,6 +290,5 @@ final class ReflectionUtils
                                                         array $inputParameters,
                                                         array $renderedParameters)
     {
-
     }
 }

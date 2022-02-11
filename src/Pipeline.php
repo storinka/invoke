@@ -107,12 +107,12 @@ final class Pipeline
             $validPipe = true;
 
             $value = $pipe->pass($value);
-        } else if (class_exists($pipe) && is_subclass_of($pipe, Pipe::class)) {
+        } elseif (class_exists($pipe) && is_subclass_of($pipe, Pipe::class)) {
             $validPipe = true;
 
             if (is_subclass_of($pipe, Singleton::class)) {
                 $value = $pipe::getInstance()->pass($value);
-            } else if (is_subclass_of($pipe, Type::class)) {
+            } elseif (is_subclass_of($pipe, Type::class)) {
                 $value = (new WrappedType($pipe))->pass($value);
             } else {
                 $value = Container::make($pipe)->pass($value);

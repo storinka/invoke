@@ -40,7 +40,7 @@ class ArrayOf implements Validator, Type, HasDynamicName, HasUsedTypes
         foreach ($value as $index => $item) {
             try {
                 $value[$index] = Pipeline::pass($this->itemPipe, $item);
-            } catch (InvalidTypeException|ValidationFailedException) {
+            } catch (InvalidTypeException | ValidationFailedException) {
                 // ignore
             }
         }
