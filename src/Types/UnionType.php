@@ -14,7 +14,7 @@ use Invoke\Support\Singleton;
 use Invoke\Type;
 use Invoke\Utils\Utils;
 
-use function invoke_is_assoc;
+use function Invoke\Utils\is_assoc;
 
 class UnionType implements Type, HasDynamicName, HasUsedTypes
 {
@@ -63,7 +63,7 @@ class UnionType implements Type, HasDynamicName, HasUsedTypes
 
         if ($this->paramsPipesCount > 1) {
             if (is_array($value)) {
-                if (invoke_is_assoc($value)) {
+                if (is_assoc($value)) {
                     if (!array_key_exists("@type", $value)) {
                         throw new TypeNameRequiredException();
                     } else {

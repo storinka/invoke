@@ -22,8 +22,6 @@ use Invoke\Types\UnionType;
 use Invoke\Types\WrappedType;
 use Invoke\Validator;
 
-use function invoke_get_class_name;
-
 /**
  * Common utils.
  */
@@ -31,7 +29,7 @@ class Utils
 {
     public static function getMethodNameFromClass(string $class): string
     {
-        $name = invoke_get_class_name($class);
+        $name = get_class_name($class);
 
         $first = mb_strtolower($name[0]);
         $rest = substr($name, 1);
@@ -47,7 +45,7 @@ class Utils
             $className = $exception::class;
         }
 
-        $className = invoke_get_class_name($className);
+        $className = get_class_name($className);
 
         if (str_ends_with($className, "Exception")) {
             $className = substr($className, 0, strlen($className) - 9);

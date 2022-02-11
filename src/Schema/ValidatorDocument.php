@@ -7,6 +7,8 @@ use Invoke\Utils\Utils;
 use Invoke\Validator;
 use Invoke\Validators\ArrayOf;
 
+use function Invoke\Utils\get_class_name;
+
 class ValidatorDocument extends Data
 {
     public string $name;
@@ -24,7 +26,7 @@ class ValidatorDocument extends Data
         }
 
         return [
-            "name" => invoke_get_class_name($validator::class),
+            "name" => get_class_name($validator::class),
 
             "description" => "...",
             "data" => $data,

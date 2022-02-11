@@ -16,7 +16,7 @@ use ReflectionParameter;
 use ReflectionProperty;
 use RuntimeException;
 
-use function invoke_get_class_name;
+use function Invoke\Utils\get_class_name;
 
 class TypeWithParams implements Type, HasUsedTypes
 {
@@ -46,7 +46,7 @@ class TypeWithParams implements Type, HasUsedTypes
 
     public static function invoke_getName(): string
     {
-        return invoke_get_class_name(static::class);
+        return get_class_name(static::class);
     }
 
     public function invoke_getUsedTypes(): array

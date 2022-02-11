@@ -12,6 +12,8 @@ use Invoke\Utils\Utils;
 use Psr\Container\ContainerInterface;
 use Throwable;
 
+use function Invoke\Utils\array_merge_recursive2;
+
 /**
  * Invoke pipe itself.
  */

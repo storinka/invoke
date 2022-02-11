@@ -24,7 +24,8 @@ use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionProperty;
 use ReflectionUnionType;
-use Reflector;
+use ReflectionFunctionAbstract;
+use ReflectionClassConstant;
 
 /**
  * Common utils to work with reflection.
@@ -46,7 +47,7 @@ final class ReflectionUtils
 
     /**
      * @param string $methodClass
-     * @return array
+     * @return ReflectionClass[]
      */
     public static function extractMethodTraitExtensions(string $methodClass): array
     {
@@ -105,7 +106,7 @@ final class ReflectionUtils
         $traitExtensions = ReflectionUtils::extractMethodTraitExtensions($method::class);
 
         foreach ($traitExtensions as $trait) {
-            $traitName = invoke_get_class_name($trait);
+            $traitName = $trait->getName();
             $methodName = "{$hook}{$traitName}";
 
             if (method_exists($method, $methodName)) {
@@ -129,7 +130,7 @@ final class ReflectionUtils
         }
     }
 
-    public static function extractComment(Reflector $reflectionClass): array
+    public static function extractComment(ReflectionFunctionAbstract|ReflectionProperty|ReflectionClass|ReflectionClassConstant $reflectionClass): array
     {
         $comment = [
             "summary" => null,

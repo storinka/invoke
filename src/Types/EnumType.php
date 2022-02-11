@@ -9,6 +9,8 @@ use Invoke\Stop;
 use Invoke\Support\HasDynamicName;
 use Invoke\Type;
 
+use function Invoke\Utils\get_class_name;
+
 class EnumType implements Type, HasDynamicName
 {
     /** @var class-string<BackedEnum> $typeClass */
@@ -52,7 +54,7 @@ class EnumType implements Type, HasDynamicName
 
     public function invoke_getDynamicName(): string
     {
-        $className = invoke_get_class_name($this->enumClass);
+        $className = get_class_name($this->enumClass);
 
         if (!is_subclass_of($this->enumClass, BackedEnum::class)) {
             return "$className";
