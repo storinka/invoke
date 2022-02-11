@@ -35,7 +35,7 @@ final class Pipeline
     public static function removeOverride(Pipe|string $oldPipe): void
     {
         if (!isset(Pipeline::$override)) {
-            Pipeline::$override = new Map();
+            return;
         }
 
         Pipeline::$override->remove($oldPipe);

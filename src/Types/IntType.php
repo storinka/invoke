@@ -9,6 +9,8 @@ use Invoke\Stop;
 use Invoke\Support\Singleton;
 use Invoke\Type;
 
+use function var_dump;
+
 /**
  * Integer value.
  *
