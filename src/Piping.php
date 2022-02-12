@@ -248,12 +248,12 @@ final class Piping
             return $class::getInstance()->pass($value);
         }
 
-        if (is_subclass_of($class, Type::class)) {
-            return (new WrappedType($class))->pass($value);
-        }
-
         if (Container::has($class)) {
             return Container::get($class)->pass($value);
+        }
+
+        if (is_subclass_of($class, Type::class)) {
+            return (new WrappedType($class))->pass($value);
         }
 
         return Container::make($class)->pass($value);

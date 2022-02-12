@@ -44,8 +44,8 @@ class InvokeContainer implements InvokeContainerInterface
      */
     public function has(string $id): bool
     {
-        return in_array($id, $this->factories)
-            || in_array($id, $this->singletons);
+        return array_key_exists($id, $this->factories)
+            || array_key_exists($id, $this->singletons);
     }
 
     /**
