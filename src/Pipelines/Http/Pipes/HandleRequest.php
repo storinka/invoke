@@ -56,9 +56,7 @@ class HandleRequest implements Pipe
             throw new NotFoundException();
         }
 
-        $pathParts = explode("/", $path);
-
-        return end($pathParts);
+        return mb_substr($path, mb_strlen($pathPrefix) + 1);
     }
 
     protected function extractMethodParameters(ServerRequestInterface $request): array

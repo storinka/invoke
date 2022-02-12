@@ -5,6 +5,14 @@ namespace Invoke\Utils {
     use Invoke\Container;
     use Invoke\Invoke;
 
+    function dd(...$data)
+    {
+        echo "<pre>";
+        var_dump(...$data);
+        echo "</pre>";
+        die();
+    }
+
     /**
      * Get class name without namespace.
      *
@@ -59,9 +67,34 @@ namespace Invoke\Utils {
         return $moreUniqueArray;
     }
 
-    function invoke(string $method, array $params = [], ?string $version = null): mixed
+    function invoke(string $method, array $params = []): mixed
     {
         $invoke = Container::get(Invoke::class);
         return $invoke->invoke($method, $params);
+    }
+
+    function prepare_methods(array $methods): array
+    {
+        $newMethods = [];
+
+        foreach ($methods as $name => $method) {
+            if (is_numeric($name) && is_string($method)) {
+                unset($methods[$name]);
+
+                if (class_exists($method)) {
+                    $newMethods[Utils::getMethodNameFromClass($method)] = $method;
+                } else {
+                    $newMethods[$method] = $method;
+                }
+            } else if (is_string($name) && is_array($method)) {
+                foreach (prepare_methods($method) as $preparedName => $preparedMethod) {
+                    $newMethods["{$name}/$preparedName"] = $preparedMethod;
+                }
+            } else {
+                $newMethods[$name] = $method;
+            }
+        }
+
+        return $newMethods;
     }
 }

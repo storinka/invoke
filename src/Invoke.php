@@ -6,8 +6,8 @@ use Invoke\Extensions\Extension;
 use Invoke\Extensions\MethodExtension;
 use Invoke\Pipelines\MainPipeline;
 use Invoke\Support\FunctionPipe;
-use Invoke\Utils\Utils;
 use function Invoke\Utils\array_merge_recursive2;
+use function Invoke\Utils\prepare_methods;
 
 /**
  * Invoke pipe itself.
@@ -123,19 +123,7 @@ class Invoke implements InvokeInterface
      */
     public function setMethods(array $methods): static
     {
-        foreach ($methods as $name => $method) {
-            if (is_numeric($name) && is_string($method)) {
-                unset($methods[$name]);
-
-                if (class_exists($method)) {
-                    $methods[Utils::getMethodNameFromClass($method)] = $method;
-                } else {
-                    $methods[$method] = $method;
-                }
-            }
-        }
-
-        $this->methods = $methods;
+        $this->methods = prepare_methods($methods);
 
         return $this;
     }
@@ -158,6 +146,16 @@ class Invoke implements InvokeInterface
         }
 
         return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setMethod(string $name, callable|string $method): static
+    {
+        $this->methods[$name] = $method;
+
+        return $this;
     }
 
     /**

@@ -40,12 +40,21 @@ interface InvokeInterface extends Pipe
     public function getMethods(): array;
 
     /**
-     * Get method.
+     * Get a method.
      *
      * @param string $name
      * @return string|callable|null
      */
     public function getMethod(string $name): string|callable|null;
+
+    /**
+     * Set a method.
+     *
+     * @param string $name
+     * @param string|callable $method
+     * @return InvokeInterface
+     */
+    public function setMethod(string $name, string|callable $method): static;
 
     /**
      * Check if method exists.
@@ -56,7 +65,7 @@ interface InvokeInterface extends Pipe
     public function hasMethod(string $name): bool;
 
     /**
-     * Delete method.
+     * Delete a method.
      *
      * @param string $name
      * @return void
