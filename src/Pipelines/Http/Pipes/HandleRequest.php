@@ -1,6 +1,6 @@
 <?php
 
-namespace Invoke\Pipes;
+namespace Invoke\Pipelines\Http\Pipes;
 
 use Invoke\Container;
 use Invoke\Exceptions\NotFoundException;

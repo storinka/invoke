@@ -1,8 +1,8 @@
 <?php
 
-namespace Invoke\Support;
+namespace Invoke\Meta;
 
-use Invoke\Validators\ArrayOf;
+use Invoke\Toolkit\Validators\ArrayOf;
 
 /**
  * Says that type name is generated at runtime.

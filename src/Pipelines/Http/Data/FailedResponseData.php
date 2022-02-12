@@ -1,6 +1,6 @@
 <?php
 
-namespace Invoke\Types;
+namespace Invoke\Pipelines\Http\Data;
 
 use Invoke\Data;
 use Invoke\Support\ReadonlyParams;

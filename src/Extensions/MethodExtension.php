@@ -1,10 +1,13 @@
 <?php
 
-namespace Invoke\Meta;
+namespace Invoke\Extensions;
 
 use Invoke\Method;
 
-interface MethodExtension
+/**
+ * Method extension interface.
+ */
+interface MethodExtension extends Extension
 {
     public function beforeHandle(Method $method): void;
 

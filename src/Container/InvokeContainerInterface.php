@@ -4,6 +4,9 @@ namespace Invoke\Container;
 
 use Psr\Container\ContainerInterface;
 
+/**
+ * Invoke container interface.
+ */
 interface InvokeContainerInterface extends ContainerInterface
 {
     /**

@@ -3,14 +3,14 @@
 namespace Invoke\Types;
 
 use Invoke\Streams\StreamDecorator;
+use Invoke\Toolkit\Types\InputFile;
 use Invoke\Type;
 
 /**
  * Binary data type.
  *
- * @see HttpFile
+ * @see InputFile
  */
 interface BinaryType extends Type, StreamDecorator
 {
-    public function getType(): string;
 }

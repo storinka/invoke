@@ -4,10 +4,10 @@ namespace Invoke\Utils;
 
 use Exception;
 use Invoke\Data;
+use Invoke\Meta\HasDynamicName;
+use Invoke\Meta\Singleton;
 use Invoke\Pipe;
-use Invoke\Support\HasDynamicName;
-use Invoke\Support\HasUsedTypes;
-use Invoke\Support\Singleton;
+use Invoke\Schema\HasUsedTypes;
 use Invoke\Type;
 use Invoke\Types\AnyType;
 use Invoke\Types\ArrayType;
@@ -221,14 +221,14 @@ class Utils
     public static function getPipeTypeName(Type|string $pipe): string
     {
         if (is_string($pipe) && class_exists($pipe) && is_subclass_of($pipe, Type::class)) {
-            return $pipe::invoke_getName();
+            return $pipe::invoke_getTypeName();
         }
 
         if ($pipe instanceof HasDynamicName) {
             return $pipe->invoke_getDynamicName();
         }
 
-        return $pipe::invoke_getName();
+        return $pipe::invoke_getTypeName();
     }
 
     public static function getSchemaTypeName(Type $type): string
@@ -241,7 +241,7 @@ class Utils
             $class = $type::class;
         }
 
-        $typeName = $type::invoke_getName();
+        $typeName = $type::invoke_getTypeName();
 
         if ($type instanceof HasDynamicName) {
             $typeName = $type->invoke_getDynamicName();

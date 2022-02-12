@@ -6,8 +6,8 @@ use Invoke\Container;
 use Invoke\Data;
 use Invoke\Invoke;
 use Invoke\Meta\Parameter;
+use Invoke\Toolkit\Validators\ArrayOf;
 use Invoke\Utils\Utils;
-use Invoke\Validators\ArrayOf;
 
 use function Invoke\Utils\array_unique_by_key;
 

@@ -1,14 +1,14 @@
 <?php
 
-namespace Invoke\Validators;
+namespace Invoke\Toolkit\Validators;
 
 use Attribute;
 use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Exceptions\ValidationFailedException;
-use Invoke\Pipeline;
+use Invoke\Meta\HasDynamicName;
+use Invoke\Piping;
+use Invoke\Schema\HasUsedTypes;
 use Invoke\Stop;
-use Invoke\Support\HasDynamicName;
-use Invoke\Support\HasUsedTypes;
 use Invoke\Type;
 use Invoke\Types\ArrayType;
 use Invoke\Utils\Utils;
@@ -35,11 +35,11 @@ class ArrayOf implements Validator, Type, HasDynamicName, HasUsedTypes
             return $value;
         }
 
-        $value = Pipeline::pass(ArrayType::class, $value);
+        $value = Piping::run(ArrayType::class, $value);
 
         foreach ($value as $index => $item) {
             try {
-                $value[$index] = Pipeline::pass($this->itemPipe, $item);
+                $value[$index] = Piping::run($this->itemPipe, $item);
             } catch (InvalidTypeException | ValidationFailedException) {
                 // ignore
             }
@@ -53,14 +53,14 @@ class ArrayOf implements Validator, Type, HasDynamicName, HasUsedTypes
         return [$this->itemPipe];
     }
 
-    public static function invoke_getName(): string
+    public static function invoke_getTypeName(): string
     {
         return "array";
     }
 
     public function invoke_getDynamicName(): string
     {
-        $arrayTypeName = ArrayType::invoke_getName();
+        $arrayTypeName = ArrayType::invoke_getTypeName();
         $itemPipeName = Utils::getPipeTypeName($this->itemPipe);
 
         return "{$arrayTypeName}<{$itemPipeName}>";

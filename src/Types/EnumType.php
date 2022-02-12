@@ -6,9 +6,9 @@ namespace Invoke\Types;
 
 use BackedEnum;
 use Invoke\Exceptions\InvalidTypeException;
-use Invoke\Pipeline;
+use Invoke\Meta\HasDynamicName;
+use Invoke\Piping;
 use Invoke\Stop;
-use Invoke\Support\HasDynamicName;
 use Invoke\Type;
 use Invoke\Utils\Utils;
 use UnitEnum;
@@ -59,7 +59,7 @@ class EnumType implements Type, HasDynamicName
         throw new InvalidTypeException($this, $value);
     }
 
-    public static function invoke_getName(): string
+    public static function invoke_getTypeName(): string
     {
         return "enum";
     }

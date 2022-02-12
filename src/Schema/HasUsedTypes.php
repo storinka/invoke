@@ -1,6 +1,6 @@
 <?php
 
-namespace Invoke\Support;
+namespace Invoke\Schema;
 
 use Invoke\Type;
 

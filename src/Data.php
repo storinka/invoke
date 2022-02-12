@@ -19,7 +19,7 @@ abstract class Data extends TypeWithParams
     {
         $instance = Container::make(static::class);
 
-        return Pipeline::pass($instance, $input);
+        return Piping::run($instance, $input);
     }
 
     /**

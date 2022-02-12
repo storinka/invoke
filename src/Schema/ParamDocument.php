@@ -3,8 +3,8 @@
 namespace Invoke\Schema;
 
 use Invoke\Data;
+use Invoke\Toolkit\Validators\ArrayOf;
 use Invoke\Utils\Utils;
-use Invoke\Validators\ArrayOf;
 
 class ParamDocument extends Data
 {

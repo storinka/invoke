@@ -5,12 +5,12 @@ namespace Invoke\Schema;
 use BackedEnum;
 use Invoke\Data;
 use Invoke\Pipe;
+use Invoke\Toolkit\Validators\ArrayOf;
 use Invoke\Type;
 use Invoke\Types\WrappedType;
 use Invoke\Utils\ReflectionUtils;
 use Invoke\Utils\Utils;
 use Invoke\Validator;
-use Invoke\Validators\ArrayOf;
 use ReflectionClass;
 use ReflectionException;
 

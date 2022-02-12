@@ -18,6 +18,12 @@ final class Container
 {
     protected static InvokeContainerInterface $instance;
 
+    /**
+     * Set current container instance.
+     *
+     * @param InvokeContainerInterface $container
+     * @return void
+     */
     public static function setCurrent(InvokeContainerInterface $container): void
     {
         Container::$instance = $container;
@@ -26,6 +32,11 @@ final class Container
         Container::singleton(InvokeContainerInterface::class, $container);
     }
 
+    /**
+     * Get current container instance.
+     *
+     * @return InvokeContainerInterface
+     */
     public static function current(): InvokeContainerInterface
     {
         if (empty(Container::$instance)) {
@@ -36,6 +47,8 @@ final class Container
     }
 
     /**
+     * Get dependency from the container.
+     *
      * @template T
      *
      * @param class-string<T> $id
@@ -47,6 +60,8 @@ final class Container
     }
 
     /**
+     * Make an instance of a class.
+     *
      * @template T
      *
      * @param callable|class-string<T> $classOrCallable
@@ -58,6 +73,13 @@ final class Container
         return Container::current()->make($classOrCallable, $parameters);
     }
 
+    /**
+     * Proxy container methods call to actual instance.
+     *
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     */
     public static function __callStatic(string $name, array $arguments)
     {
         return Container::current()->{$name}(...$arguments);

@@ -1,6 +1,6 @@
 <?php
 
-namespace Invoke\Pipes;
+namespace Invoke\Pipelines\Http\Pipes;
 
 use Invoke\Pipe;
 use Invoke\Stop;

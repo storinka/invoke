@@ -1,11 +1,12 @@
 <?php
 
-namespace Invoke\Types;
+namespace Invoke\Toolkit\Types;
 
 use Invoke\Stop;
+use Invoke\Types\BinaryType;
 use Psr\Http\Message\StreamInterface;
 
-class HttpFile implements BinaryType
+class InputFile implements BinaryType
 {
     public function pass(mixed $value): mixed
     {
@@ -16,14 +17,9 @@ class HttpFile implements BinaryType
         return $value;
     }
 
-    public static function invoke_getName(): string
+    public static function invoke_getTypeName(): string
     {
         return "file";
-    }
-
-    public function getType(): string
-    {
-        // TODO: Implement getType() method.
     }
 
     public function getStream(): StreamInterface

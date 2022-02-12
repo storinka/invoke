@@ -5,7 +5,7 @@ namespace Invoke;
 use Attribute;
 
 /**
- * Abstract validator pipe.
+ * Validator pipe.
  */
 #[Attribute]
 interface Validator extends Pipe

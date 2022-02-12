@@ -2,7 +2,8 @@
 
 namespace Invoke;
 
-use Invoke\Meta\MethodExtension;
+use Invoke\Extensions\Extension;
+use Invoke\Extensions\MethodExtension;
 
 interface InvokeInterface extends Pipe
 {
@@ -86,18 +87,18 @@ interface InvokeInterface extends Pipe
     public function setInputMode(bool $inputMode): void;
 
     /**
-     * @template T of \Invoke\Meta\MethodExtension
+     * @template T of \Invoke\Meta\Extension
      *
      * @param class-string<T> $extensionClass
      * @param array $parameters
      * @return T
      */
-    public function registerMethodExtension(string $extensionClass, array $parameters = []): mixed;
+    public function registerExtension(string $extensionClass, array $parameters = []): static;
 
     /**
-     * @return MethodExtension[]
+     * @return Extension[]|MethodExtension[]
      */
-    public function getMethodExtensions(): array;
+    public function getExtensions(): array;
 
     /**
      * Run main pipeline.

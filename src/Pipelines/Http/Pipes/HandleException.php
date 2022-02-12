@@ -1,10 +1,10 @@
 <?php
 
-namespace Invoke\Pipes;
+namespace Invoke\Pipelines\Http\Pipes;
 
 use Invoke\Pipe;
+use Invoke\Pipelines\Http\Data\FailedResponseData;
 use Invoke\Stop;
-use Invoke\Types\FailedResponseData;
 use RuntimeException;
 use Throwable;
 

@@ -5,12 +5,12 @@ namespace Invoke\Types;
 use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Exceptions\RequiredParamNotProvidedException;
 use Invoke\Exceptions\TypeNameRequiredException;
+use Invoke\Meta\HasDynamicName;
+use Invoke\Meta\Singleton;
 use Invoke\Pipe;
-use Invoke\Pipeline;
+use Invoke\Piping;
+use Invoke\Schema\HasUsedTypes;
 use Invoke\Stop;
-use Invoke\Support\HasDynamicName;
-use Invoke\Support\HasUsedTypes;
-use Invoke\Support\Singleton;
 use Invoke\Type;
 use Invoke\Utils\Utils;
 
@@ -71,7 +71,7 @@ class UnionType implements Type, HasDynamicName, HasUsedTypes
 
                         foreach ($this->pipes as $pipe) {
                             if (Utils::getPipeTypeName($pipe) === $valueType) {
-                                return Pipeline::pass($pipe, $value);
+                                return Piping::run($pipe, $value);
                             }
                         }
                     }
@@ -81,7 +81,7 @@ class UnionType implements Type, HasDynamicName, HasUsedTypes
 
         foreach ($this->pipes as $pipe) {
             try {
-                return Pipeline::pass($pipe, $value);
+                return Piping::run($pipe, $value);
             } catch (RequiredParamNotProvidedException | InvalidTypeException $exception) {
 //                if ($exception->expectedType !== $pipe) {
 //                    throw new InvalidTypeException($pipe, $value);
@@ -100,7 +100,7 @@ class UnionType implements Type, HasDynamicName, HasUsedTypes
         );
     }
 
-    public static function invoke_getName(): string
+    public static function invoke_getTypeName(): string
     {
         return "union";
     }

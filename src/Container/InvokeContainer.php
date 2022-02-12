@@ -7,6 +7,9 @@ use Invoke\Container;
 use Invoke\Utils\ReflectionUtils;
 use ReflectionFunction;
 
+/**
+ * Default invoke container implementation.
+ */
 class InvokeContainer implements InvokeContainerInterface
 {
     protected array $factories = [];

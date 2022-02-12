@@ -1,9 +1,9 @@
 <?php
 
-namespace Invoke\Pipes;
+namespace Invoke\Pipelines\Http\Pipes;
 
 use Invoke\Pipe;
-use Invoke\Types\SuccessResponseData;
+use Invoke\Pipelines\Http\Data\SuccessResponseData;
 
 class TransformResult implements Pipe
 {

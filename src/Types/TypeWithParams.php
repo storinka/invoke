@@ -6,9 +6,9 @@ use Invoke\Container;
 use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Exceptions\RequiredParamNotProvidedException;
 use Invoke\Pipe;
-use Invoke\Pipeline;
+use Invoke\Piping;
+use Invoke\Schema\HasUsedTypes;
 use Invoke\Stop;
-use Invoke\Support\HasUsedTypes;
 use Invoke\Type;
 use Invoke\Utils\ReflectionUtils;
 use Invoke\Utils\Utils;
@@ -44,7 +44,7 @@ class TypeWithParams implements Type, HasUsedTypes
         return $this;
     }
 
-    public static function invoke_getName(): string
+    public static function invoke_getTypeName(): string
     {
         return get_class_name(static::class);
     }
@@ -152,20 +152,20 @@ class TypeWithParams implements Type, HasUsedTypes
                 }
             }
 
-            $className = static::invoke_getName();
+            $className = static::invoke_getTypeName();
 
-            $value = Pipeline::catcher(
-                fn() => Pipeline::pass($pipe, $value),
+            $value = Piping::catcher(
+                fn() => Piping::run($pipe, $value),
                 "{$className}::{$name}"
             );
 
-            Pipeline::catcher(
+            Piping::catcher(
                 function () use ($name, $parameter, &$value) {
                     foreach ($parameter->getAttributes() as $attribute) {
                         if (is_subclass_of($attribute->getName(), Pipe::class)) {
                             $attributePipe = $attribute->newInstance();
 
-                            $value = Pipeline::pass($attributePipe, $value);
+                            $value = Piping::run($attributePipe, $value);
                         }
                     }
                 },

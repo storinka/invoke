@@ -3,13 +3,13 @@
 namespace Invoke\Utils;
 
 use Invoke\Container;
+use Invoke\Extensions\MethodExtension;
+use Invoke\Extensions\MethodTraitExtension;
 use Invoke\Invoke;
 use Invoke\Meta\Inject;
-use Invoke\Meta\MethodExtension;
-use Invoke\Meta\MethodTraitExtension;
 use Invoke\Meta\NotParameter;
 use Invoke\Method;
-use Invoke\Support\HasUsedTypes;
+use Invoke\Schema\HasUsedTypes;
 use Invoke\Type;
 use Invoke\Types\AnyType;
 use Invoke\Types\EnumType;
@@ -20,13 +20,13 @@ use Invoke\Types\WrappedType;
 use Invoke\Validator;
 use phpDocumentor\Reflection\DocBlockFactory;
 use ReflectionClass;
+use ReflectionClassConstant;
+use ReflectionFunctionAbstract;
 use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionProperty;
 use ReflectionUnionType;
-use ReflectionFunctionAbstract;
-use ReflectionClassConstant;
 
 /**
  * Common utils to work with reflection.
@@ -120,7 +120,7 @@ final class ReflectionUtils
         $invoke = Container::get(Invoke::class);
 
         $attributeExtensions = ReflectionUtils::extractMethodAttributeExtensions($method::class);
-        $attributeExtensions = [...$attributeExtensions, ...$invoke->getMethodExtensions()];
+        $attributeExtensions = [...$attributeExtensions, ...$invoke->getExtensions()];
 
         foreach ($attributeExtensions as $extension) {
             $extensionReflectionClass = ReflectionUtils::getClass($extension::class);

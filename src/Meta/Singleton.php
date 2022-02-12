@@ -1,6 +1,6 @@
 <?php
 
-namespace Invoke\Support;
+namespace Invoke\Meta;
 
 /**
  * Says that class has single instance.

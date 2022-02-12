@@ -5,8 +5,8 @@ namespace Invoke\Types;
 use Invoke\Container;
 use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Invoke;
+use Invoke\Meta\Singleton;
 use Invoke\Stop;
-use Invoke\Support\Singleton;
 use Invoke\Type;
 
 use function var_dump;
@@ -54,7 +54,7 @@ class IntType implements Type, Singleton
         return static::$instance;
     }
 
-    public static function invoke_getName(): string
+    public static function invoke_getTypeName(): string
     {
         return "int";
     }

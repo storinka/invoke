@@ -1,6 +1,6 @@
 <?php
 
-namespace Invoke\Validators;
+namespace Invoke\Toolkit\Validators;
 
 use Attribute;
 use Invoke\Exceptions\ValidationFailedException;

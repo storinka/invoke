@@ -5,8 +5,8 @@ namespace Invoke\Types;
 use Invoke\Container;
 use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Invoke;
+use Invoke\Meta\Singleton;
 use Invoke\Stop;
-use Invoke\Support\Singleton;
 use Invoke\Type;
 
 /**
@@ -43,7 +43,7 @@ class NullType implements Type, Singleton
         return $value;
     }
 
-    public static function invoke_getName(): string
+    public static function invoke_getTypeName(): string
     {
         return "null";
     }

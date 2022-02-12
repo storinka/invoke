@@ -2,15 +2,12 @@
 
 namespace Invoke;
 
-use Invoke\Meta\MethodExtension;
-use Invoke\Pipelines\DefaultErrorPipeline;
-use Invoke\Pipelines\DefaultPipeline;
+use Invoke\Extensions\Extension;
+use Invoke\Extensions\MethodExtension;
+use Invoke\Pipelines\MainPipeline;
 use Invoke\Pipes\FunctionPipe;
 use Invoke\Utils\Utils;
-use Throwable;
-
 use function Invoke\Utils\array_merge_recursive2;
-use function var_dump;
 
 /**
  * Invoke pipe itself.
@@ -29,9 +26,9 @@ class Invoke implements InvokeInterface
     /**
      * Method extensions.
      *
-     * @var MethodExtension[] $methodExtensions
+     * @var Extension[]|MethodExtension[] $extensions
      */
-    protected array $methodExtensions = [
+    protected array $extensions = [
     ];
 
     /**
@@ -59,8 +56,7 @@ class Invoke implements InvokeInterface
             "alwaysReturnName" => false,
         ],
         "serve" => [
-            "defaultPipeline" => DefaultPipeline::class,
-            "defaultErrorPipeline" => DefaultErrorPipeline::class,
+            "defaultPipeline" => MainPipeline::class,
         ]
     ];
 
@@ -103,7 +99,7 @@ class Invoke implements InvokeInterface
             $method = new FunctionPipe($method);
         }
 
-        return Pipeline::pass($method, $params);
+        return Piping::run($method, $params);
     }
 
     /**
@@ -219,11 +215,11 @@ class Invoke implements InvokeInterface
     /**
      * @inheritDoc
      */
-    public function registerMethodExtension(string $extensionClass, array $parameters = []): mixed
+    public function registerExtension(string $extensionClass, array $parameters = []): mixed
     {
         $extension = Container::make($extensionClass, $parameters);
 
-        $this->methodExtensions[] = $extension;
+        $this->extensions[] = $extension;
 
         return $extension;
     }
@@ -231,9 +227,9 @@ class Invoke implements InvokeInterface
     /**
      * @inheritDoc
      */
-    public function getMethodExtensions(): array
+    public function getExtensions(): array
     {
-        return $this->methodExtensions;
+        return $this->extensions;
     }
 
     /**
@@ -246,13 +242,7 @@ class Invoke implements InvokeInterface
             $pipeline = $this->getConfig("serve.defaultPipeline");
         }
 
-        try {
-            return Pipeline::pass($pipeline, $input);
-        } catch (Throwable $exception) {
-            $errorPipeline = $this->getConfig("serve.defaultErrorPipeline");
-
-            return Pipeline::pass($errorPipeline, $exception);
-        }
+        return Piping::run($pipeline, $input);
     }
 
     /**

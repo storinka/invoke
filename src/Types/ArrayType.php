@@ -3,8 +3,8 @@
 namespace Invoke\Types;
 
 use Invoke\Exceptions\InvalidTypeException;
+use Invoke\Meta\Singleton;
 use Invoke\Stop;
-use Invoke\Support\Singleton;
 use Invoke\Type;
 
 /**
@@ -38,7 +38,7 @@ class ArrayType implements Type, Singleton
         return static::$instance;
     }
 
-    public static function invoke_getName(): string
+    public static function invoke_getTypeName(): string
     {
         return "array";
     }

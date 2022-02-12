@@ -3,9 +3,9 @@
 namespace Invoke\Schema;
 
 use Invoke\Data;
+use Invoke\Toolkit\Validators\ArrayOf;
 use Invoke\Utils\Utils;
 use Invoke\Validator;
-use Invoke\Validators\ArrayOf;
 
 use function Invoke\Utils\get_class_name;
 
