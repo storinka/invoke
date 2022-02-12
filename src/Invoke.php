@@ -215,13 +215,13 @@ class Invoke implements InvokeInterface
     /**
      * @inheritDoc
      */
-    public function registerExtension(string $extensionClass, array $parameters = []): mixed
+    public function registerExtension(string $extensionClass, array $parameters = []): static
     {
         $extension = Container::make($extensionClass, $parameters);
 
         $this->extensions[] = $extension;
 
-        return $extension;
+        return $this;
     }
 
     /**
