@@ -88,7 +88,7 @@ namespace Invoke\Utils {
                 }
             } else if (is_string($name) && is_array($method)) {
                 foreach (prepare_methods($method) as $preparedName => $preparedMethod) {
-                    $newMethods["{$name}/$preparedName"] = $preparedMethod;
+                    $newMethods["{$name}/{$preparedName}"] = $preparedMethod;
                 }
             } else {
                 $newMethods[$name] = $method;

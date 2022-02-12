@@ -2,6 +2,7 @@
 
 namespace Invoke;
 
+use Invoke\Exceptions\MethodNotFoundException;
 use Invoke\Extensions\Extension;
 use Invoke\Extensions\MethodExtension;
 use Invoke\Pipelines\MainPipeline;
@@ -93,6 +94,10 @@ class Invoke implements InvokeInterface
      */
     public function invoke(string $name, array $params = []): mixed
     {
+        if (!$this->hasMethod($name)) {
+            throw new MethodNotFoundException($name);
+        }
+
         $method = $this->methods[$name];
 
         if (is_callable($method)) {
