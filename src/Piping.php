@@ -252,6 +252,10 @@ final class Piping
             return (new WrappedType($class))->pass($value);
         }
 
+        if (Container::has($class)) {
+            return Container::get($class)->pass($value);
+        }
+
         return Container::make($class)->pass($value);
     }
 
