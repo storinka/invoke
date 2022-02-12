@@ -1,11 +1,11 @@
 <?php
 
-namespace Invoke\Schema;
+namespace Invoke\Meta;
 
 use Invoke\Type;
 
 /**
- * Says that class has types which should be shown in documentation.
+ * Says that class has types which should be included to schema.
  */
 interface HasUsedTypes
 {

@@ -1,12 +1,13 @@
 <?php
 
-namespace Invoke\Toolkit\Types;
+namespace Invoke\Pipelines\Http\Types;
 
+use Invoke\Pipelines\Http\Streams\StreamDecorator;
 use Invoke\Stop;
 use Invoke\Types\BinaryType;
 use Psr\Http\Message\StreamInterface;
 
-class InputFile implements BinaryType
+class HttpFile implements BinaryType, StreamDecorator
 {
     public function pass(mixed $value): mixed
     {

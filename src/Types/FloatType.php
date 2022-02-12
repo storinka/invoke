@@ -13,6 +13,8 @@ use Invoke\Type;
  * Float type.
  *
  * Example: <code>3.14</code>
+ *
+ * @implements Type<mixed, float>
  */
 class FloatType implements Type, Singleton
 {

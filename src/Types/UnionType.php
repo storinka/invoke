@@ -6,14 +6,13 @@ use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Exceptions\RequiredParamNotProvidedException;
 use Invoke\Exceptions\TypeNameRequiredException;
 use Invoke\Meta\HasDynamicName;
+use Invoke\Meta\HasUsedTypes;
 use Invoke\Meta\Singleton;
 use Invoke\Pipe;
 use Invoke\Piping;
-use Invoke\Schema\HasUsedTypes;
 use Invoke\Stop;
 use Invoke\Type;
 use Invoke\Utils\Utils;
-
 use function Invoke\Utils\is_assoc;
 
 class UnionType implements Type, HasDynamicName, HasUsedTypes

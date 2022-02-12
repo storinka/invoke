@@ -3,6 +3,7 @@
 namespace Invoke\Types;
 
 use Invoke\Meta\Singleton;
+use Invoke\Method;
 use Invoke\Stop;
 use Invoke\Type;
 
@@ -10,6 +11,8 @@ use Invoke\Type;
  * Any type.
  *
  * Example: <code>"some string value"</code>, <code>1232.21</code>
+ *
+ * @implements Type<mixed, mixed>
  */
 class AnyType implements Type, Singleton
 {

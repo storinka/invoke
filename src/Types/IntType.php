@@ -15,6 +15,8 @@ use function var_dump;
  * Integer value.
  *
  * Example: <code>123</code>
+ *
+ * @implements Type<mixed, int>
  */
 class IntType implements Type, Singleton
 {

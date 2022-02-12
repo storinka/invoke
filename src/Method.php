@@ -8,15 +8,17 @@ use Invoke\Utils\Utils;
 
 /**
  * Abstract method pipe.
+ *
+ * @template R
  */
 abstract class Method extends TypeWithParams
 {
     /**
      * Method handler.
      *
-     * @return mixed
+     * @return R
      */
-    protected abstract function handle(): mixed;
+    protected abstract function handle();
 
     public function pass(mixed $input): mixed
     {
@@ -61,7 +63,7 @@ abstract class Method extends TypeWithParams
      * Invoke the method.
      *
      * @param array $params
-     * @return mixed
+     * @return R
      */
     public static function invoke(array $params = []): mixed
     {

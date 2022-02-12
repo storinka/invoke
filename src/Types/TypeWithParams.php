@@ -5,9 +5,9 @@ namespace Invoke\Types;
 use Invoke\Container;
 use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Exceptions\RequiredParamNotProvidedException;
+use Invoke\Meta\HasUsedTypes;
 use Invoke\Pipe;
 use Invoke\Piping;
-use Invoke\Schema\HasUsedTypes;
 use Invoke\Stop;
 use Invoke\Type;
 use Invoke\Utils\ReflectionUtils;
@@ -15,7 +15,6 @@ use Invoke\Utils\Utils;
 use ReflectionParameter;
 use ReflectionProperty;
 use RuntimeException;
-
 use function Invoke\Utils\get_class_name;
 
 class TypeWithParams implements Type, HasUsedTypes

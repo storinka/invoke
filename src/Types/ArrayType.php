@@ -11,6 +11,8 @@ use Invoke\Type;
  * Array type.
  *
  * Example: <code>[1, 2, 3]</code>
+ *
+ * @implements Type<mixed, array>
  */
 class ArrayType implements Type, Singleton
 {

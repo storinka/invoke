@@ -13,6 +13,8 @@ use Invoke\Type;
  * Boolean type.
  *
  * Example: <code>true</code>
+ *
+ * @implements Type<mixed, bool>
  */
 class BoolType implements Type, Singleton
 {

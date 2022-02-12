@@ -1,6 +1,6 @@
 <?php
 
-namespace Invoke\Streams;
+namespace Invoke\Pipelines\Http\Streams;
 
 use Psr\Http\Message\StreamInterface;
 

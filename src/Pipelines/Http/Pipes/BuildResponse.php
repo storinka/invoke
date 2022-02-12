@@ -4,11 +4,11 @@ namespace Invoke\Pipelines\Http\Pipes;
 
 use Invoke\Container;
 use Invoke\Pipe;
+use Invoke\Pipelines\Http\Streams\JsonStreamDecorator;
+use Invoke\Pipelines\Http\Streams\StreamDecorator;
+use Invoke\Pipelines\Http\Streams\TextStreamDecorator;
 use Invoke\Stop;
-use Invoke\Streams\JsonStreamDecorator;
-use Invoke\Streams\StreamDecorator;
-use Invoke\Streams\TextStreamDecorator;
-use Nyholm\Psr7\Response;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
@@ -29,7 +29,8 @@ class BuildResponse implements Pipe
             throw new RuntimeException("The value for BuildResponse pipe must be a StreamInterface.");
         }
 
-        $response = new Response();
+        $responsesFactory = Container::get(ResponseFactoryInterface::class);
+        $response = $responsesFactory->createResponse();
 
         Container::singleton(ResponseInterface::class, $response);
 

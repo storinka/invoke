@@ -6,10 +6,10 @@ use Invoke\Container;
 use Invoke\Extensions\MethodExtension;
 use Invoke\Extensions\MethodTraitExtension;
 use Invoke\Invoke;
+use Invoke\Meta\HasUsedTypes;
 use Invoke\Meta\Inject;
 use Invoke\Meta\NotParameter;
 use Invoke\Method;
-use Invoke\Schema\HasUsedTypes;
 use Invoke\Type;
 use Invoke\Types\AnyType;
 use Invoke\Types\EnumType;
@@ -288,11 +288,5 @@ final class ReflectionUtils
         }
 
         return $pipes;
-    }
-
-    public static function validateReflectionParameters(array $reflectionParameters,
-                                                        array $inputParameters,
-                                                        array $renderedParameters)
-    {
     }
 }

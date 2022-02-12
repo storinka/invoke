@@ -5,7 +5,7 @@ namespace Invoke;
 use Invoke\Extensions\Extension;
 use Invoke\Extensions\MethodExtension;
 use Invoke\Pipelines\MainPipeline;
-use Invoke\Pipes\FunctionPipe;
+use Invoke\Support\FunctionPipe;
 use Invoke\Utils\Utils;
 use function Invoke\Utils\array_merge_recursive2;
 

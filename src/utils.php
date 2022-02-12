@@ -1,6 +1,10 @@
 <?php
 
 namespace Invoke\Utils {
+
+    use Invoke\Container;
+    use Invoke\Invoke;
+
     /**
      * Get class name without namespace.
      *
@@ -53,5 +57,11 @@ namespace Invoke\Utils {
         $tempArray = array_unique(array_column($array, $property));
         $moreUniqueArray = array_values(array_intersect_key($array, $tempArray));
         return $moreUniqueArray;
+    }
+
+    function invoke(string $method, array $params = [], ?string $version = null): mixed
+    {
+        $invoke = Container::get(Invoke::class);
+        return $invoke->invoke($method, $params);
     }
 }

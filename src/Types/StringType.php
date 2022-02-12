@@ -11,6 +11,8 @@ use Invoke\Type;
  * String type.
  *
  * Example: <code>\"Diana\"</code>
+ *
+ * @implements Type<mixed, string>
  */
 class StringType implements Type, Singleton
 {

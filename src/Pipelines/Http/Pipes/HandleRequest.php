@@ -63,7 +63,7 @@ class HandleRequest implements Pipe
 
     protected function extractMethodParameters(ServerRequestInterface $request): array
     {
-        if ($request->getHeaderLine('Content-Type') === 'application/json') {
+        if ($request->getHeaderLine("Content-Type") === "application/json") {
             return json_decode($request->getBody(), true);
         }
 

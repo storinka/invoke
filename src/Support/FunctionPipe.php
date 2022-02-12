@@ -1,6 +1,6 @@
 <?php
 
-namespace Invoke\Pipes;
+namespace Invoke\Support;
 
 use Closure;
 use Invoke\Pipe;

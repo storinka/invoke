@@ -2,15 +2,14 @@
 
 namespace Invoke\Types;
 
-use Invoke\Streams\StreamDecorator;
-use Invoke\Toolkit\Types\InputFile;
+use Invoke\Pipelines\Http\Types\HttpFile;
 use Invoke\Type;
 
 /**
  * Binary data type.
  *
- * @see InputFile
+ * @see HttpFile
  */
-interface BinaryType extends Type, StreamDecorator
+interface BinaryType extends Type
 {
 }

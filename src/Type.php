@@ -4,6 +4,11 @@ namespace Invoke;
 
 /**
  * Type pipe.
+ *
+ * @template IType
+ * @template RType
+ *
+ * @extends Pipe<IType, RType>
  */
 interface Type extends Pipe
 {

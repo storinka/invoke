@@ -13,6 +13,8 @@ use Invoke\Type;
  * Null type.
  *
  * Example: <code>null</code>
+ *
+ * @implements Type<mixed, null>
  */
 class NullType implements Type, Singleton
 {
