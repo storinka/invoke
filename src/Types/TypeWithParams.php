@@ -5,6 +5,8 @@ namespace Invoke\Types;
 use Invoke\Container;
 use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Exceptions\RequiredParamNotProvidedException;
+use Invoke\Invoke;
+use Invoke\Meta\HasToArray;
 use Invoke\Meta\HasUsedTypes;
 use Invoke\Pipe;
 use Invoke\Piping;
@@ -12,12 +14,13 @@ use Invoke\Stop;
 use Invoke\Type;
 use Invoke\Utils\ReflectionUtils;
 use Invoke\Utils\Utils;
+use JsonSerializable;
 use ReflectionParameter;
 use ReflectionProperty;
 use RuntimeException;
 use function Invoke\Utils\get_class_name;
 
-class TypeWithParams implements Type, HasUsedTypes
+class TypeWithParams implements Type, HasUsedTypes, JsonSerializable, HasToArray
 {
     /**
      * @param mixed $input
@@ -50,7 +53,7 @@ class TypeWithParams implements Type, HasUsedTypes
 
     public function invoke_getUsedTypes(): array
     {
-        return ReflectionUtils::extractPipesFromParamsPipe($this);
+        return ReflectionUtils::extractUsedPipesFromParamsPipe($this);
     }
 
     protected function invoke_setParamValue(string $name, $value)
@@ -175,5 +178,26 @@ class TypeWithParams implements Type, HasUsedTypes
         }
 
         return $validated;
+    }
+
+    public function shouldIncludeTypeName(): bool
+    {
+        return Container::get(Invoke::class)->getConfig("types.alwaysReturnName", true);
+    }
+
+    public function jsonSerialize(): array
+    {
+        return $this->toArray();
+    }
+
+    public function toArray(): array
+    {
+        $array = (array)$this;
+
+        if ($this->shouldIncludeTypeName()) {
+            $array["@type"] = Utils::getPipeTypeName($this);
+        }
+
+        return $array;
     }
 }

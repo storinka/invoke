@@ -2,6 +2,7 @@
 
 namespace Invoke\Utils;
 
+use Ds\Set;
 use Invoke\Container;
 use Invoke\Extensions\MethodExtension;
 use Invoke\Extensions\MethodTraitExtension;
@@ -220,7 +221,7 @@ final class ReflectionUtils
         $params = [];
 
         foreach ($class->getProperties() as $property) {
-            if (!static::isPropertyParam($property)) {
+            if (!ReflectionUtils::isPropertyParam($property)) {
                 continue;
             }
 
@@ -264,19 +265,30 @@ final class ReflectionUtils
         return ReflectionUtils::extractPipeFromReflectionType($reflectionReturnType);
     }
 
-    public static function extractPipesFromParamsPipe(TypeWithParams|string $pipe): array
+    public static function extractUsedPipesFromParamsPipe(TypeWithParams|string $pipe): array
     {
-        $pipes = [];
+        $pipes = new Set();
 
         $reflectionClass = ReflectionUtils::getClass($pipe);
-        $params = ReflectionUtils::extractParamsPipes($reflectionClass);
-        foreach ($params as $param) {
-            $pipes[] = $param["type"];
 
-            /** @var Validator $validator */
-            foreach ($param["validators"] as $validator) {
+        $params = ReflectionUtils::extractParamsPipes($reflectionClass);
+
+        foreach ($params as $param) {
+            /** @var Type $type */
+            $type = $param["type"];
+
+            /** @var Validator[] $validators */
+            $validators = $param["validators"];
+
+            $pipes->add($type);
+
+            foreach ($validators as $validator) {
+                if ($pipes->contains($validator)) {
+                    continue;
+                }
+
                 if ($validator instanceof HasUsedTypes) {
-                    array_push($pipes, ...$validator->invoke_getUsedTypes());
+                    $pipes->add(...$validator->invoke_getUsedTypes());
                 }
             }
         }
@@ -287,6 +299,6 @@ final class ReflectionUtils
             $pipes[] = ReflectionUtils::extractPipeFromMethodReturnType($reflectionMethod);
         }
 
-        return $pipes;
+        return $pipes->toArray();
     }
 }

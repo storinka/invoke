@@ -67,6 +67,13 @@ namespace Invoke\Utils {
         return $moreUniqueArray;
     }
 
+    /**
+     * Invoke a method.
+     *
+     * @param string $method
+     * @param array $params
+     * @return mixed
+     */
     function invoke(string $method, array $params = []): mixed
     {
         $invoke = Container::get(Invoke::class);

@@ -2,9 +2,12 @@
 
 namespace Invoke\Pipelines\Http\Pipes;
 
+use Invoke\Container;
+use Invoke\Exceptions\PipeException;
 use Invoke\Pipe;
 use Invoke\Pipelines\Http\Data\FailedResponseData;
 use Invoke\Stop;
+use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 use Throwable;
 
@@ -24,8 +27,16 @@ class HandleException implements Pipe
             throw new RuntimeException("The value for HandleException pipe must be a Throwable.");
         }
 
+        $response = Container::get(ResponseInterface::class);
+        if ($value instanceof PipeException) {
+            $response = $response->withStatus($value->getHttpCode());
+        } else {
+            $response = $response->withStatus(500);
+        }
+        Container::singleton(ResponseInterface::class, $response);
+
         return FailedResponseData::from([
-            "code" => $value->getCode(),
+            "code" => $response->getStatusCode(),
             "error" => $value::class,
             "message" => $value->getMessage(),
         ]);

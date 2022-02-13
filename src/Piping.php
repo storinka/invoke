@@ -65,19 +65,14 @@ final class Piping
 
         if ($pipe instanceof Pipe) {
             $value = $pipe->pass($value);
-
-            // run after pipes
-            return Piping::runAfterPipes($pipeClass, $value);
-        }
-
-        if (class_exists($pipe) && is_subclass_of($pipe, Pipe::class)) {
+        } elseif (class_exists($pipe) && is_subclass_of($pipe, Pipe::class)) {
             $value = Piping::runClass($pipe, $value);
-
-            // run after pipes
-            return Piping::runAfterPipes($pipeClass, $value);
+        } else {
+            throw new RuntimeException("Invalid pipe: $pipe");
         }
 
-        throw new RuntimeException("Invalid pipe: $pipe");
+        // run after pipes
+        return Piping::runAfterPipes($pipeClass, $value);
     }
 
     /**

@@ -20,7 +20,7 @@ use Invoke\Validator;
  * Can be used as type to validate nested arrays.
  */
 #[Attribute]
-class ArrayOf implements Validator, Type, HasDynamicName, HasUsedTypes
+class ArrayOf extends ArrayType implements Validator, Type, HasDynamicName, HasUsedTypes
 {
     public Type $itemPipe;
 
@@ -31,16 +31,16 @@ class ArrayOf implements Validator, Type, HasDynamicName, HasUsedTypes
 
     public function pass(mixed $value): mixed
     {
+        $value = parent::pass($value);
+
         if ($value instanceof Stop) {
             return $value;
         }
 
-        $value = Piping::run(ArrayType::class, $value);
-
         foreach ($value as $index => $item) {
             try {
                 $value[$index] = Piping::run($this->itemPipe, $item);
-            } catch (InvalidTypeException | ValidationFailedException) {
+            } catch (InvalidTypeException|ValidationFailedException) {
                 // ignore
             }
         }
@@ -53,16 +53,18 @@ class ArrayOf implements Validator, Type, HasDynamicName, HasUsedTypes
         return [$this->itemPipe];
     }
 
-    public static function invoke_getTypeName(): string
-    {
-        return "array";
-    }
-
     public function invoke_getDynamicName(): string
     {
-        $arrayTypeName = ArrayType::invoke_getTypeName();
+        $arrayTypeName = static::invoke_getTypeName();
         $itemPipeName = Utils::getPipeTypeName($this->itemPipe);
 
         return "{$arrayTypeName}<{$itemPipeName}>";
+    }
+
+    public function invoke_getValidatorData(): array
+    {
+        return [
+            "itemType" => Utils::getUniqueTypeName($this->itemPipe),
+        ];
     }
 }

@@ -8,7 +8,6 @@ use Invoke\Pipelines\Http\Streams\JsonStreamDecorator;
 use Invoke\Pipelines\Http\Streams\StreamDecorator;
 use Invoke\Pipelines\Http\Streams\TextStreamDecorator;
 use Invoke\Stop;
-use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
@@ -29,10 +28,7 @@ class BuildResponse implements Pipe
             throw new RuntimeException("The value for BuildResponse pipe must be a StreamInterface.");
         }
 
-        $responsesFactory = Container::get(ResponseFactoryInterface::class);
-        $response = $responsesFactory->createResponse();
-
-        Container::singleton(ResponseInterface::class, $response);
+        $response = Container::get(ResponseInterface::class);
 
         if (!$response->hasHeader("Content-Type")) {
             if ($stream instanceof JsonStreamDecorator) {

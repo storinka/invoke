@@ -29,7 +29,6 @@ class HttpPipeline extends Pipeline
     protected array $catchPipes = [
         HandleException::class,
 
-        TransformResult::class,
         ResultToStream::class,
         BuildResponse::class,
         EmitResponse::class,

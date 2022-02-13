@@ -9,6 +9,7 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 
@@ -30,12 +31,15 @@ class ParseRequest implements Pipe
         );
 
         $request = $creator->fromGlobals();
+        $response = $psr17Factory->createResponse();
 
         Container::singleton(RequestInterface::class, $request);
         Container::singleton(ServerRequestInterface::class, $request);
 
         Container::singleton(StreamFactoryInterface::class, $psr17Factory);
         Container::singleton(ResponseFactoryInterface::class, $psr17Factory);
+
+        Container::singleton(ResponseInterface::class, $response);
 
         return $request;
     }

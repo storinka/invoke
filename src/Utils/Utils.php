@@ -2,6 +2,7 @@
 
 namespace Invoke\Utils;
 
+use Ds\Set;
 use Exception;
 use Invoke\Data;
 use Invoke\Meta\HasDynamicName;
@@ -65,7 +66,7 @@ class Utils
         ));
     }
 
-    public static function isPipeTypeBuiltin(Pipe|string $pipe): bool
+    public static function isPipeTypeSimple(Pipe|string $pipe): bool
     {
         $class = is_string($pipe) ? $pipe : $pipe::class;
 
@@ -75,9 +76,7 @@ class Utils
                 IntType::class,
                 StringType::class,
                 FloatType::class,
-                StringType::class,
                 NullType::class,
-                ArrayType::class,
                 BoolType::class
             ]
         );
@@ -109,6 +108,13 @@ class Utils
         $class = is_string($pipe) ? $pipe : $pipe::class;
 
         return $class === EnumType::class || is_subclass_of($class, EnumType::class);
+    }
+
+    public static function isPipeTypeArray(Pipe|string $pipe): bool
+    {
+        $class = is_string($pipe) ? $pipe : $pipe::class;
+
+        return $class === ArrayType::class || is_subclass_of($class, ArrayType::class);
     }
 
     public static function isPipeTypeValidator(Pipe|string $pipe): bool
@@ -197,25 +203,58 @@ class Utils
         };
     }
 
-    public static function extractUsedTypes(HasUsedTypes|string $pipe): array
+    public static function extractUsedTypes(HasUsedTypes|string $pipe, Set $set = new Set()): array
     {
-        $pipes = [];
-
         if (is_string($pipe)) {
             $pipe = new WrappedType($pipe);
         }
 
         if ($pipe instanceof HasUsedTypes) {
             foreach ($pipe->invoke_getUsedTypes() as $usedType) {
-                $pipes[] = $usedType;
+                if ($set->contains($usedType)) {
+                    continue;
+                }
+
+                if ($usedType === $pipe) {
+                    continue;
+                }
+
+                if ($usedType instanceof WrappedType) {
+                    if (is_string($pipe) && $pipe === $usedType->typeClass) {
+                        continue;
+                    }
+
+                    if (!$set
+                        ->filter(fn($t) => $t instanceof WrappedType && $usedType->typeClass === $t->typeClass)
+                        ->isEmpty()
+                    ) {
+                        continue;
+                    }
+                } else {
+                    if (is_string($pipe) && $pipe === $usedType::class) {
+                        continue;
+                    }
+                }
+
+                $set->add($usedType);
 
                 if ($usedType instanceof HasUsedTypes) {
-                    array_push($pipes, ...static::extractUsedTypes($usedType));
+                    $set->add(...static::extractUsedTypes($usedType, $set));
                 }
             }
         }
 
-        return $pipes;
+        $filteredPipes = $set->filter(function (Type $usedType) use ($set) {
+            if ($usedType instanceof WrappedType) {
+                return $set
+                    ->filter(fn($type) => $type instanceof WrappedType && $usedType->typeClass === $type->typeClass)
+                    ->isEmpty();
+            }
+
+            return true;
+        });
+
+        return $filteredPipes->toArray();
     }
 
     public static function getPipeTypeName(Type|string $pipe): string
@@ -231,7 +270,7 @@ class Utils
         return $pipe::invoke_getTypeName();
     }
 
-    public static function getSchemaTypeName(Type $type): string
+    public static function getUniqueTypeName(Type $type): string
     {
         if ($type instanceof WrappedType) {
             $class = $type->typeClass;

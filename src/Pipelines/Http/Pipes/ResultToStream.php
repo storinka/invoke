@@ -3,17 +3,18 @@
 namespace Invoke\Pipelines\Http\Pipes;
 
 use Invoke\Container;
+use Invoke\Meta\HasToArray;
 use Invoke\Pipe;
 use Invoke\Pipelines\Http\Streams\JsonStreamDecorator;
-use Invoke\Types\BinaryType;
+use Invoke\Pipelines\Http\Streams\StreamDecorator;
 use Psr\Http\Message\StreamFactoryInterface;
 
 class ResultToStream implements Pipe
 {
     public function pass(mixed $result): mixed
     {
-        if ($result instanceof BinaryType) {
-            return $result->getStream();
+        if ($result instanceof StreamDecorator) {
+            return $result;
         }
 
         $array = $this->toArray($result);
@@ -28,7 +29,11 @@ class ResultToStream implements Pipe
 
     protected function toArray(mixed $result): array
     {
-        return (array)$result;
+        if ($result instanceof HasToArray) {
+            return $result->toArray();
+        }
+        
+        return is_array($result) ? $result : (array)$result;
     }
 
     protected function toJson(array $data): string

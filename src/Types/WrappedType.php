@@ -60,7 +60,7 @@ class WrappedType implements Type, HasDynamicName, HasUsedTypes
 
     public function invoke_getDynamicName(): string
     {
-        return $this->typeClass::invoke_getName();
+        return $this->typeClass::invoke_getTypeName();
     }
 
     public function invoke_getUsedTypes(): array
@@ -68,7 +68,7 @@ class WrappedType implements Type, HasDynamicName, HasUsedTypes
         $pipes = [];
 
         if (is_subclass_of($this->typeClass, TypeWithParams::class)) {
-            return ReflectionUtils::extractPipesFromParamsPipe($this->typeClass);
+            return ReflectionUtils::extractUsedPipesFromParamsPipe($this->typeClass);
         }
 
         // todo: extract from other types
