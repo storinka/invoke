@@ -71,6 +71,14 @@ class ApiDocument extends Document
     public array $availableTypes;
 
     /**
+     * List of available methods.
+     *
+     * @var array $availableMethods
+     */
+    #[ArrayOf(MethodDocument::class)]
+    public array $availableMethods;
+
+    /**
      * Create API document from invoke instance.
      *
      * @param Invoke $invoke
@@ -101,12 +109,18 @@ class ApiDocument extends Document
         $typesDocuments = TypeDocument::many($types, "fromType");
         $typesDocuments = array_unique_by_key($typesDocuments, "uniqueTypeName");
 
+        $methodsDocuments = array_map(
+            fn($method) => MethodDocument::fromNameAndClass($method["name"], $method["class"]),
+            $methods
+        );
+
         return static::from([
             "name" => "Storinka API",
 
             "sections" => $sections,
 
             "availableTypes" => $typesDocuments,
+            "availableMethods" => $methodsDocuments,
 
             "invokeVersion" => Invoke::$version,
 

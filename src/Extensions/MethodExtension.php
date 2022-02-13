@@ -9,6 +9,8 @@ use Invoke\Method;
  */
 interface MethodExtension extends Extension
 {
+    public function beforeValidateParams(Method $method): void;
+    
     public function beforeHandle(Method $method): void;
 
     public function afterHandle(Method $method, mixed $result): void;

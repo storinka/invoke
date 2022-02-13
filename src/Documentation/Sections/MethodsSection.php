@@ -2,7 +2,7 @@
 
 namespace Invoke\Documentation\Sections;
 
-use Invoke\Documentation\Documents\MethodDocument;
+use Invoke\Documentation\Documents\MethodReferenceDocument;
 use Invoke\Documentation\Documents\SectionDocument;
 use Invoke\Documentation\SectionBuilder;
 
@@ -14,7 +14,9 @@ class MethodsSection extends SectionBuilder
     public function build(array $types, array $methods): SectionDocument
     {
         $methodsDocuments = array_map(
-            fn(array $method) => MethodDocument::fromNameAndClass($method["name"], $method["class"]),
+            fn(array $method) => MethodReferenceDocument::from([
+                "methodName" => $method["name"],
+            ]),
             $methods
         );
 

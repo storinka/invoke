@@ -52,7 +52,16 @@ class MethodDocument extends Document
      *
      * @var array $tags
      */
+    #[ArrayOf("string")]
     public array $tags;
+
+    /**
+     * Method required headers.
+     *
+     * @var array $headers
+     */
+    #[ArrayOf(HeaderDocument::class)]
+    public array $headers;
 
     /**
      * Create method document from name and class.
@@ -76,6 +85,10 @@ class MethodDocument extends Document
         $returnType = ReflectionUtils::extractPipeFromMethodReturnType($reflectionMethod);
         $returnTypeName = Utils::getUniqueTypeName($returnType);
 
+        $headers = array_map(fn(string $header) => HeaderDocument::from([
+            "name" => $header,
+        ]), ReflectionUtils::extractRequiredHeaders($reflectionClass));
+
         return parent::from([
             "name" => $name,
 
@@ -86,6 +99,8 @@ class MethodDocument extends Document
             "resultType" => $returnTypeName,
 
             "tags" => [],
+
+            "headers" => $headers,
         ]);
     }
 }

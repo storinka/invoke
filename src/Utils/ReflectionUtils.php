@@ -11,6 +11,7 @@ use Invoke\Meta\HasUsedTypes;
 use Invoke\Meta\Inject;
 use Invoke\Meta\NotParameter;
 use Invoke\Method;
+use Invoke\Pipelines\Http\Extensions\RequireHeaders;
 use Invoke\Type;
 use Invoke\Types\AnyType;
 use Invoke\Types\EnumType;
@@ -263,6 +264,21 @@ final class ReflectionUtils
         $reflectionReturnType = $method->getReturnType();
 
         return ReflectionUtils::extractPipeFromReflectionType($reflectionReturnType);
+    }
+
+    public static function extractRequiredHeaders(ReflectionClass $reflectionClass): array
+    {
+        $attributes = $reflectionClass->getAttributes(RequireHeaders::class);
+
+        if (!empty($attributes)) {
+            $attribute = $attributes[0];
+
+            $instance = $attribute->newInstance();
+
+            return $instance->headers;
+        }
+
+        return [];
     }
 
     public static function extractUsedPipesFromParamsPipe(TypeWithParams|string $pipe): array

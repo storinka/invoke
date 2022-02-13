@@ -7,6 +7,7 @@ use Invoke\Exceptions\PipeException;
 use Invoke\Pipe;
 use Invoke\Pipelines\Http\Data\FailedResponseData;
 use Invoke\Stop;
+use Invoke\Utils\Utils;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 use Throwable;
@@ -37,7 +38,7 @@ class HandleException implements Pipe
 
         return FailedResponseData::from([
             "code" => $response->getStatusCode(),
-            "error" => $value::class,
+            "error" => Utils::getErrorNameFromException($value::class),
             "message" => $value->getMessage(),
         ]);
     }

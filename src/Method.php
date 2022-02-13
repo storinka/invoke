@@ -26,6 +26,8 @@ abstract class Method extends TypeWithParams
             return $input;
         }
 
+        ReflectionUtils::callMethodExtensionsHook($this, "beforeValidateParams");
+
         $invoke = Container::get(Invoke::class);
 
         $invoke->setInputMode(true);
