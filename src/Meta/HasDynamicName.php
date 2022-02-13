@@ -2,12 +2,10 @@
 
 namespace Invoke\Meta;
 
-use Invoke\Toolkit\Validators\ArrayOf;
-
 /**
  * Says that type name is generated at runtime.
  *
- * @see ArrayOf
+ * @see \Invoke\Toolkit\Validators\ArrayOf
  */
 interface HasDynamicName
 {
