@@ -228,9 +228,12 @@ class Invoke implements InvokeInterface
      */
     public function registerExtension(string $extensionClass, array $parameters = []): static
     {
+        /** @var Extension $extension */
         $extension = Container::make($extensionClass, $parameters);
 
         $this->extensions[] = $extension;
+
+        $extension->boot($this, Container::current());
 
         return $this;
     }
