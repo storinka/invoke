@@ -48,6 +48,14 @@ class ApiDocument extends Document
     public ?string $iconUrl;
 
     /**
+     * Show only icon in header.
+     *
+     * @var bool $iconOnly
+     */
+    #[Parameter]
+    public bool $iconOnly;
+
+    /**
      * Document sections.
      *
      * @var array $sections
@@ -114,8 +122,25 @@ class ApiDocument extends Document
             $methods
         );
 
+        $name = $invoke->getConfig("apiDocument.name", "Invoke API Document");
+        $summary = $invoke->getConfig("apiDocument.summary", null);
+        $iconUrl = $invoke->getConfig("apiDocument.iconUrl", "https://user-images.githubusercontent.com/21020331/145628046-ca19dbdf-2935-49fe-934c-a171219566cc.png");
+        $iconOnly = $invoke->getConfig("apiDocument.iconOnly", true);
+
+        $invokeInstruction = [
+            "name" => $invoke->getConfig("apiDocument.invokeInstruction.name", "fetch"),
+            "protocol" => $invoke->getConfig("apiDocument.invokeInstruction.protocol", $invoke->getConfig("serve.protocol", "http")),
+            "host" => $invoke->getConfig("apiDocument.invokeInstruction.host", $invoke->getConfig("serve.host", "localhost")),
+            "port" => $invoke->getConfig("apiDocument.invokeInstruction.port", $invoke->getConfig("serve.port", 8081)),
+            "path" => $invoke->getConfig("apiDocument.invokeInstruction.path", $invoke->getConfig("serve.pathPrefix", "")),
+            "type" => $invoke->getConfig("apiDocument.invokeInstruction.type", "json")
+        ];
+
         return static::from([
-            "name" => "Storinka API",
+            "name" => $name,
+            "summary" => $summary,
+            "iconUrl" => $iconUrl,
+            "iconOnly" => $iconOnly,
 
             "sections" => $sections,
 
@@ -124,16 +149,7 @@ class ApiDocument extends Document
 
             "invokeVersion" => Invoke::$version,
 
-            "invokeInstruction" => InvokeInstructionDocument::from([
-                "name" => "fetch",
-                "protocol" => "http",
-                "host" => "localhost",
-                "port" => 8081,
-                "path" => "",
-                "type" => "json"
-            ]),
-
-            "iconUrl" => "https://business.storinka.menu/_nuxt/img/logo.b45e76c.svg",
+            "invokeInstruction" => InvokeInstructionDocument::from($invokeInstruction),
         ]);
     }
 }

@@ -3,7 +3,6 @@
 namespace Invoke;
 
 use Invoke\Documentation\Sections\MethodsSection;
-use Invoke\Documentation\Sections\TypesSection;
 use Invoke\Exceptions\MethodNotFoundException;
 use Invoke\Extensions\Extension;
 use Invoke\Extensions\MethodExtension;
@@ -118,14 +117,22 @@ class Invoke implements InvokeInterface
     /**
      * @inheritDoc
      */
-    public function getConfig(string $property): mixed
+    public function getConfig(string $property, mixed $defaultValue = null): mixed
     {
         $path = explode(".", $property);
 
         $value = $this->config;
 
         foreach ($path as $key) {
-            $value = $value[$key];
+            if ($value) {
+                $value = $value[$key] ?? null;
+            } else {
+                break;
+            }
+        }
+
+        if ($value === null) {
+            return $defaultValue;
         }
 
         return $value;

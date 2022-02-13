@@ -20,9 +20,10 @@ interface InvokeInterface extends Pipe
      * Get configuration property value.
      *
      * @param string $property
+     * @param mixed|null $defaultValue
      * @return mixed
      */
-    public function getConfig(string $property): mixed;
+    public function getConfig(string $property, mixed $defaultValue = null): mixed;
 
     /**
      * Set methods.
