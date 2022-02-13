@@ -2,7 +2,6 @@
 
 namespace Invoke;
 
-use Invoke\Documentation\Sections\MethodsSection;
 use Invoke\Exceptions\MethodNotFoundException;
 use Invoke\Extensions\Extension;
 use Invoke\Extensions\MethodExtension;
@@ -60,12 +59,6 @@ class Invoke implements InvokeInterface
         "serve" => [
             "defaultPipeline" => MainPipeline::class,
         ],
-        "apiDocument" => [
-            "sections" => [
-                MethodsSection::class,
-//                TypesSection::class,
-            ],
-        ]
     ];
 
     /**
