@@ -117,15 +117,15 @@ class Invoke implements InvokeInterface
         $value = $this->config;
 
         foreach ($path as $key) {
-            if ($value) {
-                $value = $value[$key] ?? null;
+            if (is_array($value)) {
+                if (array_key_exists($key, $value)) {
+                    $value = $value[$key];
+                } else {
+                    return $defaultValue;
+                }
             } else {
                 break;
             }
-        }
-
-        if ($value === null) {
-            return $defaultValue;
         }
 
         return $value;
