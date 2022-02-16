@@ -2,6 +2,9 @@
 
 namespace Invoke\Exceptions;
 
+/**
+ * Something was not found.
+ */
 class NotFoundException extends PipeException
 {
     public function __construct(string $message = "Not found.")

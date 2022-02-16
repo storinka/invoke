@@ -3,9 +3,10 @@
 namespace Invoke\Types;
 
 use Invoke\Exceptions\InvalidTypeException;
-use Invoke\Meta\Singleton;
 use Invoke\Stop;
+use Invoke\Support\Singleton;
 use Invoke\Type;
+use Invoke\Utils\Utils;
 
 /**
  * Array type.
@@ -25,7 +26,7 @@ class ArrayType implements Type, Singleton
         }
 
         if (gettype($value) !== "array") {
-            throw new InvalidTypeException($this, $value);
+            throw new InvalidTypeException($this, Utils::getValueTypeName($value));
         }
 
         return $value;

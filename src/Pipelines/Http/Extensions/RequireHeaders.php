@@ -4,13 +4,13 @@ namespace Invoke\Pipelines\Http\Extensions;
 
 use Attribute;
 use Invoke\Container;
-use Invoke\Meta\AbstractMethodExtension;
+use Invoke\Extensions\MethodExtension;
 use Invoke\Method;
 use Invoke\Pipelines\Http\Exceptions\RequiredHeaderNotProvidedException;
 use Psr\Http\Message\ServerRequestInterface;
 
 #[Attribute(Attribute::TARGET_CLASS)]
-class RequireHeaders extends AbstractMethodExtension
+class RequireHeaders extends MethodExtension
 {
     public array $headers;
 
@@ -23,7 +23,7 @@ class RequireHeaders extends AbstractMethodExtension
         $this->headers = $headers;
     }
 
-    public function beforeValidateParams(Method $method): void
+    public function beforeValidation(Method $method): void
     {
         $request = Container::get(ServerRequestInterface::class);
 

@@ -3,20 +3,20 @@
 namespace Invoke\Utils;
 
 use Ds\Set;
+use Invoke\Attributes\NotParameter;
 use Invoke\Container;
+use Invoke\Container\Inject;
 use Invoke\Extensions\MethodExtension;
 use Invoke\Extensions\MethodTraitExtension;
 use Invoke\Invoke;
-use Invoke\Meta\HasUsedTypes;
-use Invoke\Meta\Inject;
-use Invoke\Meta\NotParameter;
 use Invoke\Method;
 use Invoke\Pipelines\Http\Extensions\RequireHeaders;
+use Invoke\Support\HasUsedTypes;
+use Invoke\Support\TypeWithParams;
 use Invoke\Type;
 use Invoke\Types\AnyType;
 use Invoke\Types\EnumType;
 use Invoke\Types\NullType;
-use Invoke\Types\TypeWithParams;
 use Invoke\Types\UnionType;
 use Invoke\Types\WrappedType;
 use Invoke\Validator;
@@ -32,6 +32,8 @@ use ReflectionUnionType;
 
 /**
  * Common utils to work with reflection.
+ *
+ * ...to be rewritten
  */
 final class ReflectionUtils
 {
@@ -189,7 +191,7 @@ final class ReflectionUtils
         return new WrappedType($reflectionType->getName());
     }
 
-    public static function isPropertyParam(ReflectionProperty|ReflectionParameter $property): bool
+    public static function isPropertyParameter(ReflectionProperty|ReflectionParameter $property): bool
     {
         if ($property instanceof ReflectionProperty) {
             if (!$property->isPublic() || $property->isStatic()) {
@@ -222,7 +224,7 @@ final class ReflectionUtils
         $params = [];
 
         foreach ($class->getProperties() as $property) {
-            if (!ReflectionUtils::isPropertyParam($property)) {
+            if (!ReflectionUtils::isPropertyParameter($property)) {
                 continue;
             }
 

@@ -5,14 +5,14 @@ namespace Invoke\Utils;
 use Ds\Set;
 use Exception;
 use Invoke\Data;
-use Invoke\Meta\HasDynamicName;
-use Invoke\Meta\HasUsedTypes;
-use Invoke\Meta\Singleton;
 use Invoke\Pipe;
+use Invoke\Support\BinaryType;
+use Invoke\Support\HasDynamicTypeName;
+use Invoke\Support\HasUsedTypes;
+use Invoke\Support\Singleton;
 use Invoke\Type;
 use Invoke\Types\AnyType;
 use Invoke\Types\ArrayType;
-use Invoke\Types\BinaryType;
 use Invoke\Types\BoolType;
 use Invoke\Types\EnumType;
 use Invoke\Types\FloatType;
@@ -25,6 +25,8 @@ use Invoke\Validator;
 
 /**
  * Common utils.
+ *
+ * ...to be rewritten
  */
 class Utils
 {
@@ -263,8 +265,8 @@ class Utils
             return $pipe::invoke_getTypeName();
         }
 
-        if ($pipe instanceof HasDynamicName) {
-            return $pipe->invoke_getDynamicName();
+        if ($pipe instanceof HasDynamicTypeName) {
+            return $pipe->invoke_getDynamicTypeName();
         }
 
         return $pipe::invoke_getTypeName();
@@ -282,8 +284,8 @@ class Utils
 
         $typeName = $type::invoke_getTypeName();
 
-        if ($type instanceof HasDynamicName) {
-            $typeName = $type->invoke_getDynamicName();
+        if ($type instanceof HasDynamicTypeName) {
+            $typeName = $type->invoke_getDynamicTypeName();
         }
 
         return "{$class}:[{$typeName}]";
@@ -313,5 +315,20 @@ class Utils
         }
 
         return false;
+    }
+
+    public static function isTypeNameBuiltin(string $typeName): bool
+    {
+        return in_array(
+            Utils::getNormalizedTypeName($typeName),
+            [
+                "int",
+                "float",
+                "bool",
+                "array",
+                "null",
+                "string",
+            ]
+        );
     }
 }

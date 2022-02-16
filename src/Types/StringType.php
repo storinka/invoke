@@ -3,9 +3,10 @@
 namespace Invoke\Types;
 
 use Invoke\Exceptions\InvalidTypeException;
-use Invoke\Meta\Singleton;
 use Invoke\Stop;
+use Invoke\Support\Singleton;
 use Invoke\Type;
+use Invoke\Utils\Utils;
 
 /**
  * String type.
@@ -25,7 +26,7 @@ class StringType implements Type, Singleton
         }
 
         if (gettype($value) !== "string") {
-            throw new InvalidTypeException($this, $value);
+            throw new InvalidTypeException($this, Utils::getValueTypeName($value));
         }
 
         return $value;

@@ -4,13 +4,14 @@ namespace Invoke;
 
 use Ds\Map;
 use Ds\Set;
+use Invoke\Exceptions\InvalidParameterTypeException;
 use Invoke\Exceptions\InvalidTypeException;
-use Invoke\Exceptions\ParamInvalidTypeException;
-use Invoke\Exceptions\ParamTypeNameRequiredException;
-use Invoke\Exceptions\ParamValidationFailedException;
+use Invoke\Exceptions\ParameterTypeNameRequiredException;
+use Invoke\Exceptions\ParameterValidatorFailedException;
+use Invoke\Exceptions\RequiredParameterNotProvidedException;
 use Invoke\Exceptions\TypeNameRequiredException;
-use Invoke\Exceptions\ValidationFailedException;
-use Invoke\Meta\Singleton;
+use Invoke\Exceptions\ValidatorFailedException;
+use Invoke\Support\Singleton;
 use Invoke\Types\WrappedType;
 use RuntimeException;
 
@@ -259,35 +260,39 @@ final class Piping
     {
         try {
             return $callback();
-        } catch (ParamInvalidTypeException $exception) {
-            throw new ParamInvalidTypeException(
-                "{$prefix}::{$exception->path}",
+        } catch (InvalidParameterTypeException $exception) {
+            throw new InvalidParameterTypeException(
+                "{$prefix}->{$exception->path}",
                 $exception->expectedType,
-                $exception->value,
+                $exception->valueTypeName,
             );
         } catch (InvalidTypeException $exception) {
-            throw new ParamInvalidTypeException(
+            throw new InvalidParameterTypeException(
                 "{$prefix}",
                 $exception->expectedType,
-                $exception->value,
+                $exception->valueTypeName,
             );
-        } catch (ParamTypeNameRequiredException $exception) {
-            throw new ParamTypeNameRequiredException(
-                "{$prefix}::{$exception->path}",
+        } catch (ParameterTypeNameRequiredException $exception) {
+            throw new ParameterTypeNameRequiredException(
+                "{$prefix}->{$exception->path}",
             );
         } catch (TypeNameRequiredException $exception) {
-            throw new ParamTypeNameRequiredException(
+            throw new ParameterTypeNameRequiredException(
                 "{$prefix}",
             );
-        } catch (ParamValidationFailedException $exception) {
-            throw new ParamValidationFailedException(
-                "{$prefix}::{$exception->path}",
+        } catch (ParameterValidatorFailedException $exception) {
+            throw new ParameterValidatorFailedException(
+                "{$prefix}->{$exception->path}",
                 $exception->getMessage()
             );
-        } catch (ValidationFailedException $exception) {
-            throw new ParamValidationFailedException(
+        } catch (ValidatorFailedException $exception) {
+            throw new ParameterValidatorFailedException(
                 "{$prefix}",
                 $exception->getMessage()
+            );
+        } catch (RequiredParameterNotProvidedException $exception) {
+            throw new RequiredParameterNotProvidedException(
+                "{$prefix}->{$exception->path}"
             );
         }
     }

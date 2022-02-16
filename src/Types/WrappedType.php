@@ -4,11 +4,12 @@ namespace Invoke\Types;
 
 use Invoke\Container;
 use Invoke\Exceptions\InvalidTypeException;
-use Invoke\Meta\HasDynamicName;
-use Invoke\Meta\HasUsedTypes;
 use Invoke\Pipe;
 use Invoke\Piping;
 use Invoke\Stop;
+use Invoke\Support\HasDynamicTypeName;
+use Invoke\Support\HasUsedTypes;
+use Invoke\Support\TypeWithParams;
 use Invoke\Type;
 use Invoke\Utils\ReflectionUtils;
 use Invoke\Utils\Utils;
@@ -17,7 +18,7 @@ use RuntimeException;
 /**
  * @template T of Type
  */
-class WrappedType implements Type, HasDynamicName, HasUsedTypes
+class WrappedType implements Type, HasDynamicTypeName, HasUsedTypes
 {
     /** @var class-string<T> $typeClass */
     public string $typeClass;
@@ -50,7 +51,7 @@ class WrappedType implements Type, HasDynamicName, HasUsedTypes
             return Piping::run($newPipe, $value);
         }
 
-        throw new InvalidTypeException($this, $value);
+        throw new InvalidTypeException($this, Utils::getValueTypeName($value));
     }
 
     public static function invoke_getTypeName(): string
@@ -58,7 +59,7 @@ class WrappedType implements Type, HasDynamicName, HasUsedTypes
         return "wrapped";
     }
 
-    public function invoke_getDynamicName(): string
+    public function invoke_getDynamicTypeName(): string
     {
         return $this->typeClass::invoke_getTypeName();
     }

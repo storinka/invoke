@@ -2,7 +2,7 @@
 
 namespace Invoke;
 
-use Invoke\Types\TypeWithParams;
+use Invoke\Support\TypeWithParams;
 
 /**
  * Abstract data type pipe.

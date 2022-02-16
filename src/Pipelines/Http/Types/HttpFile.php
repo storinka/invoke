@@ -4,7 +4,7 @@ namespace Invoke\Pipelines\Http\Types;
 
 use Invoke\Pipelines\Http\Streams\StreamDecorator;
 use Invoke\Stop;
-use Invoke\Types\BinaryType;
+use Invoke\Support\BinaryType;
 use Psr\Http\Message\StreamInterface;
 
 class HttpFile implements BinaryType, StreamDecorator

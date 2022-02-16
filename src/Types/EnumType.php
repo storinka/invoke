@@ -6,20 +6,16 @@ namespace Invoke\Types;
 
 use BackedEnum;
 use Invoke\Exceptions\InvalidTypeException;
-use Invoke\Meta\HasDynamicName;
-use Invoke\Piping;
 use Invoke\Stop;
+use Invoke\Support\HasDynamicTypeName;
 use Invoke\Type;
 use Invoke\Utils\Utils;
 use UnitEnum;
-
 use function assert;
-use function class_implements;
 use function Invoke\Utils\get_class_name;
 use function is_subclass_of;
-use function var_dump;
 
-class EnumType implements Type, HasDynamicName
+class EnumType implements Type, HasDynamicTypeName
 {
     /** @var class-string<UnitEnum> $typeClass */
     public readonly string $enumClass;
@@ -56,7 +52,7 @@ class EnumType implements Type, HasDynamicName
             }
         }
 
-        throw new InvalidTypeException($this, $value);
+        throw new InvalidTypeException($this, Utils::getValueTypeName($value));
     }
 
     public static function invoke_getTypeName(): string
@@ -64,7 +60,7 @@ class EnumType implements Type, HasDynamicName
         return "enum";
     }
 
-    public function invoke_getDynamicName(): string
+    public function invoke_getDynamicTypeName(): string
     {
         return get_class_name($this->enumClass);
     }

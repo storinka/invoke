@@ -5,7 +5,13 @@ namespace Invoke\Utils {
     use Invoke\Container;
     use Invoke\Invoke;
 
-    function dd(...$data)
+    /**
+     * Show var dump and die.
+     *
+     * @param ...$data
+     * @return void
+     */
+    function vdd(...$data)
     {
         echo "<pre>";
         var_dump(...$data);
@@ -37,7 +43,14 @@ namespace Invoke\Utils {
         return array_keys($keys) !== $keys;
     }
 
-    function array_merge_recursive2($paArray1, $paArray2)
+    /**
+     * Internal.
+     *
+     * @param $paArray1
+     * @param $paArray2
+     * @return array|mixed
+     */
+    function array_merge_recursive2($paArray1, $paArray2): mixed
     {
         if (!is_array($paArray1) or !is_array($paArray2)) {
             return $paArray2;
@@ -48,6 +61,13 @@ namespace Invoke\Utils {
         return $paArray1;
     }
 
+    /**
+     * Deeply extract class traits.
+     *
+     * @param $class
+     * @param $autoload
+     * @return array
+     */
     function class_uses_deep($class, $autoload = true): array
     {
         $traits = [];
@@ -60,6 +80,13 @@ namespace Invoke\Utils {
         return array_unique($traits);
     }
 
+    /**
+     * Filter unique values of array using item key.
+     *
+     * @param $array
+     * @param $property
+     * @return array
+     */
     function array_unique_by_key($array, $property): array
     {
         $tempArray = array_unique(array_column($array, $property));
@@ -78,30 +105,5 @@ namespace Invoke\Utils {
     {
         $invoke = Container::get(Invoke::class);
         return $invoke->invoke($method, $params);
-    }
-
-    function prepare_methods(array $methods): array
-    {
-        $newMethods = [];
-
-        foreach ($methods as $name => $method) {
-            if (is_numeric($name) && is_string($method)) {
-                unset($methods[$name]);
-
-                if (class_exists($method)) {
-                    $newMethods[Utils::getMethodNameFromClass($method)] = $method;
-                } else {
-                    $newMethods[$method] = $method;
-                }
-            } else if (is_string($name) && is_array($method)) {
-                foreach (prepare_methods($method) as $preparedName => $preparedMethod) {
-                    $newMethods["{$name}/{$preparedName}"] = $preparedMethod;
-                }
-            } else {
-                $newMethods[$name] = $method;
-            }
-        }
-
-        return $newMethods;
     }
 }

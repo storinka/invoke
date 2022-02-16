@@ -7,6 +7,9 @@ use Invoke\Invoke;
 use Invoke\Utils\Utils;
 use RuntimeException;
 
+/**
+ * General pipe error.
+ */
 class PipeException extends RuntimeException
 {
     public static function getErrorName(): string

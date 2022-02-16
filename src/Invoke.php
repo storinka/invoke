@@ -7,8 +7,8 @@ use Invoke\Extensions\Extension;
 use Invoke\Extensions\MethodExtension;
 use Invoke\Pipelines\MainPipeline;
 use Invoke\Support\FunctionPipe;
+use Invoke\Utils\Utils;
 use function Invoke\Utils\array_merge_recursive2;
-use function Invoke\Utils\prepare_methods;
 
 /**
  * Invoke pipe itself.
@@ -136,7 +136,7 @@ class Invoke implements InvokeInterface
      */
     public function setMethods(array $methods): static
     {
-        $this->methods = prepare_methods($methods);
+        $this->methods = $this->prepareMethods($methods);
 
         return $this;
     }
@@ -233,8 +233,6 @@ class Invoke implements InvokeInterface
 
         $this->extensions[] = $extension;
 
-        $extension->boot($this, Container::current());
-
         return $this;
     }
 
@@ -252,6 +250,10 @@ class Invoke implements InvokeInterface
     public function serve(array|Pipe|string|null $pipeline = null,
                           mixed                  $input = null): mixed
     {
+        foreach ($this->extensions as $extension) {
+            $extension->boot($this, Container::current());
+        }
+
         if (!$pipeline) {
             $pipeline = $this->getConfig("serve.defaultPipeline");
         }
@@ -281,5 +283,34 @@ class Invoke implements InvokeInterface
         }
 
         return $invoke;
+    }
+
+    /**
+     * @param array $methods
+     * @return array
+     */
+    private function prepareMethods(array $methods): array
+    {
+        $newMethods = [];
+
+        foreach ($methods as $name => $method) {
+            if (is_numeric($name) && is_string($method)) {
+                unset($methods[$name]);
+
+                if (class_exists($method)) {
+                    $newMethods[Utils::getMethodNameFromClass($method)] = $method;
+                } else {
+                    $newMethods[$method] = $method;
+                }
+            } else if (is_string($name) && is_array($method)) {
+                foreach ($this->prepareMethods($method) as $preparedName => $preparedMethod) {
+                    $newMethods["{$name}/{$preparedName}"] = $preparedMethod;
+                }
+            } else {
+                $newMethods[$name] = $method;
+            }
+        }
+
+        return $newMethods;
     }
 }

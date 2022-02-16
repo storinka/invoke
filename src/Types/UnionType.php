@@ -3,23 +3,26 @@
 namespace Invoke\Types;
 
 use Invoke\Exceptions\InvalidTypeException;
-use Invoke\Exceptions\RequiredParamNotProvidedException;
+use Invoke\Exceptions\RequiredParameterNotProvidedException;
 use Invoke\Exceptions\TypeNameRequiredException;
-use Invoke\Meta\HasDynamicName;
-use Invoke\Meta\HasUsedTypes;
-use Invoke\Meta\Singleton;
 use Invoke\Pipe;
 use Invoke\Piping;
 use Invoke\Stop;
+use Invoke\Support\HasDynamicTypeName;
+use Invoke\Support\HasUsedTypes;
+use Invoke\Support\Singleton;
+use Invoke\Support\TypeWithParams;
 use Invoke\Type;
 use Invoke\Utils\Utils;
 use function Invoke\Utils\is_assoc;
 
-class UnionType implements Type, HasDynamicName, HasUsedTypes
+class UnionType implements Type, HasDynamicTypeName, HasUsedTypes
 {
     public array $pipes;
 
     public int $paramsPipesCount = 0;
+
+    public bool $allowArrays = false;
 
     public function __construct(array $pipes)
     {
@@ -34,6 +37,8 @@ class UnionType implements Type, HasDynamicName, HasUsedTypes
                 }
             }
 
+            $type = $pipe;
+
             if (is_string($pipe)) {
                 if (class_exists($pipe)) {
                     if (is_subclass_of($pipe, TypeWithParams::class)) {
@@ -41,16 +46,20 @@ class UnionType implements Type, HasDynamicName, HasUsedTypes
                     }
 
                     if (is_subclass_of($pipe, Singleton::class)) {
-                        return $pipe::getInstance();
+                        $type = $pipe::getInstance();
+                    } else {
+                        $type = new WrappedType($pipe);
                     }
-
-                    return new WrappedType($pipe);
                 } else {
-                    return Utils::typeNameToPipe($pipe);
+                    $type = Utils::typeNameToPipe($pipe);
                 }
-            } else {
-                return $pipe;
             }
+
+            if ($pipe instanceof ArrayType) {
+                $this->allowArrays = true;
+            }
+
+            return $type;
         }, $pipes);
     }
 
@@ -62,11 +71,15 @@ class UnionType implements Type, HasDynamicName, HasUsedTypes
 
         if ($this->paramsPipesCount > 1) {
             if (is_array($value)) {
-                if (is_assoc($value)) {
+                if (!$this->allowArrays || is_assoc($value)) {
                     if (!array_key_exists("@type", $value)) {
                         throw new TypeNameRequiredException();
                     } else {
                         $valueType = $value["@type"];
+
+                        if (Utils::isTypeNameBuiltin($valueType)) {
+                            throw new TypeNameRequiredException();
+                        }
 
                         foreach ($this->pipes as $pipe) {
                             if (Utils::getPipeTypeName($pipe) === $valueType) {
@@ -81,17 +94,14 @@ class UnionType implements Type, HasDynamicName, HasUsedTypes
         foreach ($this->pipes as $pipe) {
             try {
                 return Piping::run($pipe, $value);
-            } catch (RequiredParamNotProvidedException | InvalidTypeException $exception) {
-//                if ($exception->expectedType !== $pipe) {
-//                    throw new InvalidTypeException($pipe, $value);
-//                }
+            } catch (RequiredParameterNotProvidedException|TypeNameRequiredException|InvalidTypeException) {
             }
         }
 
-        throw new InvalidTypeException($this, $value);
+        throw new InvalidTypeException($this, $valueType ?? Utils::getValueTypeName($value));
     }
 
-    public function invoke_getDynamicName(): string
+    public function invoke_getDynamicTypeName(): string
     {
         return implode(
             " | ",

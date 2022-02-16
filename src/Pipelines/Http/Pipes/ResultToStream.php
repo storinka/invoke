@@ -3,10 +3,10 @@
 namespace Invoke\Pipelines\Http\Pipes;
 
 use Invoke\Container;
-use Invoke\Meta\HasToArray;
 use Invoke\Pipe;
 use Invoke\Pipelines\Http\Streams\JsonStreamDecorator;
 use Invoke\Pipelines\Http\Streams\StreamDecorator;
+use Invoke\Support\HasToArray;
 use Psr\Http\Message\StreamFactoryInterface;
 
 class ResultToStream implements Pipe

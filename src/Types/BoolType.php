@@ -5,9 +5,10 @@ namespace Invoke\Types;
 use Invoke\Container;
 use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Invoke;
-use Invoke\Meta\Singleton;
 use Invoke\Stop;
+use Invoke\Support\Singleton;
 use Invoke\Type;
+use Invoke\Utils\Utils;
 
 /**
  * Boolean type.
@@ -43,7 +44,7 @@ class BoolType implements Type, Singleton
         }
 
         if ($type !== "boolean") {
-            throw new InvalidTypeException($this, $value);
+            throw new InvalidTypeException($this, Utils::getValueTypeName($value));
         }
 
         return $value;

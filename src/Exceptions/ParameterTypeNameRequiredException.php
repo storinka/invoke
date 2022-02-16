@@ -2,7 +2,10 @@
 
 namespace Invoke\Exceptions;
 
-class ParamTypeNameRequiredException extends TypeNameRequiredException
+/**
+ * You must provide type name for parameter (mostly when using union or typed array).
+ */
+class ParameterTypeNameRequiredException extends TypeNameRequiredException
 {
     public string $path;
 

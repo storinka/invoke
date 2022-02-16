@@ -2,9 +2,8 @@
 
 namespace Invoke\Types;
 
-use Invoke\Meta\Singleton;
-use Invoke\Method;
 use Invoke\Stop;
+use Invoke\Support\Singleton;
 use Invoke\Type;
 
 /**

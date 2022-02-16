@@ -1,18 +1,16 @@
 <?php
 
-namespace Invoke\Meta;
+namespace Invoke\Support;
 
 /**
  * Says that type name is generated at runtime.
- *
- * @see \Invoke\Toolkit\Validators\ArrayOf
  */
-interface HasDynamicName
+interface HasDynamicTypeName
 {
     /**
      * Dynamically generated type name.
      *
      * @return string
      */
-    public function invoke_getDynamicName(): string;
+    public function invoke_getDynamicTypeName(): string;
 }

@@ -3,11 +3,11 @@
 namespace Invoke\Pipelines\Http\Data;
 
 use Invoke\Data;
-use Invoke\Support\ReadonlyParams;
+use Invoke\Support\WithReadonlyParams;
 
 class FailedResponseData extends Data
 {
-    use ReadonlyParams;
+    use WithReadonlyParams;
 
     public readonly int $code;
 

@@ -2,7 +2,7 @@
 
 namespace Invoke;
 
-use Invoke\Types\TypeWithParams;
+use Invoke\Support\TypeWithParams;
 use Invoke\Utils\ReflectionUtils;
 use Invoke\Utils\Utils;
 
@@ -20,32 +20,45 @@ abstract class Method extends TypeWithParams
      */
     protected abstract function handle();
 
+    /**
+     * @inheritDoc
+     */
     public function pass(mixed $input): mixed
     {
         if ($input instanceof Stop) {
             return $input;
         }
 
-        ReflectionUtils::callMethodExtensionsHook($this, "beforeValidateParams");
+        // call "beforeValidation" hooks on extensions
+        ReflectionUtils::callMethodExtensionsHook($this, "beforeValidation");
 
+        // get current instance of invoke from container
         $invoke = Container::get(Invoke::class);
 
+        // enable input mode
         $invoke->setInputMode(true);
 
         // validate parameters
         parent::pass($input);
 
+        // disable input mode
         $invoke->setInputMode(false);
 
+        // call "beforeHandle" hooks on extensions
         ReflectionUtils::callMethodExtensionsHook($this, "beforeHandle");
 
+        // handle the method
         $result = $this->handle();
 
+        // call "afterHandle" hooks on extensions
         ReflectionUtils::callMethodExtensionsHook($this, "afterHandle", [$result]);
 
         return $result;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function invoke_getUsedTypes(): array
     {
         $pipes = parent::invoke_getUsedTypes();
@@ -56,6 +69,25 @@ abstract class Method extends TypeWithParams
         return [...$pipes, ReflectionUtils::extractPipeFromMethodReturnType($reflectionMethod)];
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function shouldRequireTypeName(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function shouldReturnTypeName(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public static function invoke_getTypeName(): string
     {
         return Utils::getMethodNameFromClass(static::class);
