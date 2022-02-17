@@ -12,7 +12,7 @@ use Invoke\Method;
  */
 trait WithReadonlyParams
 {
-    protected function set($name, $value)
+    public function set($name, $value)
     {
         parent::set($name, $value);
     }
