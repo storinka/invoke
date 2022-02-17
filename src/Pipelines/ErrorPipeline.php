@@ -6,6 +6,7 @@ use Invoke\Pipe;
 use Invoke\Piping;
 use Invoke\Stop;
 use RuntimeException;
+use Throwable;
 
 class ErrorPipeline implements Pipe
 {
@@ -15,7 +16,7 @@ class ErrorPipeline implements Pipe
             return $value;
         }
 
-        if (!($value instanceof \Throwable)) {
+        if (!($value instanceof Throwable)) {
             throw new RuntimeException("The value for ExceptionPipeline pipe must be a Throwable.");
         }
 

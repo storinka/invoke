@@ -5,9 +5,11 @@ namespace Invoke;
 use Invoke\Exceptions\MethodNotFoundException;
 use Invoke\Extensions\Extension;
 use Invoke\Extensions\MethodExtension;
+use Invoke\Pipelines\ErrorPipeline;
 use Invoke\Pipelines\MainPipeline;
 use Invoke\Support\FunctionPipe;
 use Invoke\Utils\Utils;
+use Throwable;
 use function Invoke\Utils\array_merge_recursive2;
 
 /**
@@ -56,6 +58,7 @@ class Invoke implements InvokeInterface
         ],
         "serve" => [
             "defaultPipeline" => MainPipeline::class,
+            "defaultErrorPipeline" => ErrorPipeline::class,
         ],
     ];
 
@@ -248,15 +251,22 @@ class Invoke implements InvokeInterface
     public function serve(array|Pipe|string|null $pipeline = null,
                           mixed                  $input = null): mixed
     {
-        foreach ($this->extensions as $extension) {
-            $extension->boot($this, Container::current());
-        }
+        try {
+            foreach ($this->extensions as $extension) {
+                $extension->boot($this, Container::current());
+            }
 
-        if (!$pipeline) {
-            $pipeline = $this->getConfig("serve.defaultPipeline");
-        }
+            if (!$pipeline) {
+                $pipeline = $this->getConfig("serve.defaultPipeline");
+            }
 
-        return Piping::run($pipeline, $input);
+            return Piping::run($pipeline, $input);
+
+        } catch (Throwable $exception) {
+            $errorPipeline = $this->getConfig("serve.defaultPipeline");
+
+            return Piping::run($errorPipeline, $exception);
+        }
     }
 
     /**

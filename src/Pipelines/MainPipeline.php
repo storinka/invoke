@@ -3,13 +3,17 @@
 namespace Invoke\Pipelines;
 
 use Invoke\Pipe;
-use Invoke\Pipelines\Http\HttpPipeline;
 use Invoke\Piping;
+use RuntimeException;
 
 class MainPipeline implements Pipe
 {
     public function pass(mixed $value): mixed
     {
-        return Piping::run(HttpPipeline::class, $value);
+        if (class_exists("Invoke\Http\HttpPipeline")) {
+            return Piping::run("Invoke\Http\HttpPipeline", $value);
+        } else {
+            throw new RuntimeException("No pipeline found to run.");
+        }
     }
 }
