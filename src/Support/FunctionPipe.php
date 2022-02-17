@@ -5,6 +5,7 @@ namespace Invoke\Support;
 use Closure;
 use Invoke\Container;
 use Invoke\Exceptions\RequiredParameterNotProvidedException;
+use Invoke\Invoke;
 use Invoke\Pipe;
 use Invoke\Piping;
 use Invoke\Stop;
@@ -28,9 +29,13 @@ class FunctionPipe implements Pipe
             return $input;
         }
 
+        $invoke = Container::get(Invoke::class);
+
         $reflectionFunction = new ReflectionFunction($this->function);
 
         $functionArgs = [];
+
+        $invoke->setInputMode(true);
 
         foreach ($reflectionFunction->getParameters() as $reflectionParameter) {
             $name = $reflectionParameter->getName();
@@ -111,6 +116,8 @@ class FunctionPipe implements Pipe
 
             $functionArgs[] = $value;
         }
+
+        $invoke->setInputMode(false);
 
         return $reflectionFunction->invokeArgs($functionArgs);
     }
