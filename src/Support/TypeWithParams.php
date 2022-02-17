@@ -2,6 +2,7 @@
 
 namespace Invoke\Support;
 
+use ArrayAccess;
 use Invoke\AbstractType;
 use Invoke\Attributes\NotParameter;
 use Invoke\Container;
@@ -28,7 +29,7 @@ use RuntimeException;
  * @see Data
  * @see Method
  */
-abstract class TypeWithParams extends AbstractType implements HasUsedTypes, JsonSerializable, HasToArray
+abstract class TypeWithParams extends AbstractType implements HasUsedTypes, JsonSerializable, HasToArray, ArrayAccess
 {
     /**
      * List of registered parameters.
@@ -37,7 +38,6 @@ abstract class TypeWithParams extends AbstractType implements HasUsedTypes, Json
      */
     #[NotParameter]
     protected array $parameterNames = [];
-
 
     /**
      * @param mixed $input
@@ -338,5 +338,37 @@ abstract class TypeWithParams extends AbstractType implements HasUsedTypes, Json
         }
 
         return $array;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function offsetGet(mixed $offset): mixed
+    {
+        return $this->{$offset};
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        $this->set($offset, $value, true);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function offsetExists(mixed $offset): bool
+    {
+        return property_exists($this, $offset);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function offsetUnset(mixed $offset): void
+    {
+        throw new RuntimeException("Not implemented.");
     }
 }

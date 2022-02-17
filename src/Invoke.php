@@ -18,11 +18,9 @@ use function Invoke\Utils\array_merge_recursive2;
 class Invoke implements InvokeInterface
 {
     /**
-     * Invoke version.
-     *
-     * @var string $version
+     * Invoke library version.
      */
-    public static string $version = "2.0.0-ALPHA";
+    const VERSION = "2.0.0-ALPHA";
 
     /**
      * Method extensions.
