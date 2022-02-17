@@ -12,7 +12,13 @@ use Invoke\Method;
  */
 trait WithReadonlyParams
 {
-    public function set($name, $value)
+    /**
+     * @param string $name
+     * @param mixed $value
+     * @param bool $validate
+     * @return void
+     */
+    public function set(string $name, mixed $value, bool $validate = true): void
     {
         parent::set($name, $value);
     }
