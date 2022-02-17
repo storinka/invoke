@@ -10,7 +10,7 @@ PHP library for building fast and modern web APIs.
 **The library is still work-in-progress.**
 
 ```shell
-composer require storinka/invoke:^2
+composer require storinka/invoke:^2 storinka/invoke-http:^2
 ```
 
 ## Basic example

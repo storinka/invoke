@@ -263,7 +263,7 @@ class Invoke implements InvokeInterface
             return Piping::run($pipeline, $input);
 
         } catch (Throwable $exception) {
-            $errorPipeline = $this->getConfig("serve.defaultPipeline");
+            $errorPipeline = $this->getConfig("serve.defaultErrorPipeline");
 
             return Piping::run($errorPipeline, $exception);
         }
