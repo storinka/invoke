@@ -6,6 +6,9 @@ use InvalidArgumentException;
 use Invoke\Container;
 use Invoke\Utils\ReflectionUtils;
 use ReflectionFunction;
+use function class_exists;
+use function is_callable;
+use function is_string;
 
 /**
  * Default invoke container implementation.
@@ -29,7 +32,7 @@ class InvokeContainer implements InvokeContainerInterface
         if (isset($this->singletons[$id])) {
             $singleton = $this->singletons[$id];
 
-            if (is_object($singleton)) {
+            if (is_object($singleton) && !is_callable($singleton)) {
                 return $singleton;
             }
 
@@ -87,6 +90,10 @@ class InvokeContainer implements InvokeContainerInterface
      */
     public function make(callable|string $classOrCallable, array $parameters = []): mixed
     {
+        if (is_string($classOrCallable) && class_exists($classOrCallable)) {
+            $classOrCallable = $this->factories[$classOrCallable] ?? $classOrCallable;
+        }
+
         if (is_callable($classOrCallable)) {
             return $this->resolveFunction($classOrCallable, $parameters);
         }
