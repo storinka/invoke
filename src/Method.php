@@ -31,8 +31,12 @@ abstract class Method extends TypeWithParams
         // enable input mode
         $invoke->setInputMode(true);
 
-        // validate parameters
-        parent::pass($input);
+        $usePropertiesAsParameters = $invoke->getConfig("methods.usePropertiesAsParameters", true);
+
+        if ($usePropertiesAsParameters) {
+            // validate parameters
+            parent::pass($input);
+        }
 
         $handleParameters = $this->validateHandleMethod($input);
 

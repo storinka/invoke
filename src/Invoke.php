@@ -64,6 +64,9 @@ class Invoke implements InvokeInterface
         ],
         "parameters" => [
             "onlyWithAttribute" => false,
+        ],
+        "methods" => [
+            "usePropertiesAsParameters" => true,
         ]
     ];
 
