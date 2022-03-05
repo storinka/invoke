@@ -48,52 +48,17 @@ class SingletonsTest extends TestCase {
         $this->assertSame($instance, $container->get('sampleClass'));
     }
 
-//    public function testSingletonClosureTwice(): void //TODO
-//    {
-//        $container = new InvokeContainer();
-//
-//        $container->factory('sampleClass', function () {
-//            return new SampleClass();
-//        });
-//
-//        $instance = $container->get('sampleClass');
-//
-//        $this->assertInstanceOf(SampleClass::class, $instance);
-//        $this->assertSame($instance, $container->get('sampleClass'));
-//    }
-
-/*
-    public function testSingletonFactory(): void //TODO
+    public function testSingletonClosureTwice(): void
     {
         $container = new InvokeContainer();
 
-        $container->singleton('sampleClass', [self::class, 'sampleClass']);
+        $container->singleton('sampleClass', function () {
+            return new SampleClass();
+        });
 
         $instance = $container->get('sampleClass');
 
         $this->assertInstanceOf(SampleClass::class, $instance);
         $this->assertSame($instance, $container->get('sampleClass'));
     }
-
-    private function sampleClass(): SampleClass
-    {
-        return new SampleClass();
-    }
-*/
-
-//    public function testDelayedSingleton(): void //TODO
-//    {
-//        $container = new InvokeContainer();
-//        $container->singleton('singleton', 'sampleClass');
-//
-//        $container->factory('sampleClass', function () {
-//            return new SampleClass();
-//        });
-//
-//        $instance = $container->get('singleton');
-//
-//        $this->assertInstanceOf(SampleClass::class, $instance);
-//        $this->assertSame($instance, $container->get('singleton'));
-//        $this->assertNotSame($instance, $container->get('sampleClass'));
-//    }
 }
