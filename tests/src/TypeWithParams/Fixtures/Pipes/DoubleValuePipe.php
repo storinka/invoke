@@ -1,6 +1,6 @@
 <?php
 
-namespace InvokeTests\Data\Fixtures\Pipes;
+namespace InvokeTests\TypeWithParams\Fixtures\Pipes;
 
 use Attribute;
 use Invoke\Pipe;
