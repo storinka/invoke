@@ -22,6 +22,9 @@ use JsonSerializable;
 use ReflectionParameter;
 use ReflectionProperty;
 use RuntimeException;
+use function is_array;
+use function is_object;
+use function property_exists;
 
 /**
  * Abstract type with parameters.
@@ -217,7 +220,7 @@ abstract class TypeWithParams extends AbstractType implements HasUsedTypes, Json
             $type = $reflectionProperty->getType();
 
             // inject dependency if property with attribute #[Inject]
-            if (ReflectionUtils::isPropertyDependency($reflectionProperty)) {
+            if (ReflectionUtils::isPropertyDependency($reflectionProperty)) { //TODO: drop this
                 $dependency = Container::get($type->getName());
 
                 $this->{$name} = $dependency;
@@ -244,33 +247,19 @@ abstract class TypeWithParams extends AbstractType implements HasUsedTypes, Json
             } else {
                 // if not overridden, try to extract value from input
                 // so, if input is an array, we check if param is provided
-                if (is_array($input)) {
-                    if (array_key_exists($name, $input)) {
-                        $value = $input[$name];
+                if (is_array($input) && array_key_exists($name, $input)) {
+                    $value = $input[$name];
+                } elseif (is_object($input) && property_exists($input, $name)) {
+                    $value = $input->{$name};
+                } else {
+                    // if param is not provided via input
+                    // check if it has default value
+                    if ($hasDefaultValue) {
+                        // if default value is provided, then just check next param
+                        continue;
                     } else {
-                        // if param is not provided via input
-                        // check if it has default value
-                        if ($hasDefaultValue) {
-                            // if default value is provided, then just check next param
-                            continue;
-                        } else {
-                            if (!$type->allowsNull()) {
-                                throw new RequiredParameterNotProvidedException($name);
-                            }
-                        }
-                    }
-                } elseif (is_object($input)) {
-                    // if input is an object,
-                    // check if param exist or try to use default value
-                    if (property_exists($input, $name)) {
-                        $value = $input->{$name};
-                    } else {
-                        if ($hasDefaultValue) {
-                            continue;
-                        } else {
-                            if (!$type->allowsNull()) {
-                                throw new RequiredParameterNotProvidedException($name);
-                            }
+                        if (!$type->allowsNull()) {
+                            throw new RequiredParameterNotProvidedException($name);
                         }
                     }
                 }
