@@ -6,6 +6,7 @@ use Invoke\Piping;
 use InvokeTests\TestCase;
 use InvokeTests\TypeWithParams\Fixtures\SomeType;
 use function PHPUnit\Framework\assertEquals;
+use function PHPUnit\Framework\assertTrue;
 
 class BasicsTest extends TestCase
 {
@@ -33,5 +34,21 @@ class BasicsTest extends TestCase
 
         $type = $this->fromInput((object)$input);
         $assertType($type);
+    }
+
+    public function testAccessArray(): void
+    {
+        $input = [
+            "name" => "Davyd",
+            "intWithPipe" => 2,
+        ];
+        $type = $this->fromInput($input);
+
+        $type['name'] = "Davyd2";
+        assertTrue(isset($type['name']));
+        assertEquals($type['name'], "Davyd2");
+
+        $this->expectException(\RuntimeException::class);
+        unset($type['name']);
     }
 }

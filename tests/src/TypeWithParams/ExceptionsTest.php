@@ -7,7 +7,10 @@ use Invoke\Exceptions\ParameterTypeNameRequiredException;
 use Invoke\Exceptions\RequiredParameterNotProvidedException;
 use Invoke\Piping;
 use Invoke\Types\StringType;
+use Invoke\Types\UnionType;
 use InvokeTests\TestCase;
+use InvokeTests\TypeWithParams\Fixtures\AnotherAnotherSomeType;
+use InvokeTests\TypeWithParams\Fixtures\AnotherSomeType;
 use InvokeTests\TypeWithParams\Fixtures\SomeType;
 use InvokeTests\TypeWithParams\Fixtures\TypeWithMixedTypeProperty;
 
@@ -32,9 +35,12 @@ class ExceptionsTest extends TestCase
     }
 
     protected function invalidMixedProvider(): array{
+        $typeMixedSomeType = new UnionType([AnotherSomeType::class, AnotherAnotherSomeType::class]);
+
         return [
             [[], RequiredParameterNotProvidedException::class, "mixedSomeType"],
             [["mixedSomeType" => []], ParameterTypeNameRequiredException::class, "mixedSomeType"],
+            [["mixedSomeType" => ["@type" => "lol123"]], InvalidParameterTypeException::class, "mixedSomeType", $typeMixedSomeType, "lol123"],
             [["mixedSomeType" => ["@type" => "AnotherSomeType"]], RequiredParameterNotProvidedException::class, "mixedSomeType->numeric"]
         ];
     }
