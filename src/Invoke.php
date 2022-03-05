@@ -62,6 +62,9 @@ class Invoke implements InvokeInterface
             "defaultPipeline" => MainPipeline::class,
             "defaultErrorPipeline" => ErrorPipeline::class,
         ],
+        "parameters" => [
+            "onlyWithAttribute" => false,
+        ]
     ];
 
     /**

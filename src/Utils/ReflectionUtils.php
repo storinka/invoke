@@ -4,9 +4,12 @@ namespace Invoke\Utils;
 
 use Ds\Set;
 use Invoke\Attributes\NotParameter;
+use Invoke\Attributes\Parameter;
+use Invoke\Container;
 use Invoke\Container\Inject;
 use Invoke\Extensions\MethodExtension;
 use Invoke\Extensions\MethodTraitExtension;
+use Invoke\Invoke;
 use Invoke\Method;
 use Invoke\Support\HasUsedTypes;
 use Invoke\Support\TypeWithParams;
@@ -100,7 +103,7 @@ final class ReflectionUtils
 
         return ReflectionUtils::$cachedMethodAttributeExtensions[$methodClass];
     }
-    
+
     public static function extractComment(ReflectionFunctionAbstract|ReflectionProperty|ReflectionClass|ReflectionClassConstant $reflectionClass): array
     {
         $comment = [
@@ -167,6 +170,16 @@ final class ReflectionUtils
             if ($attribute->getName() === NotParameter::class || is_subclass_of($attribute->getName(), NotParameter::class)) {
                 return false;
             }
+
+            if ($attribute->getName() === Parameter::class || is_subclass_of($attribute->getName(), Parameter::class)) {
+                return true;
+            }
+        }
+
+        $onlyWithAttribute = Container::get(Invoke::class)->getConfig("parameters.onlyWithAttribute", false);
+
+        if ($onlyWithAttribute) {
+            return false;
         }
 
         return true;
