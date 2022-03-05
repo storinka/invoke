@@ -4,7 +4,7 @@ namespace InvokeTests\Types;
 
 use Invoke\Types\IntType;
 
-class IntTypeTest extends TypeTestCase
+class IntTypeTest extends TypeStrictTestCase
 {
     public function validInput(): iterable
     {
@@ -26,11 +26,35 @@ class IntTypeTest extends TypeTestCase
         ];
     }
 
+    public function validStrictInput(): iterable
+    {
+        return [
+            [14, 14],
+            [0, 0],
+        ];
+    }
+
+    public function invalidStrictInput(): iterable
+    {
+        return [
+            ["13"],
+            ["lol"],
+            ["true"],
+            [true],
+            [null],
+        ];
+    }
+
 
     protected function getType(): IntType
     {
         $this->getContainer()->singleton(IntType::class, IntType::class);
 
         return $this->getContainer()->get(IntType::class);
+    }
+
+    protected function getTypeName(): string
+    {
+        return "int";
     }
 }

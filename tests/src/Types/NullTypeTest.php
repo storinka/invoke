@@ -5,7 +5,7 @@ namespace InvokeTests\Types;
 use Invoke\Type;
 use Invoke\Types\NullType;
 
-class NullTypeTest extends TypeTestCase
+class NullTypeTest extends TypeStrictTestCase
 {
     public function validInput(): iterable
     {
@@ -24,8 +24,30 @@ class NullTypeTest extends TypeTestCase
         ];
     }
 
+    public function validStrictInput(): iterable
+    {
+        return [
+            [null, null],
+        ];
+    }
+
+    public function invalidStrictInput(): iterable
+    {
+        return [
+            ["NuLL"],
+            ["NULL"],
+            [false],
+            [0],
+        ];
+    }
+
     protected function getType(): Type
     {
         return NullType::getInstance();
+    }
+
+    protected function getTypeName(): string
+    {
+        return "null";
     }
 }

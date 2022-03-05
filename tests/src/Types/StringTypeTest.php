@@ -28,4 +28,9 @@ class StringTypeTest extends TypeTestCase
     {
         return StringType::getInstance();
     }
+
+    protected function getTypeName(): string
+    {
+        return "string";
+    }
 }

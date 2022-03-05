@@ -6,22 +6,23 @@ namespace InvokeTests\Types;
 
 use Invoke\Type;
 use Invoke\Types\EnumType;
-use InvokeTests\Types\Fixtures\IntBackedTestEnum;
+use InvokeTests\Types\Fixtures\StringBackedTestEnum;
 
-class IntEnumTypeTest extends TypeTestCase
+class EnumStringTypeTest extends EnumTypeBasedTestCase
 {
     public function validInput(): iterable
     {
         return [
-            ["1", IntBackedTestEnum::One],
-            [1, IntBackedTestEnum::One],
-            [2, IntBackedTestEnum::Two],
+            ["1", StringBackedTestEnum::One],
+            ["2", StringBackedTestEnum::Two],
+            [StringBackedTestEnum::One, StringBackedTestEnum::One],
         ];
     }
 
     public function invalidInput(): iterable
     {
         return [
+            [1],
             ["One"],
             [null],
             [true]
@@ -36,6 +37,11 @@ class IntEnumTypeTest extends TypeTestCase
 
     protected function getType(): Type
     {
-        return new EnumType(IntBackedTestEnum::class);
+        return new EnumType(StringBackedTestEnum::class);
+    }
+
+    protected function getTypeName(): string
+    {
+        return "enum";
     }
 }

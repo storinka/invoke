@@ -5,7 +5,7 @@ namespace InvokeTests\Types;
 use Invoke\Type;
 use Invoke\Types\FloatType;
 
-class FloatTypeTest extends TypeTestCase
+class FloatTypeTest extends TypeStrictTestCase
 {
     public function validInput(): iterable
     {
@@ -27,8 +27,33 @@ class FloatTypeTest extends TypeTestCase
         ];
     }
 
+    public function validStrictInput(): iterable
+    {
+        return [
+            [3, 3],
+            [3.14, 3.14],
+        ];
+    }
+
+    public function invalidStrictInput(): iterable
+    {
+        return [
+            [false],
+            [null],
+            ["lol"],
+            ["3.14"],
+            ["3"],
+        ];
+    }
+
+
     protected function getType(): Type
     {
         return FloatType::getInstance();
+    }
+
+    protected function getTypeName(): string
+    {
+        return "float";
     }
 }

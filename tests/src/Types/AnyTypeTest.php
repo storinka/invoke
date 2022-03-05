@@ -2,12 +2,22 @@
 
 namespace InvokeTests\Types;
 
+use Invoke\Type;
 use Invoke\Types\AnyType;
-use InvokeTests\TestCase;
 use function PHPUnit\Framework\assertEquals;
 
-class AnyTypeTest extends TestCase
+class AnyTypeTest extends TypeBasedTestCase
 {
+    protected function getType(): Type
+    {
+        return AnyType::getInstance();
+    }
+
+    protected function getTypeName(): string
+    {
+        return "any";
+    }
+
     public function testValid(): void
     {
         $type = AnyType::getInstance();

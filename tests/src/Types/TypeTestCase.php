@@ -6,21 +6,11 @@ namespace InvokeTests\Types;
 
 use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Type;
-use InvokeTests\TestCase;
 use function PHPUnit\Framework\assertEquals;
 
-abstract class TypeTestCase extends TestCase
+abstract class TypeTestCase extends TypeBasedTestCase
 {
-    protected static bool $strict = false;
-
     abstract protected function getType(): Type;
-
-    protected function setUp(): void
-    {
-        static::$invokeConfig["inputMode"]["convertStrings"] = !static::$strict;
-
-        parent::setUp();
-    }
 
     abstract public function validInput(): iterable;
 

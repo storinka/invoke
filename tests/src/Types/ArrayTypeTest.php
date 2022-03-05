@@ -28,4 +28,9 @@ class ArrayTypeTest extends TypeTestCase
     {
         return ArrayType::getInstance();
     }
+
+    protected function getTypeName(): string
+    {
+        return "array";
+    }
 }
