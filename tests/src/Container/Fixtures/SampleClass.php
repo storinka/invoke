@@ -2,6 +2,7 @@
 
 namespace InvokeTests\Container\Fixtures;
 
-class SampleClass {
+class SampleClass
+{
 
 }

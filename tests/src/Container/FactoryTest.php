@@ -8,8 +8,10 @@ use InvokeTests\TestCase;
 use function PHPUnit\Framework\assertInstanceOf;
 use function PHPUnit\Framework\assertSame;
 
-class FactoryTest extends TestCase {
-    public function testAutoFactory(): void{
+class FactoryTest extends TestCase
+{
+    public function testAutoFactory(): void
+    {
         $container = new InvokeContainer();
 
         $bucket = $container->make(Bucket::class, [
@@ -25,8 +27,8 @@ class FactoryTest extends TestCase {
     public function testClosureFactory(): void
     {
         $container = new InvokeContainer();
-        $container->factory(Bucket::class, function ($data){
-           return new Bucket('via-closure', $data);
+        $container->factory(Bucket::class, function ($data) {
+            return new Bucket('via-closure', $data);
         });
 
         $bucket = $container->make(Bucket::class, [

@@ -8,7 +8,8 @@ use InvokeTests\TestCase;
 use function PHPUnit\Framework\assertSame;
 use function PHPUnit\Framework\assertTrue;
 
-class SingletonsTest extends TestCase {
+class SingletonsTest extends TestCase
+{
     public function testSingletonInstance(): void
     {
         $container = new InvokeContainer();

@@ -5,6 +5,7 @@ namespace InvokeTests\Container;
 use Invoke\Container\InvokeContainer;
 use InvokeTests\Container\Fixtures\SampleClass;
 use InvokeTests\TestCase;
+
 class BindingsTest extends TestCase
 {
     public function testBasicBinding(): void
