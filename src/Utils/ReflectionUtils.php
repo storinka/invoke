@@ -178,7 +178,7 @@ final class ReflectionUtils
 
         $onlyWithAttribute = Container::get(Invoke::class)->getConfig("parameters.onlyWithAttribute", false);
 
-        if ($onlyWithAttribute) {
+        if ($onlyWithAttribute && $property instanceof ReflectionProperty) {
             return false;
         }
 
