@@ -32,15 +32,6 @@ class BindingsTest extends TestCase
         $this->assertInstanceOf(SampleClass::class, $container->get('sampleClass'));
     }
 
-
-//    public function testFactoryBinding(): void
-//    {
-//        $container = new InvokeContainer();
-//
-//        $container->singleton('sampleClass', [self::class, 'sampleClass']);
-//        $this->assertInstanceOf(SampleClass::class, $container->get('sampleClass'));
-//    }
-
     public function testInstanceBinding(): void
     {
         $container = new InvokeContainer();
@@ -51,10 +42,5 @@ class BindingsTest extends TestCase
 
         $this->assertInstanceOf(SampleClass::class, $instance);
         $this->assertSame($instance, $container->get('sampleClass'));
-    }
-
-    public function sampleClass(): SampleClass
-    {
-        return new SampleClass();
     }
 }
