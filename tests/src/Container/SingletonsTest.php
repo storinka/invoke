@@ -5,6 +5,7 @@ namespace InvokeTests\Container;
 use Invoke\Container\InvokeContainer;
 use InvokeTests\Container\Fixtures\SampleClass;
 use InvokeTests\TestCase;
+use function PHPUnit\Framework\assertFalse;
 use function PHPUnit\Framework\assertSame;
 use function PHPUnit\Framework\assertTrue;
 
@@ -61,5 +62,18 @@ class SingletonsTest extends TestCase
 
         $this->assertInstanceOf(SampleClass::class, $instance);
         $this->assertSame($instance, $container->get('sampleClass'));
+    }
+
+    public function testDelete()
+    {
+        $container = new InvokeContainer();
+
+        $container->singleton(SampleClass::class, SampleClass::class);
+
+        assertTrue($container->has(SampleClass::class));
+
+        $container->delete(SampleClass::class);
+
+        assertFalse($container->has(SampleClass::class));
     }
 }
