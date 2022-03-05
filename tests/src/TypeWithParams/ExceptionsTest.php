@@ -28,13 +28,15 @@ class ExceptionsTest extends TestCase
     /**
      * @dataProvider invalidBasicsProvider
      */
-    public function testInvalidBasics($input, $exceptionClass, ...$exceptionParams){
+    public function testInvalidBasics($input, $exceptionClass, ...$exceptionParams)
+    {
         $this->expectExceptionObject(new $exceptionClass(...$exceptionParams));
 
         Piping::run(new SomeType(), $input);
     }
 
-    protected function invalidMixedProvider(): array{
+    protected function invalidMixedProvider(): array
+    {
         $typeMixedSomeType = new UnionType([AnotherSomeType::class, AnotherAnotherSomeType::class]);
 
         return [
@@ -44,10 +46,12 @@ class ExceptionsTest extends TestCase
             [["mixedSomeType" => ["@type" => "AnotherSomeType"]], RequiredParameterNotProvidedException::class, "mixedSomeType->numeric"]
         ];
     }
+
     /**
      * @dataProvider invalidMixedProvider
      */
-    public function testInvalidMixed($input, $exceptionClass, ...$exceptionParams){
+    public function testInvalidMixed($input, $exceptionClass, ...$exceptionParams)
+    {
         $this->expectExceptionObject(new $exceptionClass(...$exceptionParams));
 
         Piping::run(new TypeWithMixedTypeProperty(), $input);

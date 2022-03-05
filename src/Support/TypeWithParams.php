@@ -201,7 +201,6 @@ abstract class TypeWithParams extends AbstractType implements HasUsedTypes, Json
 
         if (is_array($input)) {
             $inputTypeName = $input["@type"] ?? null;
-
             if ($inputTypeName) {
                 if ($inputTypeName !== Utils::getPipeTypeName($this::class)) {
                     throw new InvalidTypeException($this, $inputTypeName);

@@ -22,7 +22,7 @@ class BasicsTest extends TestCase
             "intWithPipe" => 2,
         ];
 
-        $assertType = function (SomeType $type){
+        $assertType = function (SomeType $type) {
             assertEquals("Davyd", $type->name);
             assertEquals(4, $type->intWithPipe);
             assertEquals(123, $type->intWithDefault);

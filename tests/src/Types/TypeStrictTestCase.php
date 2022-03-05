@@ -11,13 +11,15 @@ abstract class TypeStrictTestCase extends TypeTestCase
 
     abstract public function invalidStrictInput(): iterable;
 
-    protected function enableStrict(bool $enable = true): void{
+    protected function enableStrict(bool $enable = true): void
+    {
         Container::get(Invoke::class)->setConfig([
             "inputMode" => [
                 "convertStrings" => !$enable
             ]
         ]);
     }
+
     /** @dataProvider validStrictInput */
     public function testStrictValid(mixed $value, mixed $expected): void
     {

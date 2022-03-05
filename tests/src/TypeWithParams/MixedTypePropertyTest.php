@@ -17,7 +17,8 @@ class MixedTypePropertyTest extends TestCase
         return Piping::run(new TypeWithMixedTypeProperty(), $input);
     }
 
-    public function test() {
+    public function test()
+    {
         $type = $this->fromInput([
             "mixedSomeType" => [
                 "@type" => "AnotherSomeType",
