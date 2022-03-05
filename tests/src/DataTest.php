@@ -12,6 +12,17 @@ use function PHPUnit\Framework\assertNull;
 
 class DataTest extends TestCase
 {
+    protected function assertSomeData(SomeData $data, array $input)
+    {
+        foreach ($input as $key => $val) {
+            if ($key === 'intWithPipe') {
+                $val = $val * 2;
+            }
+
+            assertEquals($data->{$key}, $val);
+        }
+    }
+
     public function testValid()
     {
         $input = [
@@ -21,16 +32,6 @@ class DataTest extends TestCase
         $data = SomeData::from($input);
 
         $this->assertSomeData($data, $input);
-    }
-
-    /**
-     * @dataProvider invalidProvider
-     */
-    public function testInvalid($input, $exceptionClass, ...$exceptionParams)
-    {
-        $this->expectExceptionObject(new $exceptionClass(...$exceptionParams));
-
-        SomeData::from($input);
     }
 
     public function testValidNullable()
@@ -64,17 +65,6 @@ class DataTest extends TestCase
         }
     }
 
-    protected function assertSomeData(SomeData $data, array $input)
-    {
-        foreach ($input as $key => $val) {
-            if ($key === 'intWithPipe') {
-                $val = $val * 2;
-            }
-
-            assertEquals($data->{$key}, $val);
-        }
-    }
-
     protected function invalidProvider(): array
     {
         return [
@@ -82,5 +72,15 @@ class DataTest extends TestCase
             [["name" => "Davyd"], RequiredParameterNotProvidedException::class, "intWithPipe"],
             [["name" => null], InvalidParameterTypeException::class, "name", StringType::getInstance(), "null"],
         ];
+    }
+
+    /**
+     * @dataProvider invalidProvider
+     */
+    public function testInvalid($input, $exceptionClass, ...$exceptionParams)
+    {
+        $this->expectExceptionObject(new $exceptionClass(...$exceptionParams));
+
+        SomeData::from($input);
     }
 }
