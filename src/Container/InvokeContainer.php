@@ -142,12 +142,11 @@ class InvokeContainer implements InvokeContainerInterface
 
             foreach ($reflectionClass->getProperties() as $reflectionProperty) {
                 if (ReflectionUtils::isPropertyDependency($reflectionProperty)) {
-                    $name = $reflectionProperty->getName();
                     $type = $reflectionProperty->getType()->getName();
 
-                    $value = Container::get($type);
+                    $value = $this->get($type);
 
-                    $this->{$name} = $value;
+                    $reflectionProperty->setValue($instance, $value);
                 }
             }
 
