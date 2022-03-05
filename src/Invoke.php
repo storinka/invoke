@@ -8,9 +8,11 @@ use Invoke\Extensions\MethodExtension;
 use Invoke\Pipelines\ErrorPipeline;
 use Invoke\Pipelines\MainPipeline;
 use Invoke\Support\FunctionPipe;
+use Invoke\Utils\ReflectionUtils;
 use Invoke\Utils\Utils;
 use Throwable;
 use function Invoke\Utils\array_merge_recursive2;
+use function Invoke\Utils\get_class_name;
 
 /**
  * Invoke pipe itself.
@@ -320,5 +322,38 @@ class Invoke implements InvokeInterface
         }
 
         return $newMethods;
+    }
+
+    public static function callMethodExtensionsHook(Method $method, string $hook, array $params = [])
+    {
+        $methodReflectionClass = ReflectionUtils::getClass($method::class);
+
+        $traitExtensions = ReflectionUtils::extractMethodTraitExtensions($method::class);
+
+        foreach ($traitExtensions as $trait) {
+            $traitName = get_class_name($trait);
+            $methodName = "{$hook}{$traitName}";
+
+            if (method_exists($method, $methodName)) {
+                $traitMethod = $methodReflectionClass->getMethod($methodName);
+
+                $traitMethod->invokeArgs($method, $params);
+            }
+        }
+
+        $invoke = Container::get(Invoke::class);
+
+        $attributeExtensions = ReflectionUtils::extractMethodAttributeExtensions($method::class);
+        $attributeExtensions = [...$attributeExtensions, ...$invoke->getExtensions()];
+
+        foreach ($attributeExtensions as $extension) {
+            $extensionReflectionClass = ReflectionUtils::getClass($extension::class);
+
+            if (method_exists($extension, $hook)) {
+                $extensionHookMethod = $extensionReflectionClass->getMethod($hook);
+
+                $extensionHookMethod->invokeArgs($extension, [$method, ...$params]);
+            }
+        }
     }
 }

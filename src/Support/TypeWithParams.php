@@ -135,7 +135,7 @@ abstract class TypeWithParams extends AbstractType implements HasUsedTypes, Json
      * @param mixed $value
      * @return mixed
      */
-    private function validateReflectionProperty(ReflectionProperty $reflectionProperty, mixed $value): mixed
+    private function validateReflectionProperty(ReflectionProperty|ReflectionParameter $reflectionProperty, mixed $value): mixed
     {
         $name = $reflectionProperty->getName();
         $type = $reflectionProperty->getType();
@@ -173,11 +173,11 @@ abstract class TypeWithParams extends AbstractType implements HasUsedTypes, Json
 
 
     /**
-     * @param ReflectionProperty[] $reflectionProperties
+     * @param ReflectionProperty[]|ReflectionParameter[] $reflectionProperties
      * @param mixed $input
      * @return array
      */
-    private function validate(array $reflectionProperties, mixed $input): array
+    protected function validate(array $reflectionProperties, mixed $input, bool $handleInject = false): array
     {
         // get builtin input type
         $inputBuiltinType = gettype($input);
@@ -220,11 +220,12 @@ abstract class TypeWithParams extends AbstractType implements HasUsedTypes, Json
             $type = $reflectionProperty->getType();
 
             // inject dependency if property with attribute #[Inject]
-            if (ReflectionUtils::isPropertyDependency($reflectionProperty)) { //TODO: drop this
-                $dependency = Container::get($type->getName());
+            if (ReflectionUtils::isPropertyDependency($reflectionProperty)) {
+                if ($handleInject) {
+                    $dependency = Container::get($type->getName());
 
-                $this->{$name} = $dependency;
-
+                    $validated[$name] = $dependency;
+                }
                 continue;
             }
 

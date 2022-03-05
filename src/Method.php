@@ -14,13 +14,6 @@ use Invoke\Utils\Utils;
 abstract class Method extends TypeWithParams
 {
     /**
-     * Method handler.
-     *
-     * @return R
-     */
-    protected abstract function handle();
-
-    /**
      * @inheritDoc
      */
     public function pass(mixed $input): mixed
@@ -29,8 +22,8 @@ abstract class Method extends TypeWithParams
             return $input;
         }
 
-        // call "beforeValidation" hooks on extensions
-        ReflectionUtils::callMethodExtensionsHook($this, "beforeValidation");
+        // call "beforeValidation" hook on extensions
+        Invoke::callMethodExtensionsHook($this, "beforeValidation");
 
         // get current instance of invoke from container
         $invoke = Container::get(Invoke::class);
@@ -41,19 +34,33 @@ abstract class Method extends TypeWithParams
         // validate parameters
         parent::pass($input);
 
+        $handleParameters = $this->validateHandleMethod($input);
+
         // disable input mode
         $invoke->setInputMode(false);
 
-        // call "beforeHandle" hooks on extensions
-        ReflectionUtils::callMethodExtensionsHook($this, "beforeHandle");
+        // call "beforeHandle" hook on extensions
+        Invoke::callMethodExtensionsHook($this, "beforeHandle");
 
         // handle the method
-        $result = $this->handle();
+        $result = $this->handle(...$handleParameters);
 
-        // call "afterHandle" hooks on extensions
-        ReflectionUtils::callMethodExtensionsHook($this, "afterHandle", [$result]);
+        // call "afterHandle" hook on extensions
+        Invoke::callMethodExtensionsHook($this, "afterHandle", [$result]);
 
         return $result;
+    }
+
+    private function validateHandleMethod(array $input): array
+    {
+        $reflectionClass = ReflectionUtils::getClass($this::class);
+        $handleMethod = $reflectionClass->getMethod("handle");
+
+        if (!$handleMethod->isProtected()) {
+            throw new \RuntimeException("\"handle\" method of {$reflectionClass->name} must be protected.");
+        }
+
+        return $this->validate($handleMethod->getParameters(), $input, true);
     }
 
     /**

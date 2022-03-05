@@ -4,13 +4,10 @@ namespace Invoke\Utils;
 
 use Ds\Set;
 use Invoke\Attributes\NotParameter;
-use Invoke\Container;
 use Invoke\Container\Inject;
 use Invoke\Extensions\MethodExtension;
 use Invoke\Extensions\MethodTraitExtension;
-use Invoke\Invoke;
 use Invoke\Method;
-use Invoke\Pipelines\Http\Extensions\RequireHeaders;
 use Invoke\Support\HasUsedTypes;
 use Invoke\Support\TypeWithParams;
 use Invoke\Type;
@@ -103,40 +100,7 @@ final class ReflectionUtils
 
         return ReflectionUtils::$cachedMethodAttributeExtensions[$methodClass];
     }
-
-    public static function callMethodExtensionsHook(Method $method, string $hook, array $params = [])
-    {
-        $methodReflectionClass = ReflectionUtils::getClass($method::class);
-
-        $traitExtensions = ReflectionUtils::extractMethodTraitExtensions($method::class);
-
-        foreach ($traitExtensions as $trait) {
-            $traitName = get_class_name($trait);
-            $methodName = "{$hook}{$traitName}";
-
-            if (method_exists($method, $methodName)) {
-                $traitMethod = $methodReflectionClass->getMethod($methodName);
-
-                $traitMethod->invokeArgs($method, $params);
-            }
-        }
-
-        $invoke = Container::get(Invoke::class);
-
-        $attributeExtensions = ReflectionUtils::extractMethodAttributeExtensions($method::class);
-        $attributeExtensions = [...$attributeExtensions, ...$invoke->getExtensions()];
-
-        foreach ($attributeExtensions as $extension) {
-            $extensionReflectionClass = ReflectionUtils::getClass($extension::class);
-
-            if (method_exists($extension, $hook)) {
-                $extensionHookMethod = $extensionReflectionClass->getMethod($hook);
-
-                $extensionHookMethod->invokeArgs($extension, [$method, ...$params]);
-            }
-        }
-    }
-
+    
     public static function extractComment(ReflectionFunctionAbstract|ReflectionProperty|ReflectionClass|ReflectionClassConstant $reflectionClass): array
     {
         $comment = [
