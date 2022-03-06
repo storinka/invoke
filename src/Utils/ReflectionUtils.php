@@ -200,7 +200,20 @@ final class ReflectionUtils
     {
         $params = [];
 
-        foreach ($class->getProperties() as $property) {
+        $propertiesOrParameters = [];
+
+        if ($class->isSubclassOf(Method::class)) {
+            if (Container::get(Invoke::class)->getConfig("methods.usePropertiesAsParameters", true)) {
+                $propertiesOrParameters = $class->getProperties();
+            }
+
+            $handleMethod = $class->getMethod("handle");
+            array_push($propertiesOrParameters, ...$handleMethod->getParameters());
+        } else {
+            $propertiesOrParameters = $class->getProperties();
+        }
+
+        foreach ($propertiesOrParameters as $property) {
             if (!ReflectionUtils::isPropertyParameter($property)) {
                 continue;
             }
