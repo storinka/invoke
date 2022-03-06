@@ -26,4 +26,9 @@ class TestCase extends \PHPUnit\Framework\TestCase
     {
         return Container::current();
     }
+
+    protected function tearDown(): void
+    {
+        \Mockery::close();
+    }
 }
