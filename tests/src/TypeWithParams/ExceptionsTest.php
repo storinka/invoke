@@ -13,6 +13,8 @@ use InvokeTests\TypeWithParams\Fixtures\AnotherAnotherSomeType;
 use InvokeTests\TypeWithParams\Fixtures\AnotherSomeType;
 use InvokeTests\TypeWithParams\Fixtures\SomeTypeWithParams;
 use InvokeTests\TypeWithParams\Fixtures\TypeWithMixedTypeProperty;
+use InvokeTests\TypeWithParams\Fixtures\TypeWithValidator;
+use InvokeTests\TypeWithParams\Fixtures\Validators\Exceptions\SomeValidatorException;
 
 class ExceptionsTest extends TestCase
 {
@@ -55,5 +57,12 @@ class ExceptionsTest extends TestCase
         $this->expectExceptionObject(new $exceptionClass(...$exceptionParams));
 
         Piping::run(new TypeWithMixedTypeProperty(), $input);
+    }
+
+    public function testInvalidValidator()
+    {
+        $this->expectExceptionObject(new SomeValidatorException);
+
+        Piping::run(new TypeWithValidator(), ["string" => "fail"]);
     }
 }
