@@ -2,6 +2,7 @@
 
 namespace InvokeTests\Types;
 
+use Invoke\Stop;
 use Invoke\Support\Singleton;
 use Invoke\Type;
 use InvokeTests\TestCase;
@@ -25,5 +26,8 @@ abstract class TypeBasedTestCase extends TestCase
         }
 
         assertEquals($type::invoke_getTypeName(), $this->getTypeName());
+
+        $stop = new Stop();
+        assertEquals($stop, $type->pass($stop));
     }
 }
