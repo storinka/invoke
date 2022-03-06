@@ -155,18 +155,21 @@ abstract class TypeWithParams extends AbstractType implements HasUsedTypes, Json
             "{$name}"
         );
 
-        Piping::catcher(
-            function () use ($name, $reflectionProperty, &$value) {
-                foreach ($reflectionProperty->getAttributes() as $attribute) {
-                    if (is_subclass_of($attribute->getName(), Pipe::class)) {
-                        $attributePipe = $attribute->newInstance();
+        // do not run attributes if value is null and is valid
+        if (!$reflectionProperty->allowsNull() || $value !== null) {
+            Piping::catcher(
+                function () use ($name, $reflectionProperty, &$value) {
+                    foreach ($reflectionProperty->getAttributes() as $attribute) {
+                        if (is_subclass_of($attribute->getName(), Pipe::class)) {
+                            $attributePipe = $attribute->newInstance();
 
-                        $value = Piping::run($attributePipe, $value);
+                            $value = Piping::run($attributePipe, $value);
+                        }
                     }
-                }
-            },
-            "{$name}->{$name}"
-        );
+                },
+                "{$name}->{$name}"
+            );
+        }
 
         return $value;
     }
