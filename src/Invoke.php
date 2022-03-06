@@ -260,9 +260,7 @@ class Invoke implements InvokeInterface
                           mixed                  $input = null): mixed
     {
         try {
-            foreach ($this->extensions as $extension) {
-                $extension->boot($this, Container::current());
-            }
+            $this->bootExtensions();
 
             if (!$pipeline) {
                 $pipeline = $this->getConfig("serve.defaultPipeline");
@@ -360,6 +358,16 @@ class Invoke implements InvokeInterface
 
                 $extensionHookMethod->invokeArgs($extension, [$method, ...$params]);
             }
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function bootExtensions(): void
+    {
+        foreach ($this->extensions as $extension) {
+            $extension->boot($this, Container::current());
         }
     }
 }

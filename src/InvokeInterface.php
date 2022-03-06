@@ -118,4 +118,11 @@ interface InvokeInterface extends Pipe
      * @return mixed
      */
     public function serve(array|Pipe|string|null $pipeline = null, mixed $input = null): mixed;
+
+    /**
+     * Boot registered extensions.
+     *
+     * @return void
+     */
+    public function bootExtensions(): void;
 }
