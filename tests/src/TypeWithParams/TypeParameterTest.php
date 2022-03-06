@@ -7,7 +7,7 @@ use InvokeTests\TestCase;
 use InvokeTests\TypeWithParams\Fixtures\TypeWithTypeProperty;
 use function PHPUnit\Framework\assertEquals;
 
-class TypePropertyTest extends TestCase
+class TypeParameterTest extends TestCase
 {
     protected function fromInput(array $input): TypeWithTypeProperty
     {

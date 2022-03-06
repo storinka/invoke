@@ -6,6 +6,7 @@ use Invoke\Piping;
 use InvokeTests\TestCase;
 use InvokeTests\TypeWithParams\Fixtures\SomeType;
 use function PHPUnit\Framework\assertEquals;
+use function PHPUnit\Framework\assertFalse;
 use function PHPUnit\Framework\assertTrue;
 
 class BasicsTest extends TestCase
@@ -15,11 +16,19 @@ class BasicsTest extends TestCase
         return Piping::run(new SomeType(), $input);
     }
 
+    protected function isInitializedPropertyValue(object $type, string $property): bool
+    {
+        $reflection = new \ReflectionProperty($type, $property);
+
+        return $reflection->isInitialized($type);
+    }
+
     public function test(): void
     {
         $input = [
             "name" => "Davyd",
             "intWithPipe" => 2,
+            "parameterWithSetter" => "davyd",
         ];
 
         $assertType = function (SomeType $type) {
@@ -27,6 +36,11 @@ class BasicsTest extends TestCase
             assertEquals(4, $type->intWithPipe);
             assertEquals(123, $type->intWithDefault);
             assertEquals(null, $type->nullableContent);
+            assertEquals("DAVYD", $type->parameterWithSetter);
+            assertFalse(isset($type->sampleClass));
+            assertFalse(isset($type->notParameter));
+            assertFalse($this->isInitializedPropertyValue($type, "protectedNotParameter"));
+            assertFalse($this->isInitializedPropertyValue($type, "privateNotParameter"));
         };
 
         $type = $this->fromInput($input);
@@ -41,6 +55,7 @@ class BasicsTest extends TestCase
         $input = [
             "name" => "Davyd",
             "intWithPipe" => 2,
+            "parameterWithSetter" => "davyd",
         ];
         $type = $this->fromInput($input);
 

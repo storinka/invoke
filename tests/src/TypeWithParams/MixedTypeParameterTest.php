@@ -10,7 +10,7 @@ use InvokeTests\TypeWithParams\Fixtures\TypeWithMixedTypeProperty;
 use function PHPUnit\Framework\assertEquals;
 use function PHPUnit\Framework\assertInstanceOf;
 
-class MixedTypePropertyTest extends TestCase
+class MixedTypeParameterTest extends TestCase
 {
     protected function fromInput(array $input): TypeWithMixedTypeProperty
     {
