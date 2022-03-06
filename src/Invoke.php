@@ -366,7 +366,7 @@ class Invoke implements InvokeInterface
      */
     public function bootExtensions(): void
     {
-        foreach ($this->extensions as $extension) {
+        foreach ($this->getExtensions() as $extension) {
             $extension->boot($this, Container::current());
         }
     }
