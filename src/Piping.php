@@ -21,24 +21,24 @@ use RuntimeException;
 final class Piping
 {
     /**
-     * @var Map<string, Set<Pipe|string>> $before
+     * @var Map<string, Set<Pipe|class-string>> $before
      */
     protected static Map $before;
 
     /**
-     * @var Map<string, Set<Pipe|string>> $after
+     * @var Map<string, Set<Pipe|class-string>> $after
      */
     protected static Map $after;
 
     /**
-     * @var Map<string, Pipe|string> $replaced
+     * @var Map<string, Pipe|class-string> $replaced
      */
     protected static Map $replaced;
 
     /**
      * Run some value trough a pipe.
      *
-     * @param Pipe|string|array $pipe
+     * @param Pipe|class-string|array $pipe
      * @param mixed|null $value
      * @return mixed
      */
@@ -79,8 +79,8 @@ final class Piping
     /**
      * Replace some pipe.
      *
-     * @param string $oldPipe
-     * @param Pipe|string $newPipe
+     * @param class-string $oldPipe
+     * @param Pipe|class-string $newPipe
      * @return void
      */
     public static function replace(string $oldPipe, Pipe|string $newPipe): void
@@ -95,7 +95,7 @@ final class Piping
     /**
      * Return replaced pipe.
      *
-     * @param string $oldPipe
+     * @param class-string $oldPipe
      * @return void
      */
     public static function return(string $oldPipe): void
@@ -110,8 +110,8 @@ final class Piping
     /**
      * Insert a pipe before another pipe.
      *
-     * @param string $pipe
-     * @param Pipe|string $beforePipe
+     * @param class-string $pipe
+     * @param Pipe|class-string $beforePipe
      * @return void
      */
     public static function before(string $pipe, Pipe|string $beforePipe): void
@@ -124,8 +124,8 @@ final class Piping
     /**
      * Removed inserted before pipe.
      *
-     * @param string $pipe
-     * @param Pipe|string $beforePipe
+     * @param class-string $pipe
+     * @param Pipe|class-string $beforePipe
      * @return void
      */
     public static function removeBefore(string $pipe, Pipe|string $beforePipe): void
@@ -138,8 +138,8 @@ final class Piping
     /**
      * Insert a pipe after another pipe.
      *
-     * @param string $pipe
-     * @param Pipe|string $afterPipe
+     * @param class-string $pipe
+     * @param Pipe|class-string $afterPipe
      * @return void
      */
     public static function after(string $pipe, Pipe|string $afterPipe): void
@@ -152,8 +152,8 @@ final class Piping
     /**
      * Remove inserted after pipe.
      *
-     * @param string $pipe
-     * @param Pipe|string $afterPipe
+     * @param class-string $pipe
+     * @param Pipe|class-string $afterPipe
      * @return void
      */
     public static function removeAfter(string $pipe, Pipe|string $afterPipe): void

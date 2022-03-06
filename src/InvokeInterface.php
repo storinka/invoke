@@ -101,7 +101,7 @@ interface InvokeInterface extends Pipe
      *
      * @param class-string<T> $extensionClass
      * @param array $parameters
-     * @return T
+     * @return static
      */
     public function registerExtension(string $extensionClass, array $parameters = []): static;
 
@@ -113,7 +113,7 @@ interface InvokeInterface extends Pipe
     /**
      * Run main pipeline.
      *
-     * @param array|Pipe|string|null $pipeline
+     * @param array|Pipe|class-string|null $pipeline
      * @param mixed|null $input
      * @return mixed
      */
