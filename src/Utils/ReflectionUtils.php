@@ -224,7 +224,7 @@ final class ReflectionUtils
             $isOptional = false;
             $defaultValue = null;
 
-            if ($property->hasDefaultValue()) {
+            if ($property instanceof ReflectionParameter ? $property->isDefaultValueAvailable() : $property->hasDefaultValue()) {
                 $isOptional = true;
                 $defaultValue = $property->getDefaultValue();
             }
