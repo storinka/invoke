@@ -39,4 +39,17 @@ class TypeParameterTest extends TestCase
 
         assertEquals("123", $type->someType);
     }
+
+    public function testToArray()
+    {
+        $input = [
+            "someType" => [
+                "numeric" => 123
+            ]
+        ];
+
+        $type = $this->fromInput($input);
+
+        assertEquals($input, $type->toArray());
+    }
 }
