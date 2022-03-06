@@ -22,6 +22,7 @@ use JsonSerializable;
 use ReflectionParameter;
 use ReflectionProperty;
 use RuntimeException;
+use function get_object_vars;
 use function is_array;
 use function is_object;
 use function property_exists;
@@ -320,7 +321,7 @@ abstract class TypeWithParams extends AbstractType implements HasUsedTypes, Json
                 $builtInType = gettype($value);
 
                 if ($builtInType === "object") {
-                    $value = (array)$value;
+                    $value = get_object_vars($value);
                 }
             }
 
