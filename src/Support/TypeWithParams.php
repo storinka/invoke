@@ -156,7 +156,7 @@ abstract class TypeWithParams extends AbstractType implements HasUsedTypes, Json
         );
 
         // do not run attributes if value is null and is valid
-        if (!$reflectionProperty->allowsNull() || $value !== null) {
+        if (!($reflectionProperty instanceof ReflectionProperty ? $reflectionProperty->getType()?->allowsNull() : $reflectionProperty->allowsNull()) || $value !== null) {
             Piping::catcher(
                 function () use ($name, $reflectionProperty, &$value) {
                     foreach ($reflectionProperty->getAttributes() as $attribute) {
