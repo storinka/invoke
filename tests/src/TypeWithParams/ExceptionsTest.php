@@ -11,7 +11,7 @@ use Invoke\Types\UnionType;
 use InvokeTests\TestCase;
 use InvokeTests\TypeWithParams\Fixtures\AnotherAnotherSomeType;
 use InvokeTests\TypeWithParams\Fixtures\AnotherSomeType;
-use InvokeTests\TypeWithParams\Fixtures\SomeType;
+use InvokeTests\TypeWithParams\Fixtures\SomeTypeWithParams;
 use InvokeTests\TypeWithParams\Fixtures\TypeWithMixedTypeProperty;
 
 class ExceptionsTest extends TestCase
@@ -32,7 +32,7 @@ class ExceptionsTest extends TestCase
     {
         $this->expectExceptionObject(new $exceptionClass(...$exceptionParams));
 
-        Piping::run(new SomeType(), $input);
+        Piping::run(new SomeTypeWithParams(), $input);
     }
 
     protected function invalidMixedProvider(): array

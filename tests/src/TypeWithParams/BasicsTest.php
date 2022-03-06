@@ -4,16 +4,16 @@ namespace InvokeTests\TypeWithParams;
 
 use Invoke\Piping;
 use InvokeTests\TestCase;
-use InvokeTests\TypeWithParams\Fixtures\SomeType;
+use InvokeTests\TypeWithParams\Fixtures\SomeTypeWithParams;
 use function PHPUnit\Framework\assertEquals;
 use function PHPUnit\Framework\assertFalse;
 use function PHPUnit\Framework\assertTrue;
 
 class BasicsTest extends TestCase
 {
-    protected function fromInput(array|object $input): SomeType
+    protected function fromInput(array|object $input): SomeTypeWithParams
     {
-        return Piping::run(new SomeType(), $input);
+        return Piping::run(new SomeTypeWithParams(), $input);
     }
 
     protected function isInitializedPropertyValue(object $type, string $property): bool
@@ -31,7 +31,7 @@ class BasicsTest extends TestCase
             "parameterWithSetter" => "davyd",
         ];
 
-        $assertType = function (SomeType $type) {
+        $assertType = function (SomeTypeWithParams $type) {
             assertEquals("Davyd", $type->name);
             assertEquals(4, $type->intWithPipe);
             assertEquals(123, $type->intWithDefault);

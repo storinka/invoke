@@ -2,38 +2,23 @@
 
 namespace InvokeTests\TypeWithParams\Fixtures;
 
-use Invoke\Attributes\NotParameter;
-use Invoke\Container\Inject;
-use Invoke\Support\TypeWithParams;
-use InvokeTests\Container\Fixtures\SampleClass;
-use InvokeTests\TypeWithParams\Fixtures\Pipes\DoubleValuePipe;
-use function mb_strtoupper;
+use Invoke\Type;
 
-class SomeType extends TypeWithParams
+class SomeType implements Type
 {
-    public string $name;
+    public string $publicProperty = "123";
 
-    public ?string $nullableContent;
+    protected string $protectedProperty = "123";
 
-    public int $intWithDefault = 123;
+    private string $privateProperty = "123";
 
-    #[DoubleValuePipe]
-    public int $intWithPipe;
-
-    #[Inject]
-    public SampleClass $sampleClass;
-
-    #[NotParameter]
-    public string $notParameter;
-
-    protected string $protectedNotParameter;
-
-    private string $privateNotParameter;
-
-    public string $parameterWithSetter;
-
-    public function setParameterWithSetter(string $newVal)
+    public function pass(mixed $value): mixed
     {
-        $this->parameterWithSetter = mb_strtoupper($newVal);
+        return $value;
+    }
+
+    public static function invoke_getTypeName(): string
+    {
+        return "some";
     }
 }
