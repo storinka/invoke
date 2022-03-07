@@ -11,6 +11,7 @@ use Invoke\Support\FunctionPipe;
 use Invoke\Utils\ReflectionUtils;
 use Invoke\Utils\Utils;
 use Throwable;
+use function array_filter;
 use function Invoke\Utils\array_merge_recursive2;
 use function Invoke\Utils\get_class_name;
 
@@ -90,7 +91,7 @@ class Invoke implements InvokeInterface
         }
 
         $name = $value["name"];
-        $params = $value["params"];
+        $params = $value["params"] ?? [];
 
         return $this->invoke(
             $name,
@@ -103,11 +104,11 @@ class Invoke implements InvokeInterface
      */
     public function invoke(string $name, array $params = []): mixed
     {
-        if (!$this->hasMethod($name)) {
+        $method = $this->getMethod($name);
+
+        if ($method === null) {
             throw new MethodNotFoundException($name);
         }
-
-        $method = $this->methods[$name];
 
         if (is_callable($method)) {
             $method = new FunctionPipe($method);
@@ -193,17 +194,9 @@ class Invoke implements InvokeInterface
      */
     public function deleteMethod(string $name): void
     {
-        $newMethods = [];
-
-        foreach ($this->methods as $methodName => $method) {
-            if ($methodName === $name) {
-                continue;
-            }
-
-            $newMethods[$methodName] = $method;
-        }
-
-        $this->methods = $newMethods;
+        $this->methods = array_filter($this->methods, function ($methodName) use ($name) {
+            return $methodName !== $name;
+        }, ARRAY_FILTER_USE_KEY);
     }
 
     /**

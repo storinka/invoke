@@ -44,7 +44,7 @@ interface InvokeInterface extends Pipe
      * Get a method.
      *
      * @param string $name
-     * @return string|callable|null
+     * @return class-string|callable|null
      */
     public function getMethod(string $name): string|callable|null;
 
@@ -52,7 +52,7 @@ interface InvokeInterface extends Pipe
      * Set a method.
      *
      * @param string $name
-     * @param string|callable $method
+     * @param class-string|callable $method
      * @return InvokeInterface
      */
     public function setMethod(string $name, string|callable $method): static;
