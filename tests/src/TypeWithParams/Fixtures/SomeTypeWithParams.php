@@ -9,6 +9,8 @@ use InvokeTests\Container\Fixtures\SampleClass;
 use InvokeTests\TypeWithParams\Fixtures\Pipes\DoubleValuePipe;
 use function mb_strtoupper;
 
+//use Invoke\Attributes\Parameter;
+
 class SomeTypeWithParams extends TypeWithParams
 {
     public string $name;
@@ -25,6 +27,9 @@ class SomeTypeWithParams extends TypeWithParams
 
     #[NotParameter]
     public string $notParameter;
+
+//    #[Parameter]
+//    private string $privateParameter;
 
     protected string $protectedNotParameter;
 

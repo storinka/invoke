@@ -7,9 +7,12 @@ namespace InvokeTests;
 use Invoke\Container;
 use Invoke\Container\InvokeContainer;
 use Invoke\Invoke;
+use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 class TestCase extends \PHPUnit\Framework\TestCase
 {
+    use MockeryPHPUnitIntegration;
+
     protected static array $invokeConfig = [
         "inputMode" => [
             "convertStrings" => true,
@@ -25,10 +28,5 @@ class TestCase extends \PHPUnit\Framework\TestCase
     protected function getContainer(): InvokeContainer
     {
         return Container::current();
-    }
-
-    protected function tearDown(): void
-    {
-        \Mockery::close();
     }
 }

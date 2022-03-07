@@ -6,11 +6,12 @@ use Invoke\Invoke;
 use Invoke\Types\AnyType;
 use InvokeTests\Invoke\Fixtures\SomeExtension;
 use InvokeTests\TestCase;
+use Mockery;
 use function PHPUnit\Framework\assertCount;
 use function PHPUnit\Framework\assertEquals;
 use function PHPUnit\Framework\assertInstanceOf;
 
-class ExtensionTest extends TestCase
+class ExtensionsTest extends TestCase
 {
     public function testAssign(): void
     {
@@ -31,7 +32,7 @@ class ExtensionTest extends TestCase
             ->willReturnCallback(function () {
             });
 
-        $invoke = \Mockery::mock(Invoke::class);
+        $invoke = Mockery::mock(Invoke::class);
         $invoke->shouldReceive('getExtensions')->once()->andReturn([$extension]);
         $invoke->makePartial();
 

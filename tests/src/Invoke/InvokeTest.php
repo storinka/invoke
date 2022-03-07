@@ -3,32 +3,51 @@
 namespace InvokeTests\Invoke;
 
 use Invoke\Invoke;
-use InvokeTests\Method\Fixtures\SomeMethod;
+use Invoke\Piping;
+use InvokeTests\Invoke\Fixtures\SomeMethod;
 use InvokeTests\TestCase;
 use function PHPUnit\Framework\assertEquals;
-use function PHPUnit\Framework\assertFalse;
+use function PHPUnit\Framework\assertTrue;
 
 class InvokeTest extends TestCase
 {
-    public function testMethodsAssign(): void
+    public function testInvokeCallable()
+    {
+        $callable = function () {
+            assertTrue(true);
+        };
+
+        $invoke = new Invoke();
+        $invoke->setMethod('method', $callable);
+
+        $invoke->invoke('method');
+    }
+
+    public function testInvokeClass()
     {
         $invoke = new Invoke();
+        $invoke->setMethod('method', SomeMethod::class);
 
-        assertFalse($invoke->hasMethod('someMethod'));
+        $result = $invoke->invoke('method');
+        assertEquals(123, $result);
 
-        $invoke->setMethods([
-            'someMethod' => SomeMethod::class,
-            'v2' => [
-                'someMethod2' => SomeMethod::class,
-                'new' => [
-                    'someMethod3' => SomeMethod::class,
-                ]
-            ],
-        ]);
+        $result = $invoke->invoke('method', ["param" => 10]);
+        assertEquals(133, $result);
+    }
 
-        assertEquals(SomeMethod::class, $invoke->getMethod('someMethod'));
-        assertEquals(SomeMethod::class, $invoke->getMethod('v2/someMethod2'));
-        assertEquals(SomeMethod::class, $invoke->getMethod('v2/new/someMethod3'));
-        assertEquals(null, $invoke->getMethod('undefined'));
+    public function testInvokeByPiping()
+    {
+        $invoke = new Invoke();
+        $invoke->setMethod('method', SomeMethod::class);
+
+        $invokeMethod = function (?array $params = null) use ($invoke) {
+            return Piping::run($invoke, [
+                "name" => "method",
+                "params" => $params
+            ]);
+        };
+
+        assertEquals(123, $invokeMethod());
+        assertEquals(133, $invokeMethod(["param" => 10]));
     }
 }
