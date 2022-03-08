@@ -24,15 +24,16 @@ abstract class Data extends TypeWithParams
 
     /**
      * @param mixed $input
+     * @param string $mapFn
      * @return ?static
      */
-    public static function nullable(mixed $input): ?static
+    public static function nullable(mixed $input, string $mapFn = "from"): ?static
     {
         if ($input === null) {
             return null;
         }
 
-        return static::from($input);
+        return static::{$mapFn}($input);
     }
 
     /**
@@ -42,10 +43,6 @@ abstract class Data extends TypeWithParams
      */
     public static function many(iterable $items, string $mapFn = "from"): array
     {
-        if (is_array($items)) {
-            return array_map(fn($item) => static::{$mapFn}($item), $items);
-        }
-
         $result = [];
 
         foreach ($items as $item) {
