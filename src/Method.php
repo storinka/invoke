@@ -15,7 +15,7 @@ use Invoke\Utils\Utils;
 abstract class Method extends TypeWithParams
 {
     #[NotParameter]
-    protected array $handleParameters = [];
+    private array $handleParameters = [];
 
     /**
      * @inheritDoc
@@ -121,8 +121,12 @@ abstract class Method extends TypeWithParams
         return Piping::run($method, $params);
     }
 
-    public function __get(string $name)
+    public function get(string $name): mixed
     {
-        return $this->handleParameters[$name];
+        if (isset($this->handleParameters[$name])) {
+            return $this->handleParameters[$name];
+        }
+
+        return parent::get($name);
     }
 }

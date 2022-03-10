@@ -23,6 +23,7 @@ use Invoke\Types\StringType;
 use Invoke\Types\UnionType;
 use Invoke\Types\WrappedType;
 use Invoke\Validator;
+use function array_map;
 use function get_object_vars;
 use function gettype;
 use function is_array;
@@ -336,7 +337,7 @@ class Utils
         );
     }
 
-    public static function valueToArray(mixed &$value): void
+    public static function valueToArray(mixed $value): mixed
     {
         if ($value instanceof HasToArray) {
             $value = $value->toArray();
@@ -349,9 +350,9 @@ class Utils
         }
 
         if (is_array($value)) {
-            foreach ($value as &$val) {
-                self::valueToArray($val);
-            }
+            return array_map(fn($item) => static::valueToArray($item), $value);
         }
+
+        return $value;
     }
 }

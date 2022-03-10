@@ -109,6 +109,11 @@ abstract class TypeWithParams extends AbstractType implements HasUsedTypes, Json
         }
     }
 
+    public function get(string $name): mixed
+    {
+        return $this->{$name};
+    }
+
     /**
      * Validate parameter value.
      *
@@ -313,11 +318,9 @@ abstract class TypeWithParams extends AbstractType implements HasUsedTypes, Json
         $array = [];
 
         foreach ($this->parameterNames as $parameterName) {
-            $value = $this->offsetGet($parameterName);
+            $value = $this->get($parameterName);
 
-            Utils::valueToArray($value);
-
-            $array[$parameterName] = $value;
+            $array[$parameterName] = Utils::valueToArray($value);
         }
 
         if ($this->shouldReturnTypeName()) {
@@ -332,7 +335,7 @@ abstract class TypeWithParams extends AbstractType implements HasUsedTypes, Json
      */
     public function offsetGet(mixed $offset): mixed
     {
-        return $this->{$offset};
+        return $this->get($offset);
     }
 
     /**
