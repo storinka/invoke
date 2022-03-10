@@ -22,7 +22,7 @@ use JsonSerializable;
 use ReflectionParameter;
 use ReflectionProperty;
 use RuntimeException;
-use function get_object_vars;
+use function gettype;
 use function is_array;
 use function is_object;
 use function property_exists;
@@ -313,17 +313,9 @@ abstract class TypeWithParams extends AbstractType implements HasUsedTypes, Json
         $array = [];
 
         foreach ($this->parameterNames as $parameterName) {
-            $value = $this->{$parameterName};
+            $value = $this->offsetGet($parameterName);
 
-            if ($value instanceof HasToArray) {
-                $value = $value->toArray();
-            } else {
-                $builtInType = gettype($value);
-
-                if ($builtInType === "object") {
-                    $value = get_object_vars($value);
-                }
-            }
+            Utils::valueToArray($value);
 
             $array[$parameterName] = $value;
         }

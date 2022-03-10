@@ -8,6 +8,7 @@ use Invoke\Data;
 use Invoke\Pipe;
 use Invoke\Support\BinaryType;
 use Invoke\Support\HasDynamicTypeName;
+use Invoke\Support\HasToArray;
 use Invoke\Support\HasUsedTypes;
 use Invoke\Support\Singleton;
 use Invoke\Type;
@@ -22,6 +23,9 @@ use Invoke\Types\StringType;
 use Invoke\Types\UnionType;
 use Invoke\Types\WrappedType;
 use Invoke\Validator;
+use function get_object_vars;
+use function gettype;
+use function is_array;
 
 /**
  * Common utils.
@@ -330,5 +334,24 @@ class Utils
                 "string",
             ]
         );
+    }
+
+    public static function valueToArray(mixed &$value): void
+    {
+        if ($value instanceof HasToArray) {
+            $value = $value->toArray();
+        } else {
+            $builtInType = gettype($value);
+
+            if ($builtInType === "object") {
+                $value = get_object_vars($value);
+            }
+        }
+
+        if (is_array($value)) {
+            foreach ($value as &$val) {
+                self::valueToArray($val);
+            }
+        }
     }
 }
