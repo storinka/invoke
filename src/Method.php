@@ -2,6 +2,7 @@
 
 namespace Invoke;
 
+use Invoke\Attributes\NotParameter;
 use Invoke\Support\TypeWithParams;
 use Invoke\Utils\ReflectionUtils;
 use Invoke\Utils\Utils;
@@ -13,6 +14,9 @@ use Invoke\Utils\Utils;
  */
 abstract class Method extends TypeWithParams
 {
+    #[NotParameter]
+    protected array $handleParameters = [];
+
     /**
      * @inheritDoc
      */
@@ -38,7 +42,7 @@ abstract class Method extends TypeWithParams
             parent::pass($input);
         }
 
-        $handleParameters = $this->validateHandleMethod($input);
+        $this->handleParameters = $this->validateHandleMethod($input);
 
         // disable input mode
         $invoke->setInputMode(false);
@@ -47,7 +51,7 @@ abstract class Method extends TypeWithParams
         Invoke::callMethodExtensionsHook($this, "beforeHandle");
 
         // handle the method
-        $result = $this->handle(...$handleParameters);
+        $result = $this->handle(...$this->handleParameters);
 
         // call "afterHandle" hook on extensions
         Invoke::callMethodExtensionsHook($this, "afterHandle", [$result]);
@@ -115,5 +119,10 @@ abstract class Method extends TypeWithParams
         $method = Container::make(static::class);
 
         return Piping::run($method, $params);
+    }
+
+    public function __get(string $name)
+    {
+        return $this->handleParameters[$name];
     }
 }
