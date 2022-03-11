@@ -3,7 +3,7 @@
 PHP library for building fast and modern web APIs.
 
 - #### [Explore](https://explore.invoke.red)
-- #### [Documentation](https://invoke.red/docs)
+- #### [Documentation](https://invoke.red)
 
 ## Installation
 
