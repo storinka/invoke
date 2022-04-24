@@ -1,9 +1,6 @@
 <?php
 
-namespace Invoke;
-
-use Invoke\Interfaces\ResourceInterface;
-use Invoke\Interfaces\ResourceRepositoryInterface;
+namespace Invoke\Resources;
 
 class MenuInput extends Data
 {
@@ -52,6 +49,11 @@ class MenusResource implements ResourceInterface
     public function getName(): string
     {
         return "menus";
+    }
+
+    public function getSingularName(): string
+    {
+        return "menu";
     }
 
     public function getInputType(): string

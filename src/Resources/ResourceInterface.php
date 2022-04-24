@@ -1,10 +1,12 @@
 <?php
 
-namespace Invoke\Interfaces;
+namespace Invoke\Resources;
 
 interface ResourceInterface
 {
     public function getName(): string;
+
+    public function getSingularName(): string;
 
     public function getInputType(): string;
 

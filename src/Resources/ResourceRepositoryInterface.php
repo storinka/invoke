@@ -1,6 +1,6 @@
 <?php
 
-namespace Invoke\Interfaces;
+namespace Invoke\Resources;
 
 /**
  * @template I

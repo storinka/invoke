@@ -6,5 +6,5 @@ use Invoke\Pipe;
 
 interface MethodInterface extends ParametersInterface
 {
-    public function getResultPipe(): Pipe;
+    public function getResultPipe(): ?Pipe;
 }
