@@ -26,7 +26,12 @@ class Invoke implements InvokeInterface
      * Invoke library version.
      */
     const VERSION = "2.0.0-ALPHA";
-
+    /**
+     * Is input mode enabled.
+     *
+     * @var bool $inputMode
+     */
+    public bool $inputMode = false;
     /**
      * Method extensions.
      *
@@ -34,7 +39,6 @@ class Invoke implements InvokeInterface
      */
     protected array $extensions = [
     ];
-
     /**
      * Methods map.
      *
@@ -42,7 +46,6 @@ class Invoke implements InvokeInterface
      */
     protected array $methods = [
     ];
-
     /**
      * Invoke configuration.
      *
@@ -72,11 +75,61 @@ class Invoke implements InvokeInterface
     ];
 
     /**
-     * Is input mode enabled.
+     * Create new instance of Invoke.
      *
-     * @var bool $inputMode
+     * @param array $methods
+     * @param array $config
+     * @param bool $setContainer
+     * @return static
      */
-    public bool $inputMode = false;
+    public static function create(array $methods = [],
+                                  array $config = [],
+                                  bool  $setContainer = true): static
+    {
+        $invoke = new Invoke();
+
+        $invoke->setMethods($methods);
+        $invoke->setConfig($config);
+
+        if ($setContainer) {
+            Container::singleton(Invoke::class, $invoke);
+        }
+
+        return $invoke;
+    }
+
+    public static function callMethodExtensionsHook(Method $method, string $hook, array $params = [])
+    {
+        $methodReflectionClass = ReflectionUtils::getClass($method::class);
+
+        $traitExtensions = ReflectionUtils::extractMethodTraitExtensions($method::class);
+
+        foreach ($traitExtensions as $trait) {
+            $traitName = get_class_name($trait);
+            $methodName = "{$hook}{$traitName}";
+
+            if (method_exists($method, $methodName)) {
+                $traitMethod = $methodReflectionClass->getMethod($methodName);
+
+                $traitMethod->invokeArgs($method, $params);
+            }
+        }
+
+        $invoke = Container::get(Invoke::class);
+
+        $attributeExtensions = ReflectionUtils::extractMethodAttributeExtensions($method::class);
+        $attributeExtensions = [...$attributeExtensions, ...$invoke->getExtensions()];
+
+        foreach ($attributeExtensions as $extension) {
+            $extensionReflectionClass = ReflectionUtils::getClass($extension::class);
+
+            if (method_exists($extension, $hook)) {
+                $extensionHookMethod = $extensionReflectionClass->getMethod($hook);
+
+                $extensionHookMethod->invokeArgs($extension, [$method, ...$params]);
+            }
+        }
+    }
 
     /**
      * Pipe filter function.
@@ -120,25 +173,29 @@ class Invoke implements InvokeInterface
     /**
      * @inheritDoc
      */
-    public function getConfig(string $property, mixed $defaultValue = null): mixed
+    public function getMethod(string $name): string|callable|null
     {
-        $path = explode(".", $property);
-
-        $value = $this->config;
-
-        foreach ($path as $key) {
-            if (is_array($value)) {
-                if (array_key_exists($key, $value)) {
-                    $value = $value[$key];
-                } else {
-                    return $defaultValue;
-                }
-            } else {
-                break;
-            }
+        if ($this->hasMethod($name)) {
+            return $this->methods[$name];
         }
 
-        return $value;
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function hasMethod(string $name): bool
+    {
+        return in_array($name, array_keys($this->getMethods()));
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getMethods(): array
+    {
+        return $this->methods;
     }
 
     /**
@@ -154,26 +211,6 @@ class Invoke implements InvokeInterface
     /**
      * @inheritDoc
      */
-    public function getMethods(): array
-    {
-        return $this->methods;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getMethod(string $name): string|callable|null
-    {
-        if ($this->hasMethod($name)) {
-            return $this->methods[$name];
-        }
-
-        return null;
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function setMethod(string $name, callable|string $method): static
     {
         $this->methods[$name] = $method;
@@ -184,29 +221,11 @@ class Invoke implements InvokeInterface
     /**
      * @inheritDoc
      */
-    public function hasMethod(string $name): bool
-    {
-        return in_array($name, array_keys($this->getMethods()));
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function deleteMethod(string $name): void
     {
         $this->methods = array_filter($this->methods, function ($methodName) use ($name) {
             return $methodName !== $name;
         }, ARRAY_FILTER_USE_KEY);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setConfig(array $config): static
-    {
-        $this->config = array_merge_recursive2($this->config, $config);
-
-        return $this;
     }
 
     /**
@@ -241,16 +260,17 @@ class Invoke implements InvokeInterface
     /**
      * @inheritDoc
      */
-    public function getExtensions(): array
+    public function serve(array|Pipe|string|null $pipeline = null,
+                          mixed                  $input = null): mixed
     {
-        return $this->extensions;
+        return $this->run($pipeline, $input);
     }
 
     /**
      * @inheritDoc
      */
-    public function serve(array|Pipe|string|null $pipeline = null,
-                          mixed                  $input = null): mixed
+    public function run(array|Pipe|string|null $pipeline = null,
+                        mixed                  $input = null): mixed
     {
         try {
             $this->bootExtensions();
@@ -269,27 +289,55 @@ class Invoke implements InvokeInterface
     }
 
     /**
-     * Create new instance of Invoke.
-     *
-     * @param array $methods
-     * @param array $config
-     * @param bool $setContainer
-     * @return static
+     * @inheritDoc
      */
-    public static function create(array $methods = [],
-                                  array $config = [],
-                                  bool  $setContainer = true): static
+    public function bootExtensions(): void
     {
-        $invoke = new Invoke();
+        foreach ($this->getExtensions() as $extension) {
+            $extension->boot($this, Container::current());
+        }
+    }
 
-        $invoke->setMethods($methods);
-        $invoke->setConfig($config);
+    /**
+     * @inheritDoc
+     */
+    public function getExtensions(): array
+    {
+        return $this->extensions;
+    }
 
-        if ($setContainer) {
-            Container::singleton(Invoke::class, $invoke);
+    /**
+     * @inheritDoc
+     */
+    public function getConfig(string $property, mixed $defaultValue = null): mixed
+    {
+        $path = explode(".", $property);
+
+        $value = $this->config;
+
+        foreach ($path as $key) {
+            if (is_array($value)) {
+                if (array_key_exists($key, $value)) {
+                    $value = $value[$key];
+                } else {
+                    return $defaultValue;
+                }
+            } else {
+                break;
+            }
         }
 
-        return $invoke;
+        return $value;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setConfig(array $config): static
+    {
+        $this->config = array_merge_recursive2($this->config, $config);
+
+        return $this;
     }
 
     /**
@@ -319,48 +367,5 @@ class Invoke implements InvokeInterface
         }
 
         return $newMethods;
-    }
-
-    public static function callMethodExtensionsHook(Method $method, string $hook, array $params = [])
-    {
-        $methodReflectionClass = ReflectionUtils::getClass($method::class);
-
-        $traitExtensions = ReflectionUtils::extractMethodTraitExtensions($method::class);
-
-        foreach ($traitExtensions as $trait) {
-            $traitName = get_class_name($trait);
-            $methodName = "{$hook}{$traitName}";
-
-            if (method_exists($method, $methodName)) {
-                $traitMethod = $methodReflectionClass->getMethod($methodName);
-
-                $traitMethod->invokeArgs($method, $params);
-            }
-        }
-
-        $invoke = Container::get(Invoke::class);
-
-        $attributeExtensions = ReflectionUtils::extractMethodAttributeExtensions($method::class);
-        $attributeExtensions = [...$attributeExtensions, ...$invoke->getExtensions()];
-
-        foreach ($attributeExtensions as $extension) {
-            $extensionReflectionClass = ReflectionUtils::getClass($extension::class);
-
-            if (method_exists($extension, $hook)) {
-                $extensionHookMethod = $extensionReflectionClass->getMethod($hook);
-
-                $extensionHookMethod->invokeArgs($extension, [$method, ...$params]);
-            }
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function bootExtensions(): void
-    {
-        foreach ($this->getExtensions() as $extension) {
-            $extension->boot($this, Container::current());
-        }
     }
 }

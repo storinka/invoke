@@ -111,13 +111,18 @@ interface InvokeInterface extends Pipe
     public function getExtensions(): array;
 
     /**
+     * @deprecated use "run" instead
+     */
+    public function serve(array|Pipe|string|null $pipeline = null, mixed $input = null): mixed;
+
+    /**
      * Run main pipeline.
      *
      * @param array|Pipe|class-string|null $pipeline
      * @param mixed|null $input
      * @return mixed
      */
-    public function serve(array|Pipe|string|null $pipeline = null, mixed $input = null): mixed;
+    public function run(array|Pipe|string|null $pipeline = null, mixed $input = null): mixed;
 
     /**
      * Boot registered extensions.
