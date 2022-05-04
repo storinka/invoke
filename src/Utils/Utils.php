@@ -345,7 +345,13 @@ class Utils
             $builtInType = gettype($value);
 
             if ($builtInType === "object") {
-                $value = get_object_vars($value);
+                $class = get_class($value);
+
+                if (enum_exists($class)) {
+                    $value = $value->value;
+                } else {
+                    $value = get_object_vars($value);
+                }
             }
         }
 
