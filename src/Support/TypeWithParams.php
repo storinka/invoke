@@ -173,7 +173,7 @@ abstract class TypeWithParams extends AbstractType implements HasUsedTypes, Json
                         }
                     }
                 },
-                "{$name}->{$name}"
+                "{$name}"
             );
         }
 
