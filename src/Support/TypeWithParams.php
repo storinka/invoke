@@ -258,10 +258,10 @@ abstract class TypeWithParams extends AbstractType implements HasUsedTypes, Json
                 // so, if input is an array, we check if param is provided
                 if (is_array($input) && array_key_exists($name, $input)) {
                     $value = $input[$name];
-                } elseif (is_object($input) && property_exists($input, $name)) {
-                    $value = $input->{$name};
                 } elseif ($input instanceof ArrayAccess && isset($input[$name])) {
                     $value = $input[$name];
+                } elseif (is_object($input) && property_exists($input, $name)) {
+                    $value = $input->{$name};
                 } else {
                     // if param is not provided via input
                     // check if it has default value
