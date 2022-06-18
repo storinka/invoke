@@ -25,6 +25,10 @@ class StringType implements Type, Singleton
             return $value;
         }
 
+        if ($value instanceof \Stringable) {
+            $value = (string)$value;
+        }
+
         if (gettype($value) !== "string") {
             throw new InvalidTypeException($this, Utils::getValueTypeName($value));
         }

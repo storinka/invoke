@@ -12,6 +12,16 @@ use RuntimeException;
  */
 class PipeException extends RuntimeException
 {
+    private int $httpCode;
+
+    public function __construct(string $message = "", int $code = 0, ?Throwable $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
+
+        $invoke = Container::get(Invoke::class);
+        $this->httpCode = $invoke->isInputMode() ? 400 : 500;
+    }
+
     public static function getErrorName(): string
     {
         return Utils::getErrorNameFromException(static::class);
@@ -19,8 +29,6 @@ class PipeException extends RuntimeException
 
     public function getHttpCode(): int
     {
-        $invoke = Container::get(Invoke::class);
-
-        return $invoke->isInputMode() ? 400 : 500;
+        return $this->httpCode;
     }
 }
