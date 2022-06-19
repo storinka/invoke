@@ -221,6 +221,10 @@ abstract class TypeWithParams extends AbstractType implements HasUsedTypes, Json
             }
         }
 
+        if ($input instanceof HasToArray) {
+            $input = $input->toArray();
+        }
+
         $validated = [];
 
         foreach ($reflectionProperties as $reflectionProperty) {
