@@ -10,7 +10,7 @@ PHP library for building fast and modern web APIs.
 **The library is still work-in-progress.**
 
 ```shell
-composer require storinka/invoke:^2 storinka/invoke-http:^2
+composer require storinka/invoke:^3 storinka/invoke-http:^3
 ```
 
 ## Basic example
@@ -27,7 +27,7 @@ function add(float $a, float $b): float
 
 Invoke::create([
     "add"
-])->serve();
+])->run();
 ```
 
 2. Run a server
@@ -66,13 +66,12 @@ use Invoke\Method;
 
 class GetUsers extends Method
 {
-    public int $page;
-    
-    public int $perPage;
+    public function __construct(protected UsersRepositoryInterface $usersRepository)
+    {}
 
-    protected function handle(): array
+    protected function handle(int $page, int $perPage): array
     {
-        $usersFromDB = getUsersFromDb($this->page, $this->perPage);
+        $usersFromDB = $this->usersRepository->paginate($page, $perPage);
         
         return UserResult::many($usersFromDB);
     }
@@ -86,7 +85,7 @@ use Invoke\Invoke;
 
 Invoke::create([
     "getUsers" => GetUsers::class
-])->serve();
+])->run();
 ```
 
 4. Run a server and try to invoke:

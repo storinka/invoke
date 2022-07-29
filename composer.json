@@ -1,6 +1,6 @@
 {
     "name": "storinka/invoke",
-    "description": "Invoke Core library",
+    "description": "PHP library for building fast and modern web APIs.",
     "type": "library",
     "license": "MIT",
     "authors": [
