@@ -16,6 +16,6 @@ class UsersResource
 
     public function boot(): void
     {
-        $this->method($this->getName() . ".get", new ResourceGetMethod($this->getRepository()));
+        $this->method($this->getName() . ".get", new ResourceGetMethodInterface($this->getRepository()));
     }
 }

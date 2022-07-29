@@ -4,6 +4,7 @@ namespace Invoke;
 
 use Invoke\Extensions\Extension;
 use Invoke\Extensions\MethodExtension;
+use Invoke\NewMethod\MethodInterface;
 
 interface InvokeInterface extends Pipe
 {
@@ -46,7 +47,7 @@ interface InvokeInterface extends Pipe
      * @param string $name
      * @return class-string|callable|null
      */
-    public function getMethod(string $name): string|callable|null;
+    public function getMethod(string $name): MethodInterface|null;
 
     /**
      * Set a method.
@@ -55,7 +56,7 @@ interface InvokeInterface extends Pipe
      * @param class-string|callable $method
      * @return InvokeInterface
      */
-    public function setMethod(string $name, string|callable $method): static;
+    public function setMethod(string $name, string|callable|MethodInterface $method): static;
 
     /**
      * Check if method exists.
@@ -117,7 +118,7 @@ interface InvokeInterface extends Pipe
      * @param mixed|null $input
      * @return mixed
      */
-    public function serve(array|Pipe|string|null $pipeline = null, mixed $input = null): mixed;
+    public function run(array|Pipe|string|null $pipeline = null, mixed $input = null): mixed;
 
     /**
      * Boot registered extensions.

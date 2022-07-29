@@ -2,9 +2,10 @@
 
 namespace Invoke\Abstractions;
 
-use Invoke\Abstractions\Resources\ResourceRepositoryInterface;
+use Invoke\NewMethod\MethodInterface;
+use Invoke\Resources\ResourceRepositoryInterface;
 
-class ResourceGetMethod implements MethodInterface
+class ResourceGetMethodInterface implements MethodInterface
 {
     public function __construct(protected string                      $type,
                                 protected ResourceRepositoryInterface $resourceRepository)

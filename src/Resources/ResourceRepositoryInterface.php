@@ -1,6 +1,6 @@
 <?php
 
-namespace Invoke\Abstractions\Resources;
+namespace Invoke\Resources;
 
 interface ResourceRepositoryInterface
 {

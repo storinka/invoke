@@ -5,6 +5,8 @@ namespace Invoke;
 use Invoke\Exceptions\MethodNotFoundException;
 use Invoke\Extensions\Extension;
 use Invoke\Extensions\MethodExtension;
+use Invoke\NewMethod\MethodClassProxy;
+use Invoke\NewMethod\MethodInterface;
 use Invoke\Pipelines\ErrorPipeline;
 use Invoke\Pipelines\MainPipeline;
 use Invoke\Support\FunctionPipe;
@@ -146,7 +148,11 @@ class Invoke implements InvokeInterface
      */
     public function setMethods(array $methods): static
     {
-        $this->methods = $this->prepareMethods($methods);
+        $methods = $this->prepareMethods($methods);
+
+        foreach ($methods as $name => $method) {
+            $this->setMethod($name, $method);
+        }
 
         return $this;
     }
@@ -162,7 +168,7 @@ class Invoke implements InvokeInterface
     /**
      * @inheritDoc
      */
-    public function getMethod(string $name): string|callable|null
+    public function getMethod(string $name): MethodInterface|null
     {
         if ($this->hasMethod($name)) {
             return $this->methods[$name];
@@ -174,8 +180,16 @@ class Invoke implements InvokeInterface
     /**
      * @inheritDoc
      */
-    public function setMethod(string $name, callable|string $method): static
+    public function setMethod(string $name, callable|string|MethodInterface $method): static
     {
+        if (is_string($method)) {
+            if (class_exists($method)) {
+                $method = new MethodClassProxy($method);
+            } else if (function_exists($method)) {
+                $method = new MethodFunctionProxy($method);
+            }
+        }
+
         $this->methods[$name] = $method;
 
         return $this;
@@ -249,8 +263,8 @@ class Invoke implements InvokeInterface
     /**
      * @inheritDoc
      */
-    public function serve(array|Pipe|string|null $pipeline = null,
-                          mixed                  $input = null): mixed
+    public function run(array|Pipe|string|null $pipeline = null,
+                        mixed                  $input = null): mixed
     {
         try {
             $this->bootExtensions();

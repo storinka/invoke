@@ -36,6 +36,6 @@ class ExtensionsTest extends TestCase
         $invoke->shouldReceive('getExtensions')->once()->andReturn([$extension]);
         $invoke->makePartial();
 
-        $invoke->serve(AnyType::class);
+        $invoke->run(AnyType::class);
     }
 }

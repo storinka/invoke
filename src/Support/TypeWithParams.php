@@ -31,7 +31,7 @@ use function property_exists;
  * Abstract type with parameters.
  *
  * @see Data
- * @see Method
+ * @see MethodInterface
  */
 abstract class TypeWithParams extends AbstractType implements HasUsedTypes, JsonSerializable, HasToArray, ArrayAccess
 {
