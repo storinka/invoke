@@ -2,6 +2,7 @@
 
 namespace Invoke\NewMethod;
 
+use Invoke\NewData\WithCachedParametersInformation;
 use Invoke\NewMethod\Description\MethodDescriptionInterface;
 use Invoke\NewMethod\Description\MethodDescriptionInterfaceImpl;
 use Invoke\NewMethod\Information\ParameterInformation;
@@ -15,22 +16,7 @@ use Invoke\Utils\Validation;
  */
 trait NewMethodHelpers
 {
-    /**
-     * @var ParameterInformationInterface[]
-     */
-    private array $cachedParametersInformation;
-
-    /**
-     * @return ParameterInformationInterface[]
-     */
-    public function asInvokeGetParametersInformation(): array
-    {
-        if (!isset($this->cachedParametersInformation)) {
-            $this->cachedParametersInformation = $this->asInvokeExtractParametersInformation();
-        }
-
-        return $this->cachedParametersInformation;
-    }
+    use WithCachedParametersInformation;
 
     /**
      * @return MethodDescriptionInterface
@@ -57,14 +43,13 @@ trait NewMethodHelpers
     /**
      * @return ParameterInformationInterface[]
      */
-    protected function asInvokeExtractParametersInformation(): array
+    private function asInvokeExtractParametersInformation(): array
     {
         $parameters = [];
 
         $reflectionClass = ReflectionUtils::getClass($this::class);
-        $handleMethod = $reflectionClass->getMethod("handle");
-
-        $reflectionParameters = $handleMethod->getParameters();
+        $reflectionMethod = $reflectionClass->getMethod("handle");
+        $reflectionParameters = $reflectionMethod->getParameters();
 
         foreach ($reflectionParameters as $reflectionParameter) {
             $type = $reflectionParameter->getType();
@@ -74,11 +59,6 @@ trait NewMethodHelpers
             $hasDefaultValue = $reflectionParameter->isDefaultValueAvailable();
             $defaultValue = $hasDefaultValue ? $reflectionParameter->getDefaultValue() : null;
             $nullable = $type->allowsNull();
-            $injectable = Validation::isReflectionParameterInjectable($reflectionParameter);
-
-            if (!$injectable && !Validation::isReflectionParameterValidParameter($reflectionParameter)) {
-                continue;
-            }
 
             $validators = [];
 

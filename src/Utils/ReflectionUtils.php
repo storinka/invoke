@@ -309,4 +309,21 @@ final class ReflectionUtils
 
         return $pipes->toArray();
     }
+
+    /**
+     * @param ReflectionProperty|ReflectionParameter $reflectionPropertyOrParameter
+     * @param string $className
+     * @return bool
+     */
+    public static function hasAttribute(ReflectionProperty|ReflectionParameter $reflectionPropertyOrParameter, string $className): bool
+    {
+
+        foreach ($reflectionPropertyOrParameter->getAttributes($className) as $attribute) {
+            if ($attribute->getName() === $className || is_subclass_of($attribute->getName(), $className)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

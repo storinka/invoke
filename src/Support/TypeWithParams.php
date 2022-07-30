@@ -36,6 +36,11 @@ use function property_exists;
 abstract class TypeWithParams extends AbstractType implements HasUsedTypes, JsonSerializable, HasToArray, ArrayAccess
 {
     /**
+     * @var bool $isPassed
+     */
+    protected bool $isPassed = false;
+
+    /**
      * List of registered parameters.
      *
      * @var array $parameterNames
@@ -49,6 +54,12 @@ abstract class TypeWithParams extends AbstractType implements HasUsedTypes, Json
      */
     public function pass(mixed $input): mixed
     {
+        if ($this->isPassed) {
+            throw new RuntimeException("Passing data through \"" . static::class . "\" second time is forbidden.");
+        }
+
+        $this->isPassed = true;
+
         if ($input instanceof Stop) {
             return $input;
         }

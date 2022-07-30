@@ -2,12 +2,12 @@
 
 namespace Invoke\Utils;
 
-use Invoke\Attributes\Parameter;
+use Invoke\Attributes\NotParameter;
 use Invoke\Container\Inject;
 use Invoke\Exceptions\RequiredParameterNotProvidedException;
 use Invoke\NewMethod\Information\ParameterInformationInterface;
 use Invoke\Piping;
-use ReflectionParameter;
+use ReflectionProperty;
 
 final class Validation
 {
@@ -84,32 +84,28 @@ final class Validation
     }
 
     /**
-     * @param ReflectionParameter $reflectionParameter
+     * @param ReflectionProperty $reflectionProperty
      * @return bool
      */
-    public static function isReflectionParameterValidParameter(ReflectionParameter $reflectionParameter): bool
+    public static function isReflectionPropertyValidParameter(ReflectionProperty $reflectionProperty): bool
     {
-        foreach ($reflectionParameter->getAttributes() as $attribute) {
-            if ($attribute->getName() === Parameter::class || is_subclass_of($attribute->getName(), Parameter::class)) {
-                return true;
-            }
+        if ($reflectionProperty->isStatic() || !$reflectionProperty->isPublic()) {
+            return false;
+        }
+
+        if (ReflectionUtils::hasAttribute($reflectionProperty, NotParameter::class)) {
+            return false;
         }
 
         return true;
     }
 
     /**
-     * @param ReflectionParameter $reflectionParameter
+     * @param ReflectionProperty $reflectionProperty
      * @return bool
      */
-    public static function isReflectionParameterInjectable(ReflectionParameter $reflectionParameter): bool
+    public static function isReflectionPropertyInjectable(ReflectionProperty $reflectionProperty): bool
     {
-        foreach ($reflectionParameter->getAttributes() as $attribute) {
-            if ($attribute->getName() === Inject::class) {
-                return true;
-            }
-        }
-
-        return false;
+        return ReflectionUtils::hasAttribute($reflectionProperty, Inject::class);
     }
 }

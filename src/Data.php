@@ -12,6 +12,11 @@ use Invoke\Support\TypeWithParams;
 abstract class Data extends TypeWithParams
 {
     /**
+     * @var bool $isPassed
+     */
+    protected bool $isPassed = false;
+
+    /**
      * @param mixed $input
      * @return static
      */

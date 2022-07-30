@@ -38,7 +38,7 @@ final class Piping
     /**
      * Run some value trough a pipe.
      *
-     * @param Pipe|class-string|array $pipe
+     * @param Pipe|class-string<Pipe>|array $pipe
      * @param mixed|null $value
      * @return mixed
      */
