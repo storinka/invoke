@@ -335,7 +335,7 @@ class Invoke implements InvokeInterface
         return $newMethods;
     }
 
-    public static function callMethodExtensionsHook(Method $method, string $hook, array $params = [])
+    public static function callMethodExtensionsHook(MethodInterface $method, string $hook, array $params = [])
     {
         $methodReflectionClass = ReflectionUtils::getClass($method::class);
 

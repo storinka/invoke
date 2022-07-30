@@ -2,97 +2,78 @@
 
 namespace Invoke\Utils;
 
-use ArrayAccess;
 use Invoke\Attributes\Parameter;
-use Invoke\Container;
 use Invoke\Container\Inject;
-use Invoke\Exceptions\PipeException;
 use Invoke\Exceptions\RequiredParameterNotProvidedException;
-use Invoke\Pipe;
+use Invoke\NewMethod\Information\ParameterInformationInterface;
 use Invoke\Piping;
 use ReflectionParameter;
-use RuntimeException;
 
 final class Validation
 {
-    public static function validateReflectionParameters(array $reflectionParameters,
-                                                        array $inputParameters,
-                                                        bool  $handleInject = true): array
+    /**
+     * @param array<ParameterInformationInterface> $parametersInformation
+     * @param array $inputParameters
+     * @return array
+     */
+    public static function validateParametersInformation(array $parametersInformation,
+                                                         array $inputParameters): array
     {
-        $validated = [];
+        $parameters = [];
 
-        foreach ($reflectionParameters as $reflectionParameter) {
-            $name = $reflectionParameter->getName();
-            $type = $reflectionParameter->getType();
+        foreach ($parametersInformation as $parameterInformation) {
+            $name = $parameterInformation->getName();
 
-            if ($handleInject) {
-                if (Validation::isReflectionParameterInjectable($reflectionParameter)) {
-                    $dependency = Container::get($type->getName());
+            $value = $inputParameters[$name] ?? null;
+            $parameterProvided = array_key_exists($name, $inputParameters);
 
-                    $validated[$name] = $dependency;
+            $value = Validation::validateParameterInformation(
+                $parameterInformation,
+                $value,
+                $parameterProvided
+            );
 
-                    continue;
-                }
-            }
-
-            if (!Validation::isReflectionParameterValidParameter($reflectionParameter)) {
-                continue;
-            }
-
-            $value = null;
-
-            if (is_array($inputParameters) && array_key_exists($name, $inputParameters)) {
-                $value = $inputParameters[$name];
-            } elseif ($inputParameters instanceof ArrayAccess && isset($inputParameters[$name])) {
-                $value = $inputParameters[$name];
-            } elseif (is_object($inputParameters) && property_exists($inputParameters, $name)) {
-                $value = $inputParameters->{$name};
-            } else {
-                if ($reflectionParameter->isDefaultValueAvailable()) {
-                    continue;
-                } else {
-                    if (!$type->allowsNull()) {
-                        throw new RequiredParameterNotProvidedException($name);
-                    }
-                }
-            }
-
-            $validated[$name] = Validation::validateReflectionParameter($reflectionParameter, $value);
+            $parameters[$name] = $value;
         }
 
-        return $validated;
+        return $parameters;
     }
 
-    public static function validateReflectionParameter(ReflectionParameter $reflectionParameter, mixed $value)
+    /**
+     * @param ParameterInformationInterface $parameterInformation
+     * @param mixed $value
+     * @param bool $parameterProvided
+     * @return mixed
+     */
+    public static function validateParameterInformation(ParameterInformationInterface $parameterInformation,
+                                                        mixed                         $value,
+                                                        bool                          $parameterProvided = true): mixed
     {
-        $name = $reflectionParameter->getName();
-        $type = $reflectionParameter->getType();
+        $name = $parameterInformation->getName();
+        $pipe = $parameterInformation->getPipe();
+        $hasDefaultValue = $parameterInformation->hasDefaultValue();
+        $nullable = $parameterInformation->isNullable();
 
-        if (!Validation::isReflectionParameterValidParameter($reflectionParameter)) {
-            throw new PipeException("Cannot validate \"$name\" because it is not a parameter.");
-        }
-
-        $typePipe = ReflectionUtils::extractPipeFromReflectionType($type);
-
-        if (!Utils::isPipeType($typePipe)) {
-            throw new RuntimeException("Cannot validate \"$name\" because its type is not a pipe.");
+        if (!$parameterProvided) {
+            if ($hasDefaultValue) {
+                return $parameterInformation->getDefaultValue();
+            } else {
+                if (!$nullable) {
+                    throw new RequiredParameterNotProvidedException($name);
+                }
+            }
         }
 
         $value = Piping::catcher(
-            fn() => Piping::run($typePipe, $value),
-            "{$name}"
+            fn() => Piping::run($pipe, $value),
+            "{$name}",
         );
 
-        // do not run attributes if value is null and is valid
-        if (!$reflectionParameter->allowsNull() || $value !== null) {
+        if (!$parameterInformation->isNullable() || $value !== null) {
             Piping::catcher(
-                function () use ($name, $reflectionParameter, &$value) {
-                    foreach ($reflectionParameter->getAttributes() as $attribute) {
-                        if (is_subclass_of($attribute->getName(), Pipe::class)) {
-                            $attributePipe = $attribute->newInstance();
-
-                            $value = Piping::run($attributePipe, $value);
-                        }
+                function () use ($parameterInformation, &$value) {
+                    foreach ($parameterInformation->getValidators() as $validator) {
+                        $value = Piping::run($validator, $value);
                     }
                 },
                 "{$name}"
@@ -102,6 +83,10 @@ final class Validation
         return $value;
     }
 
+    /**
+     * @param ReflectionParameter $reflectionParameter
+     * @return bool
+     */
     public static function isReflectionParameterValidParameter(ReflectionParameter $reflectionParameter): bool
     {
         foreach ($reflectionParameter->getAttributes() as $attribute) {
@@ -113,6 +98,10 @@ final class Validation
         return true;
     }
 
+    /**
+     * @param ReflectionParameter $reflectionParameter
+     * @return bool
+     */
     public static function isReflectionParameterInjectable(ReflectionParameter $reflectionParameter): bool
     {
         foreach ($reflectionParameter->getAttributes() as $attribute) {

@@ -2,9 +2,11 @@
 
 namespace Invoke\NewMethod;
 
-use Invoke\Exceptions\RequiredParameterNotProvidedException;
+use Invoke\NewMethod\Description\MethodDescriptionInterface;
+use Invoke\NewMethod\Description\MethodDescriptionInterfaceImpl;
+use Invoke\NewMethod\Information\ParameterInformation;
+use Invoke\NewMethod\Information\ParameterInformationInterface;
 use Invoke\Pipe;
-use Invoke\Piping;
 use Invoke\Utils\ReflectionUtils;
 use Invoke\Utils\Validation;
 
@@ -14,9 +16,48 @@ use Invoke\Utils\Validation;
 trait NewMethodHelpers
 {
     /**
-     * @return array<string, ParameterInformationInterface>
+     * @var ParameterInformationInterface[]
      */
-    private function extractParametersInformation(): array
+    private array $cachedParametersInformation;
+
+    /**
+     * @return ParameterInformationInterface[]
+     */
+    public function asInvokeGetParametersInformation(): array
+    {
+        if (!isset($this->cachedParametersInformation)) {
+            $this->cachedParametersInformation = $this->asInvokeExtractParametersInformation();
+        }
+
+        return $this->cachedParametersInformation;
+    }
+
+    /**
+     * @return MethodDescriptionInterface
+     */
+    public function asInvokeGetMethodDescription(): MethodDescriptionInterface
+    {
+        return new MethodDescriptionInterfaceImpl($this);
+    }
+
+    /**
+     * @param array $inputParameters
+     * @return array
+     */
+    protected function asInvokeValidateInputParameters(array $inputParameters): array
+    {
+        $parametersInformation = $this->asInvokeGetParametersInformation();
+
+        return Validation::validateParametersInformation(
+            $parametersInformation,
+            $inputParameters
+        );
+    }
+
+    /**
+     * @return ParameterInformationInterface[]
+     */
+    protected function asInvokeExtractParametersInformation(): array
     {
         $parameters = [];
 
@@ -49,7 +90,7 @@ trait NewMethodHelpers
                 }
             }
 
-            $parameters[] = new ParameterInformationInformation(
+            $parameters[] = new ParameterInformation(
                 name: $name,
                 pipe: $pipe,
                 nullable: $nullable,
@@ -60,5 +101,22 @@ trait NewMethodHelpers
         }
 
         return $parameters;
+    }
+
+    protected function asInvokeAddParameterInformation(ParameterInformationInterface $parameterInformation,
+                                                       bool                          $force = false): void
+    {
+        foreach ($this->asInvokeGetParametersInformation() as $information) {
+            if ($information->getName() === $parameterInformation->getName()) {
+                if ($force) {
+                    $this->cachedParametersInformation = array_filter($this->cachedParametersInformation, fn($p) => $p->getName() !== $parameterInformation->getName());
+                    break;
+                } else {
+                    return;
+                }
+            }
+        }
+
+        $this->cachedParametersInformation[] = $parameterInformation;
     }
 }

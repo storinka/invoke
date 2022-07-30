@@ -2,8 +2,18 @@
 
 namespace Invoke\NewMethod;
 
+use Invoke\NewMethod\Description\HasMethodDescription;
+use Invoke\NewMethod\Information\HasParametersInformation;
 use Invoke\Pipe;
 
-interface MethodInterface extends Pipe, HasParameters
+/**
+ * Abstract method interface.
+ *
+ * A method must contain:
+ * - parameters information
+ * - result type information
+ * - description (short/full)
+ */
+interface MethodInterface extends Pipe, HasParametersInformation, HasMethodDescription
 {
 }

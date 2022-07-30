@@ -3,11 +3,13 @@
 namespace Invoke\NewMethod;
 
 use Invoke\Container;
+use Invoke\NewMethod\Description\MethodDescriptionInterface;
+use Invoke\NewMethod\Information\PipeProxyInterface;
 
 /**
  * Method proxy that allows lazy initialization of a method.
  */
-class MethodClassProxy implements MethodInterface
+class MethodClassProxy implements MethodInterface, PipeProxyInterface
 {
     /**
      * Lazy initialized method instance.
@@ -28,9 +30,17 @@ class MethodClassProxy implements MethodInterface
     /**
      * @inheritDoc
      */
-    public function getParametersInformation(): array
+    public function asInvokeGetParametersInformation(): array
     {
-        return $this->getMethodInstance()->getParametersInformation();
+        return $this->getMethodInstance()->asInvokeGetParametersInformation();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function asInvokeGetMethodDescription(): MethodDescriptionInterface
+    {
+        return $this->getMethodInstance()->asInvokeGetMethodDescription();
     }
 
     /**

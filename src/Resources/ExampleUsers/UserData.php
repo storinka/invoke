@@ -1,6 +1,6 @@
 <?php
 
-namespace Invoke\Resources\Users;
+namespace Invoke\Resources\ExampleUsers;
 
 use Invoke\Data;
 

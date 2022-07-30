@@ -1,10 +1,10 @@
 <?php
 
-namespace Invoke\NewMethod;
+namespace Invoke\NewMethod\Information;
 
 use Invoke\Pipe;
 
-class ParameterInformationInformation implements ParameterInformationInterface
+class ParameterInformation implements ParameterInformationInterface
 {
     public function __construct(protected readonly string      $name,
                                 protected readonly string|Pipe $pipe,

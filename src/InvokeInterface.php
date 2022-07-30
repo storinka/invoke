@@ -53,7 +53,7 @@ interface InvokeInterface extends Pipe
      * Set a method.
      *
      * @param string $name
-     * @param class-string|callable $method
+     * @param class-string<MethodInterface>|callable|MethodInterface $method
      * @return InvokeInterface
      */
     public function setMethod(string $name, string|callable|MethodInterface $method): static;

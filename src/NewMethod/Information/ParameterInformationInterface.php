@@ -1,6 +1,6 @@
 <?php
 
-namespace Invoke\NewMethod;
+namespace Invoke\NewMethod\Information;
 
 use Invoke\Pipe;
 
