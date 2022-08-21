@@ -1,20 +1,18 @@
 <?php
 
-namespace Invoke\NewMethod;
+namespace Invoke\Support;
 
-use Invoke\NewData\WithCachedParametersInformation;
+use Invoke\Method;
 use Invoke\NewMethod\Description\MethodDescriptionInterface;
 use Invoke\NewMethod\Description\MethodDescriptionInterfaceImpl;
-use Invoke\NewMethod\Information\ParameterInformation;
 use Invoke\NewMethod\Information\ParameterInformationInterface;
-use Invoke\Pipe;
 use Invoke\Utils\ReflectionUtils;
 use Invoke\Utils\Validation;
 
 /**
- * @mixin NewMethod
+ * @mixin Method
  */
-trait NewMethodHelpers
+trait MethodHelpers
 {
     use WithCachedParametersInformation;
 
@@ -43,44 +41,13 @@ trait NewMethodHelpers
     /**
      * @return ParameterInformationInterface[]
      */
-    private function asInvokeExtractParametersInformation(): array
+    protected function asInvokeExtractParametersInformation(): array
     {
-        $parameters = [];
-
         $reflectionClass = ReflectionUtils::getClass($this::class);
         $reflectionMethod = $reflectionClass->getMethod("handle");
         $reflectionParameters = $reflectionMethod->getParameters();
 
-        foreach ($reflectionParameters as $reflectionParameter) {
-            $type = $reflectionParameter->getType();
-
-            $name = $reflectionParameter->getName();
-            $pipe = ReflectionUtils::extractPipeFromReflectionType($type);
-            $hasDefaultValue = $reflectionParameter->isDefaultValueAvailable();
-            $defaultValue = $hasDefaultValue ? $reflectionParameter->getDefaultValue() : null;
-            $nullable = $type->allowsNull();
-
-            $validators = [];
-
-            foreach ($reflectionParameter->getAttributes() as $attribute) {
-                if (is_subclass_of($attribute->getName(), Pipe::class)) {
-                    $attributePipe = $attribute->newInstance();
-
-                    $validators[] = $attributePipe;
-                }
-            }
-
-            $parameters[] = new ParameterInformation(
-                name: $name,
-                pipe: $pipe,
-                nullable: $nullable,
-                hasDefaultValue: $hasDefaultValue,
-                defaultValue: $defaultValue,
-                validators: $validators,
-            );
-        }
-
-        return $parameters;
+        return ReflectionUtils::extractParametersInformation($reflectionParameters);
     }
 
     protected function asInvokeAddParameterInformation(ParameterInformationInterface $parameterInformation,

@@ -11,6 +11,8 @@ use Invoke\Extensions\MethodExtension;
 use Invoke\Extensions\MethodTraitExtension;
 use Invoke\Invoke;
 use Invoke\Method;
+use Invoke\NewMethod\Information\ParameterInformation;
+use Invoke\Pipe;
 use Invoke\Support\HasUsedTypes;
 use Invoke\Support\TypeWithParams;
 use Invoke\Type;
@@ -23,12 +25,14 @@ use Invoke\Validator;
 use phpDocumentor\Reflection\DocBlockFactory;
 use ReflectionClass;
 use ReflectionClassConstant;
+use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionProperty;
 use ReflectionUnionType;
+use RuntimeException;
 
 /**
  * Common utils to work with reflection.
@@ -325,5 +329,98 @@ final class ReflectionUtils
         }
 
         return false;
+    }
+
+    /**
+     * @param mixed $object
+     * @param string $method
+     * @param array $args
+     * @return mixed
+     */
+    public static function invokeMethod(mixed  $object,
+                                        string $method,
+                                        array  $args,
+                                        bool   $throwIfPublic = false): mixed
+    {
+        $reflectionMethod = new ReflectionMethod($object, $method);
+
+        if ($throwIfPublic) {
+            if ($reflectionMethod->isPublic()) {
+                $className = is_string($object) ? $object : $object::class;
+                throw new RuntimeException("\"{$className}::{$method}\" method cannot be public.");
+            }
+        }
+
+        $pass = [];
+
+        foreach ($reflectionMethod->getParameters() as $param) {
+            if (isset($args[$param->getName()])) {
+                $pass[] = $args[$param->getName()];
+            } else {
+                $pass[] = null;
+            }
+        }
+
+        return $reflectionMethod->invokeArgs($object, $pass);
+    }
+
+    /**
+     * @param string $functionName
+     * @param array $args
+     * @return mixed
+     */
+    public static function invokeFunction(string $functionName, array $args): mixed
+    {
+        $reflectionFunction = new ReflectionFunction($functionName);
+
+        $pass = [];
+
+        foreach ($reflectionFunction->getParameters() as $param) {
+            if (isset($args[$param->getName()])) {
+                $pass[] = $args[$param->getName()];
+            }
+        }
+
+        return $reflectionFunction->invokeArgs($pass);
+    }
+
+    public static function extractParametersInformation(array $reflectionParameters): array
+    {
+        $parameters = [];
+
+        foreach ($reflectionParameters as $reflectionParameter) {
+            $name = $reflectionParameter->getName();
+            if ($name === "CURRENT_PARAMETERS") {
+                continue;
+            }
+
+            $type = $reflectionParameter->getType();
+
+            $pipe = ReflectionUtils::extractPipeFromReflectionType($type);
+            $hasDefaultValue = $reflectionParameter->isDefaultValueAvailable();
+            $defaultValue = $hasDefaultValue ? $reflectionParameter->getDefaultValue() : null;
+            $nullable = $type->allowsNull();
+
+            $validators = [];
+
+            foreach ($reflectionParameter->getAttributes() as $attribute) {
+                if (is_subclass_of($attribute->getName(), Pipe::class)) {
+                    $attributePipe = $attribute->newInstance();
+
+                    $validators[] = $attributePipe;
+                }
+            }
+
+            $parameters[] = new ParameterInformation(
+                name: $name,
+                pipe: $pipe,
+                nullable: $nullable,
+                hasDefaultValue: $hasDefaultValue,
+                defaultValue: $defaultValue,
+                validators: $validators,
+            );
+        }
+
+        return $parameters;
     }
 }

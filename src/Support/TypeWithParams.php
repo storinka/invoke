@@ -15,7 +15,6 @@ use Invoke\Exceptions\ValidatorFailedException;
 use Invoke\Invoke;
 use Invoke\Pipe;
 use Invoke\Piping;
-use Invoke\Stop;
 use Invoke\Utils\ReflectionUtils;
 use Invoke\Utils\Utils;
 use JsonSerializable;
@@ -52,17 +51,13 @@ abstract class TypeWithParams extends AbstractType implements HasUsedTypes, Json
      * @param mixed $input
      * @return static
      */
-    public function pass(mixed $input): mixed
+    public function run(mixed $input): mixed
     {
         if ($this->isPassed) {
             throw new RuntimeException("Passing data through \"" . static::class . "\" second time is forbidden.");
         }
 
         $this->isPassed = true;
-
-        if ($input instanceof Stop) {
-            return $input;
-        }
 
         $reflectionClass = ReflectionUtils::getClass($this::class);
 

@@ -1,10 +1,12 @@
 <?php
 
-namespace Invoke\NewMethod;
+namespace Invoke\Support;
 
 use Invoke\Container;
 use Invoke\NewMethod\Description\MethodDescriptionInterface;
 use Invoke\NewMethod\Information\PipeProxyInterface;
+use Invoke\NewMethod\MethodInterface;
+use Invoke\Piping;
 
 /**
  * Method proxy that allows lazy initialization of a method.
@@ -46,9 +48,9 @@ class MethodClassProxy implements MethodInterface, PipeProxyInterface
     /**
      * @inheritDoc
      */
-    public function pass(mixed $value): mixed
+    public function run(mixed $value): mixed
     {
-        return $this->getMethodInstance()->pass($value);
+        return $this->getMethodInstance()->run($value);
     }
 
     /**
@@ -61,5 +63,10 @@ class MethodClassProxy implements MethodInterface, PipeProxyInterface
         }
 
         return $this->methodInstance;
+    }
+
+    public static function invoke(array $input = []): mixed
+    {
+        return Piping::run(static::class, $input);
     }
 }

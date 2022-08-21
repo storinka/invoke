@@ -45,7 +45,7 @@ interface InvokeInterface extends Pipe
      * Get a method.
      *
      * @param string $name
-     * @return class-string|callable|null
+     * @return MethodInterface|null
      */
     public function getMethod(string $name): MethodInterface|null;
 
@@ -53,15 +53,21 @@ interface InvokeInterface extends Pipe
      * Set a method.
      *
      * @param string $name
-     * @param class-string<MethodInterface>|callable|MethodInterface $method
+     * @param class-string<MethodInterface>|MethodInterface $method
      * @return InvokeInterface
      */
-    public function setMethod(string $name, string|callable|MethodInterface $method): static;
+    public function setMethod(string $name, string|MethodInterface $method): static;
+
+    /**
+     * @param string|MethodInterface $method
+     * @return $this
+     */
+    public function addMethod(string|MethodInterface $method): static;
 
     /**
      * Check if method exists.
      *
-     * @param string $name
+     * @param string|class-string<MethodInterface>|callable-string $name
      * @return bool
      */
     public function hasMethod(string $name): bool;
@@ -118,7 +124,8 @@ interface InvokeInterface extends Pipe
      * @param mixed|null $input
      * @return mixed
      */
-    public function run(array|Pipe|string|null $pipeline = null, mixed $input = null): mixed;
+    public function serve(array|Pipe|string|null $pipeline = null,
+                          mixed                  $input = null): mixed;
 
     /**
      * Boot registered extensions.

@@ -5,13 +5,12 @@ namespace Invoke\Types;
 use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Exceptions\RequiredParameterNotProvidedException;
 use Invoke\Exceptions\TypeNameRequiredException;
+use Invoke\NewMethod\Information\HasParametersInformation;
 use Invoke\Pipe;
 use Invoke\Piping;
-use Invoke\Stop;
 use Invoke\Support\HasDynamicTypeName;
 use Invoke\Support\HasUsedTypes;
 use Invoke\Support\Singleton;
-use Invoke\Support\TypeWithParams;
 use Invoke\Type;
 use Invoke\Utils\Utils;
 use function Invoke\Utils\is_assoc;
@@ -27,12 +26,12 @@ class UnionType implements Type, HasDynamicTypeName, HasUsedTypes
     public function __construct(array $pipes)
     {
         $this->pipes = array_map(function ($pipe) {
-            if ($pipe instanceof TypeWithParams) {
+            if ($pipe instanceof HasParametersInformation) {
                 $this->paramsPipesCount++;
             }
 
             if ($pipe instanceof WrappedType) {
-                if (is_subclass_of($pipe->typeClass, TypeWithParams::class)) {
+                if (is_subclass_of($pipe->typeClass, HasParametersInformation::class)) {
                     $this->paramsPipesCount++;
                 }
             }
@@ -41,7 +40,7 @@ class UnionType implements Type, HasDynamicTypeName, HasUsedTypes
 
             if (is_string($pipe)) {
                 if (class_exists($pipe)) {
-                    if (is_subclass_of($pipe, TypeWithParams::class)) {
+                    if (is_subclass_of($pipe, HasParametersInformation::class)) {
                         $this->paramsPipesCount++;
                     }
 
@@ -63,12 +62,8 @@ class UnionType implements Type, HasDynamicTypeName, HasUsedTypes
         }, $pipes);
     }
 
-    public function pass(mixed $value): mixed
+    public function run(mixed $value): mixed
     {
-        if ($value instanceof Stop) {
-            return $value;
-        }
-
         if ($this->paramsPipesCount > 1) {
             if (is_array($value)) {
                 if (!$this->allowArrays || is_assoc($value)) {

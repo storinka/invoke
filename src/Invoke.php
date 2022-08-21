@@ -5,11 +5,11 @@ namespace Invoke;
 use Invoke\Exceptions\MethodNotFoundException;
 use Invoke\Extensions\Extension;
 use Invoke\Extensions\MethodExtension;
-use Invoke\NewMethod\MethodClassProxy;
 use Invoke\NewMethod\MethodInterface;
 use Invoke\Pipelines\ErrorPipeline;
 use Invoke\Pipelines\MainPipeline;
-use Invoke\Support\FunctionPipe;
+use Invoke\Support\MethodClassProxy;
+use Invoke\Support\MethodFunctionProxy;
 use Invoke\Utils\ReflectionUtils;
 use Invoke\Utils\Utils;
 use Throwable;
@@ -27,7 +27,7 @@ class Invoke implements InvokeInterface
     /**
      * Invoke library version.
      */
-    const VERSION = "2.0.0-ALPHA";
+    const VERSION = "3.0.0-DEV";
 
     /**
      * Method extensions.
@@ -86,12 +86,8 @@ class Invoke implements InvokeInterface
      * @param mixed $value
      * @return mixed
      */
-    public function pass(mixed $value): mixed
+    public function run(mixed $value): mixed
     {
-        if ($value instanceof Stop) {
-            return $value;
-        }
-
         $name = $value["name"];
         $params = $value["params"] ?? [];
 
@@ -110,10 +106,6 @@ class Invoke implements InvokeInterface
 
         if ($method === null) {
             throw new MethodNotFoundException($name);
-        }
-
-        if (is_callable($method)) {
-            $method = new FunctionPipe($method);
         }
 
         return Piping::run($method, $params);
@@ -180,7 +172,7 @@ class Invoke implements InvokeInterface
     /**
      * @inheritDoc
      */
-    public function setMethod(string $name, callable|string|MethodInterface $method): static
+    public function setMethod(string $name, string|MethodInterface $method): static
     {
         if (is_string($method)) {
             if (class_exists($method)) {
@@ -263,8 +255,8 @@ class Invoke implements InvokeInterface
     /**
      * @inheritDoc
      */
-    public function run(array|Pipe|string|null $pipeline = null,
-                        mixed                  $input = null): mixed
+    public function serve(array|Pipe|string|null $pipeline = null,
+                          mixed                  $input = null): mixed
     {
         try {
             $this->bootExtensions();
@@ -300,6 +292,7 @@ class Invoke implements InvokeInterface
         $invoke->setConfig($config);
 
         if ($setContainer) {
+            Container::singleton(InvokeInterface::class, $invoke);
             Container::singleton(Invoke::class, $invoke);
         }
 
@@ -374,7 +367,25 @@ class Invoke implements InvokeInterface
     public function bootExtensions(): void
     {
         foreach ($this->getExtensions() as $extension) {
-            $extension->boot($this, Container::current());
+            $extension->load($this, Container::current());
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function addMethod(string|MethodInterface $method): static
+    {
+        $methodName = $method;
+
+        if ($method instanceof MethodInterface) {
+            $methodName = Utils::getMethodNameFromClass($method::class);
+        } else if (class_exists($method)) {
+            $methodName = Utils::getMethodNameFromClass($method);
+        }
+
+        $this->setMethod($methodName, $method);
+
+        return $this;
     }
 }

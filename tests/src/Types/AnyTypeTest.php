@@ -23,7 +23,7 @@ class AnyTypeTest extends TypeBasedTestCase
         $type = AnyType::getInstance();
 
         foreach (["lol", 123, 3.4, true, null] as $value) {
-            assertEquals($value, $type->pass($value));
+            assertEquals($value, $type->run($value));
         }
     }
 }

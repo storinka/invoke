@@ -3,10 +3,10 @@
 namespace Invoke\Types;
 
 use Invoke\Exceptions\InvalidTypeException;
-use Invoke\Stop;
 use Invoke\Support\Singleton;
 use Invoke\Type;
 use Invoke\Utils\Utils;
+use Stringable;
 
 /**
  * String type.
@@ -19,13 +19,10 @@ class StringType implements Type, Singleton
 {
     public static StringType $instance;
 
-    public function pass(mixed $value): mixed
+    public function run(mixed $value): mixed
     {
-        if ($value instanceof Stop) {
-            return $value;
-        }
 
-        if ($value instanceof \Stringable) {
+        if ($value instanceof Stringable) {
             $value = (string)$value;
         }
 

@@ -5,7 +5,6 @@ namespace Invoke\Types;
 use Invoke\Container;
 use Invoke\Exceptions\InvalidTypeException;
 use Invoke\Invoke;
-use Invoke\Stop;
 use Invoke\Support\Singleton;
 use Invoke\Type;
 use Invoke\Utils\Utils;
@@ -21,12 +20,8 @@ class BoolType implements Type, Singleton
 {
     public static BoolType $instance;
 
-    public function pass(mixed $value): mixed
+    public function run(mixed $value): mixed
     {
-        if ($value instanceof Stop) {
-            return $value;
-        }
-
         $type = gettype($value);
 
         $invoke = Container::get(Invoke::class);

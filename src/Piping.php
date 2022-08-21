@@ -49,11 +49,6 @@ final class Piping
             return Piping::runArray($pipe, $value);
         }
 
-        // if pipe is Stop, return it
-        if ($pipe instanceof Stop) {
-            return $pipe;
-        }
-
         $pipeClass = is_string($pipe) ? $pipe : $pipe::class;
 
         // check if pipe was replaced
@@ -65,7 +60,7 @@ final class Piping
         $value = Piping::runBeforePipes($pipeClass, $value);
 
         if ($pipe instanceof Pipe) {
-            $value = $pipe->pass($value);
+            $value = $pipe->run($value);
         } elseif (class_exists($pipe) && is_subclass_of($pipe, Pipe::class)) {
             $value = Piping::runClass($pipe, $value);
         } else {
@@ -249,7 +244,7 @@ final class Piping
         }
 
         if (is_subclass_of($class, Type::class)) {
-            return (new WrappedType($class))->pass($value);
+            return (new WrappedType($class))->run($value);
         }
 
         return Container::make($class)->pass($value);

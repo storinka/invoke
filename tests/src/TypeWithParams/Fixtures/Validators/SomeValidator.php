@@ -8,7 +8,7 @@ use InvokeTests\TypeWithParams\Fixtures\Validators\Exceptions\SomeValidatorExcep
 #[\Attribute]
 class SomeValidator implements Validator
 {
-    public function pass(mixed $value): mixed
+    public function run(mixed $value): mixed
     {
         if ($value === "fail") {
             throw new SomeValidatorException();

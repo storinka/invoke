@@ -8,7 +8,7 @@ use Psr\Container\ContainerInterface;
 
 class SomeExtension implements Extension
 {
-    public function boot(Invoke $invoke, ContainerInterface $container): void
+    public function load(Invoke $invoke, ContainerInterface $container): void
     {
         throw new \RuntimeException('called SomeExtension::boot');
     }

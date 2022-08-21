@@ -3,8 +3,8 @@
 namespace Invoke\Resources;
 
 use Invoke\Data;
-use Invoke\Resources\Methods\ResourceGetMethod;
 use Invoke\Resources\Methods\ResourceGetBasicPageMethod;
+use Invoke\Resources\Methods\ResourceGetMethod;
 use Invoke\Resources\Repository\ResourceRepositoryHasBasicPaginationInterface;
 use Invoke\Resources\Repository\ResourceRepositoryInterface;
 

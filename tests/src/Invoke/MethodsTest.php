@@ -3,6 +3,7 @@
 namespace InvokeTests\Invoke;
 
 use Invoke\Invoke;
+use Invoke\Support\MethodClassProxy;
 use InvokeTests\Method\Fixtures\SomeMethod;
 use InvokeTests\TestCase;
 use function PHPUnit\Framework\assertEquals;
@@ -19,8 +20,9 @@ class MethodsTest extends TestCase
 
         $invoke->setMethod('defined', SomeMethod::class);
 
-        assertEquals(SomeMethod::class, $invoke->getMethod('defined'));
+        assertEquals(MethodClassProxy::class, $invoke->getMethod('defined')::class);
         assertTrue($invoke->hasMethod('defined'));
+        // todo: check if actual method class is ok
 
         $invoke->deleteMethod('defined');
 
@@ -41,10 +43,11 @@ class MethodsTest extends TestCase
             ],
         ]);
 
-        assertEquals(SomeMethod::class, $invoke->getMethod('someMethod'));
-        assertEquals(SomeMethod::class, $invoke->getMethod('v2/someMethod2'));
-        assertEquals(SomeMethod::class, $invoke->getMethod('v2/new/someMethod3'));
+        assertEquals(MethodClassProxy::class, $invoke->getMethod('someMethod')::class);
+        assertEquals(MethodClassProxy::class, $invoke->getMethod('v2/someMethod2')::class);
+        assertEquals(MethodClassProxy::class, $invoke->getMethod('v2/new/someMethod3')::class);
         assertEquals(null, $invoke->getMethod('undefined'));
+        // todo: check if actual method class is ok
     }
 
     public function testSetMethodsNonAssoc(): void

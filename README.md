@@ -27,7 +27,7 @@ function add(float $a, float $b): float
 
 Invoke::create([
     "add"
-])->run();
+])->serve();
 ```
 
 2. Run a server
@@ -84,8 +84,8 @@ class GetUsers extends Method
 use Invoke\Invoke;
 
 Invoke::create([
-    "getUsers" => GetUsers::class
-])->run();
+    GetUsers::class
+])->serve();
 ```
 
 4. Run a server and try to invoke:

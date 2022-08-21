@@ -3,7 +3,6 @@
 namespace Invoke\Container;
 
 use InvalidArgumentException;
-use Invoke\Container;
 use Invoke\Utils\ReflectionUtils;
 use ReflectionFunction;
 use function class_exists;

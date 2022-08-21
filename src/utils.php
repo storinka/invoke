@@ -1,10 +1,27 @@
 <?php
 
-namespace Invoke\Utils {
+namespace {
 
     use Invoke\Container;
-    use Invoke\Invoke;
+    use Invoke\InvokeInterface;
 
+    if (!function_exists('invoke')) {
+        /**
+         * Invoke a method.
+         *
+         * @param string $method
+         * @param array $params
+         * @return mixed
+         */
+        function invoke(string $method, array $params = []): mixed
+        {
+            $invoke = Container::get(InvokeInterface::class);
+            return $invoke->invoke($method, $params);
+        }
+    }
+}
+
+namespace Invoke\Utils {
     /**
      * Show var dump and die.
      *
@@ -92,18 +109,5 @@ namespace Invoke\Utils {
         $tempArray = array_unique(array_column($array, $property));
         $moreUniqueArray = array_values(array_intersect_key($array, $tempArray));
         return $moreUniqueArray;
-    }
-
-    /**
-     * Invoke a method.
-     *
-     * @param string $method
-     * @param array $params
-     * @return mixed
-     */
-    function invoke(string $method, array $params = []): mixed
-    {
-        $invoke = Container::get(Invoke::class);
-        return $invoke->invoke($method, $params);
     }
 }

@@ -3,7 +3,6 @@
 namespace Invoke\Types;
 
 use Invoke\Exceptions\InvalidTypeException;
-use Invoke\Stop;
 use Invoke\Support\Singleton;
 use Invoke\Type;
 use Invoke\Utils\Utils;
@@ -19,11 +18,8 @@ class ArrayType implements Type, Singleton
 {
     public static ArrayType $instance;
 
-    public function pass(mixed $value): mixed
+    public function run(mixed $value): mixed
     {
-        if ($value instanceof Stop) {
-            return $value;
-        }
 
         if (gettype($value) !== "array") {
             throw new InvalidTypeException($this, Utils::getValueTypeName($value));

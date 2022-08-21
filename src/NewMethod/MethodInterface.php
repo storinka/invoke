@@ -16,4 +16,9 @@ use Invoke\Pipe;
  */
 interface MethodInterface extends Pipe, HasParametersInformation, HasMethodDescription
 {
+    /**
+     * @param array $input
+     * @return mixed
+     */
+    public static function invoke(array $input = []): mixed;
 }

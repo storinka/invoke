@@ -3,15 +3,17 @@
 namespace Invoke\NewData;
 
 use Invoke\Container;
+use Invoke\Data;
 use Invoke\NewMethod\Information\ParameterInformation;
 use Invoke\Pipe;
+use Invoke\Support\WithCachedParametersInformation;
 use Invoke\Utils\ReflectionUtils;
 use Invoke\Utils\Validation;
 
 /**
- * @mixin NewData
+ * @mixin Data
  */
-trait NewDataHelpers
+trait DataHelpers
 {
     use WithCachedParametersInformation;
 

@@ -19,13 +19,13 @@ abstract class TypeTestCase extends TypeBasedTestCase
     /** @dataProvider validInput */
     public function testValid(mixed $value, mixed $expected): void
     {
-        assertEquals($expected, $this->getType()->pass($value));
+        assertEquals($expected, $this->getType()->run($value));
     }
 
     /** @dataProvider invalidInput */
     public function testInvalid(mixed $invalid): void
     {
         $this->expectException(InvalidTypeException::class);
-        $this->getType()->pass($invalid);
+        $this->getType()->run($invalid);
     }
 }

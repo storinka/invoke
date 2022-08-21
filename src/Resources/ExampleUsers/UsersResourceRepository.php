@@ -14,6 +14,10 @@ class UsersResourceRepository implements ResourceRepositoryInterface
             "id" => 1,
             "name" => "David",
         ],
+        [
+            "id" => 2,
+            "name" => "Victor",
+        ],
     ];
 
     public function getAll(): array

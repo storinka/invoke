@@ -2,10 +2,10 @@
 
 namespace Invoke\Resources\Methods;
 
-use Invoke\NewMethod\NewMethod;
+use Invoke\Method;
 use Invoke\Resources\ResourceInterface;
 
-class ResourceGetMethod extends NewMethod
+class ResourceGetMethod extends Method
 {
     public function __construct(protected readonly ResourceInterface $resource)
     {

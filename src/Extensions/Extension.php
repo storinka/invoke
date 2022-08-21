@@ -2,7 +2,7 @@
 
 namespace Invoke\Extensions;
 
-use Invoke\Invoke;
+use Invoke\InvokeInterface;
 use Psr\Container\ContainerInterface;
 
 /**
@@ -11,11 +11,18 @@ use Psr\Container\ContainerInterface;
 interface Extension
 {
     /**
-     * This hook is called when "serve" method is called in {@see Invoke}.
+     * This hook is called when "serve" method is called in {@see InvokeInterface}.
      *
-     * @param Invoke $invoke
+     * @param InvokeInterface $invoke
      * @param ContainerInterface $container
      * @return void
      */
-    public function boot(Invoke $invoke, ContainerInterface $container): void;
+    public function load(InvokeInterface $invoke, ContainerInterface $container): void;
+
+    /**
+     * @param InvokeInterface $invoke
+     * @param ContainerInterface $container
+     * @return void
+     */
+    public function unload(InvokeInterface $invoke, ContainerInterface $container): void;
 }

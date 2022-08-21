@@ -28,7 +28,7 @@ class ExtensionsTest extends TestCase
     public function testBoot(): void
     {
         $extension = $this->createMock(SomeExtension::class);
-        $extension->expects($this->once())->method('boot')
+        $extension->expects($this->once())->method('load')
             ->willReturnCallback(function () {
             });
 

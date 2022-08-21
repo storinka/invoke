@@ -8,7 +8,6 @@ use Invoke\Exceptions\RequiredParameterNotProvidedException;
 use Invoke\Invoke;
 use Invoke\Pipe;
 use Invoke\Piping;
-use Invoke\Stop;
 use Invoke\Utils\ReflectionUtils;
 use Invoke\Utils\Utils;
 use ReflectionFunction;
@@ -23,12 +22,8 @@ class FunctionPipe implements Pipe
         $this->function = $function;
     }
 
-    public function pass(mixed $input): mixed
+    public function run(mixed $input): mixed
     {
-        if ($input instanceof Stop) {
-            return $input;
-        }
-
         $invoke = Container::get(Invoke::class);
 
         $reflectionFunction = new ReflectionFunction($this->function);

@@ -8,7 +8,7 @@ use RuntimeException;
 
 class MainPipeline implements Pipe
 {
-    public function pass(mixed $value): mixed
+    public function run(mixed $value): mixed
     {
         if (class_exists("Invoke\Http\HttpPipeline")) {
             return Piping::run("Invoke\Http\HttpPipeline", $value);

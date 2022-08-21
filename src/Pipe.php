@@ -11,8 +11,8 @@ namespace Invoke;
 interface Pipe
 {
     /**
-     * @param IType|Stop $value
-     * @return RType|Stop
+     * @param IType $value
+     * @return RType
      */
-    public function pass(mixed $value): mixed;
+    public function run(mixed $value): mixed;
 }

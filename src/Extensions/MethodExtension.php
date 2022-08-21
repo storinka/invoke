@@ -2,7 +2,7 @@
 
 namespace Invoke\Extensions;
 
-use Invoke\Invoke;
+use Invoke\InvokeInterface;
 use Invoke\Method;
 use Psr\Container\ContainerInterface;
 
@@ -14,7 +14,7 @@ abstract class MethodExtension implements Extension
     /**
      * @inheritDoc
      */
-    public function boot(Invoke $invoke, ContainerInterface $container): void
+    public function load(InvokeInterface $invoke, ContainerInterface $container): void
     {
     }
 
@@ -32,9 +32,10 @@ abstract class MethodExtension implements Extension
      * This hook is called after "beforeValidation" and before "handle".
      *
      * @param Method $method
+     * @param array $parameters
      * @return void
      */
-    public function beforeHandle(Method $method): void
+    public function beforeHandle(Method $method, array $parameters): void
     {
     }
 

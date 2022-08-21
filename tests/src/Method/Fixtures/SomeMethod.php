@@ -6,10 +6,8 @@ use Invoke\Method;
 
 class SomeMethod extends Method
 {
-    public int $paramAsProperty;
-
-    protected function handle(int $paramAsArg): string
+    protected function handle(int $paramAsProperty, int $paramAsArg): string
     {
-        return $this->paramAsProperty . $paramAsArg;
+        return $paramAsProperty . $paramAsArg;
     }
 }

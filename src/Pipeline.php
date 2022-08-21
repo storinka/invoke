@@ -9,7 +9,7 @@ class Pipeline implements Pipe
 {
     protected array $pipes = [];
 
-    public function pass(mixed $value): mixed
+    public function run(mixed $value): mixed
     {
         foreach ($this->pipes as $pipe) {
             $value = Piping::run($pipe, $value);

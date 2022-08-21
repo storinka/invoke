@@ -1,6 +1,6 @@
 <?php
 
-namespace Invoke\NewData;
+namespace Invoke\Support;
 
 use Invoke\Attributes\NotParameter;
 use Invoke\NewMethod\Information\HasParametersInformation;

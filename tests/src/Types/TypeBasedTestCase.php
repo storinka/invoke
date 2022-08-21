@@ -28,6 +28,6 @@ abstract class TypeBasedTestCase extends TestCase
         assertEquals($type::invoke_getTypeName(), $this->getTypeName());
 
         $stop = new Stop();
-        assertEquals($stop, $type->pass($stop));
+        assertEquals($stop, $type->run($stop));
     }
 }

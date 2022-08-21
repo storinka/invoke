@@ -7,21 +7,20 @@ use Invoke\Piping;
 use InvokeTests\Invoke\Fixtures\SomeMethod;
 use InvokeTests\TestCase;
 use function PHPUnit\Framework\assertEquals;
-use function PHPUnit\Framework\assertTrue;
 
 class InvokeTest extends TestCase
 {
-    public function testInvokeCallable()
-    {
-        $callable = function () {
-            assertTrue(true);
-        };
-
-        $invoke = new Invoke();
-        $invoke->setMethod('method', $callable);
-
-        $invoke->invoke('method');
-    }
+//    public function testInvokeCallable()
+//    {
+//        $callable = function () {
+//            assertTrue(true);
+//        };
+//
+//        $invoke = new Invoke();
+//        $invoke->setMethod('method', $callable);
+//
+//        $invoke->invoke('method');
+//    }
 
     public function testInvokeClass()
     {

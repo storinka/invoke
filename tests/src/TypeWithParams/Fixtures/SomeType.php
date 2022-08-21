@@ -12,7 +12,7 @@ class SomeType implements Type
 
     private string $privateProperty = "123";
 
-    public function pass(mixed $value): mixed
+    public function run(mixed $value): mixed
     {
         return $value;
     }

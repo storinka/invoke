@@ -2,7 +2,6 @@
 
 namespace Invoke\Types;
 
-use Invoke\Stop;
 use Invoke\Support\Singleton;
 use Invoke\Type;
 
@@ -17,12 +16,8 @@ class AnyType implements Type, Singleton
 {
     public static AnyType $instance;
 
-    public function pass(mixed $value): mixed
+    public function run(mixed $value): mixed
     {
-        if ($value instanceof Stop) {
-            return $value;
-        }
-
         return $value;
     }
 

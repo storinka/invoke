@@ -4,18 +4,13 @@ namespace Invoke\Pipelines;
 
 use Invoke\Pipe;
 use Invoke\Piping;
-use Invoke\Stop;
 use RuntimeException;
 use Throwable;
 
 class ErrorPipeline implements Pipe
 {
-    public function pass(mixed $value): mixed
+    public function run(mixed $value): mixed
     {
-        if ($value instanceof Stop) {
-            return $value;
-        }
-
         if (!($value instanceof Throwable)) {
             throw new RuntimeException("The value for ExceptionPipeline pipe must be a Throwable.");
         }

@@ -2,7 +2,6 @@
 
 namespace Invoke\Support;
 
-use Invoke\Pipelines\Http\Types\HttpFile;
 use Invoke\Type;
 
 /**

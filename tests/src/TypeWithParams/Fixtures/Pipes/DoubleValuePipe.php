@@ -8,7 +8,7 @@ use Invoke\Pipe;
 #[Attribute]
 class DoubleValuePipe implements Pipe
 {
-    public function pass(mixed $value): int|float
+    public function run(mixed $value): int|float
     {
         return $value * 2;
     }
