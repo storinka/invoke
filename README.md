@@ -66,13 +66,9 @@ use Invoke\Method;
 
 class GetUsers extends Method
 {
-    public int $page;
-    
-    public int $perPage;
-
-    protected function handle(): array
+    protected function handle(int $page, int $perPage): array
     {
-        $usersFromDB = getUsersFromDb($this->page, $this->perPage);
+        $usersFromDB = getUsersFromDb($page, $perPage);
         
         return UserResult::many($usersFromDB);
     }
